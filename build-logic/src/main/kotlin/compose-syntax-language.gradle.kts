@@ -22,6 +22,9 @@ val composeSyntaxLanguage = extensions.create<ComposeSyntaxLanguageExtension>("c
 
 val versionCatalog = extensions.getByType<VersionCatalogsExtension>().named("libs")
 
+fun catalogVersionInt(alias: String): Int =
+    versionCatalog.findVersion(alias).get().requiredVersion.toInt()
+
 val highlightsQueryDir = layout.buildDirectory.dir("generated/highlights")
 val hostCMakeWorkDir = layout.buildDirectory.dir("host-cmake")
 
@@ -136,11 +139,11 @@ extensions.configure<KotlinMultiplatformExtension>("kotlin") {
 }
 
 extensions.configure<LibraryExtension>("android") {
-    compileSdk = 36
+    compileSdk = catalogVersionInt("android-compileSdk")
     ndkVersion = "26.3.11579264"
 
     defaultConfig {
-        minSdk = 26
+        minSdk = catalogVersionInt("android-minSdk")
         ndk {
             abiFilters += setOf("x86_64", "arm64-v8a", "armeabi-v7a")
         }
@@ -160,25 +163,37 @@ extensions.configure<LibraryExtension>("android") {
 
 extensions.configure<LibraryAndroidComponentsExtension>("androidComponents") {
     finalizeDsl { dsl ->
-        dsl.namespace = "io.github.mataku.compose.syntax.language.${composeSyntaxLanguage.languageName.get()}"
+        val name = composeSyntaxLanguage.languageName.orNull
+            ?: error("composeSyntaxLanguage.languageName must be set in the consumer build script")
+        dsl.namespace = "io.github.mataku.compose.syntax.language.$name"
     }
 }
 
 afterEvaluate {
-    val name = composeSyntaxLanguage.languageName.get()
-    val grammarPath = composeSyntaxLanguage.grammarSubmodulePath.get()
-    val sourcesList = composeSyntaxLanguage.sources.get()
+    val languageName = composeSyntaxLanguage.languageName.orNull
+        ?: error("composeSyntaxLanguage.languageName must be set in the consumer build script")
+    val grammarSubmodulePath = composeSyntaxLanguage.grammarSubmodulePath.orNull
+        ?: error("composeSyntaxLanguage.grammarSubmodulePath must be set")
+    @Suppress("UNUSED_VARIABLE")
+    val parserClassName = composeSyntaxLanguage.parserClassName.orNull
+        ?: error("composeSyntaxLanguage.parserClassName must be set")
+    val sources = composeSyntaxLanguage.sources.orNull?.takeIf { it.isNotEmpty() }
+        ?: error("composeSyntaxLanguage.sources must contain at least one C source path relative to the grammar submodule")
+    @Suppress("UNUSED_VARIABLE")
+    val queries = composeSyntaxLanguage.queries.orNull?.takeIf { it.isNotEmpty() }
+        ?: error("composeSyntaxLanguage.queries must contain at least the highlights.scm path")
+
     writeAndroidCMakeLists(
         projectDir.resolve("CMakeLists.txt"),
-        name,
-        grammarPath,
-        sourcesList,
+        languageName,
+        grammarSubmodulePath,
+        sources,
     )
     writeHostCMakeLists(
         projectDir.resolve("host-cmake/CMakeLists.txt"),
-        name,
-        grammarPath,
-        sourcesList,
+        languageName,
+        grammarSubmodulePath,
+        sources,
     )
 
     val generateGrammarFilesTask = tasks.named<GrammarFilesTask>("generateGrammarFiles")
