@@ -140,8 +140,8 @@ fun writeAndroidCMakeLists(
     grammarSubmodulePath: String,
     sources: List<String>,
 ) {
-    file.parentFile?.mkdirs()
-    file.writeText(renderAndroidCMakeLists(languageName, grammarSubmodulePath, sources))
+    val desired = renderAndroidCMakeLists(languageName, grammarSubmodulePath, sources)
+    writeIfChanged(file, desired)
 }
 
 fun writeHostCMakeLists(
@@ -150,6 +150,14 @@ fun writeHostCMakeLists(
     grammarSubmodulePath: String,
     sources: List<String>,
 ) {
-    file.parentFile?.mkdirs()
-    file.writeText(renderHostCMakeLists(languageName, grammarSubmodulePath, sources))
+    val desired = renderHostCMakeLists(languageName, grammarSubmodulePath, sources)
+    writeIfChanged(file, desired)
+}
+
+private fun writeIfChanged(file: File, desired: String) {
+    val existing = if (file.exists()) file.readText() else null
+    if (existing != desired) {
+        file.parentFile?.mkdirs()
+        file.writeText(desired)
+    }
 }
