@@ -1,3 +1,4 @@
+import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -44,7 +45,35 @@ val generateHighlightsQuery = tasks.register("generateHighlightsQuery") {
     }
 }
 
+val configureHostCMake = tasks.register<Exec>("configureHostCMake") {
+    val workDir = layout.buildDirectory.dir("host-cmake").get().asFile
+    val src = projectDir.resolve("host-cmake")
+    inputs.file(src.resolve("CMakeLists.txt"))
+    outputs.dir(workDir)
+    doFirst { workDir.mkdirs() }
+    workingDir = workDir
+    commandLine("cmake", src.absolutePath)
+    dependsOn(generateTask)
+}
+
+val buildHostCMake = tasks.register<Exec>("buildHostCMake") {
+    val workDir = layout.buildDirectory.dir("host-cmake").get().asFile
+    workingDir = workDir
+    commandLine("cmake", "--build", ".")
+    dependsOn(configureHostCMake)
+}
+
 kotlin {
+    @OptIn(ExperimentalKotlinGradlePluginApi::class)
+    applyDefaultHierarchyTemplate {
+        common {
+            group("ktreesitter") {
+                withAndroidTarget()
+                withJvm()
+            }
+        }
+    }
+
     androidTarget {
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_17)
@@ -52,16 +81,27 @@ kotlin {
         publishLibraryVariants("release")
     }
 
+    jvm()
+
     sourceSets {
         val generatedSrc = generateTask.generatedSrc.get()
         configureEach {
             kotlin.srcDir(generatedSrc.dir(name).dir("kotlin"))
         }
         commonMain {
+            dependencies {
+                api(projects.core)
+            }
+        }
+        val ktreesitterMain by getting {
             kotlin.srcDir(highlightsQueryDir)
             dependencies {
                 api(libs.ktreesitter)
-                api(projects.core)
+            }
+        }
+        val jvmTest by getting {
+            dependencies {
+                implementation(libs.kotlin.test)
             }
         }
     }
@@ -75,6 +115,13 @@ tasks.matching {
     it.name.startsWith("configureCMake") || it.name.startsWith("buildCMake")
 }.configureEach {
     dependsOn(generateTask)
+}
+
+tasks.named<Test>("jvmTest") {
+    dependsOn(buildHostCMake)
+    val libDir = layout.buildDirectory.dir("host-cmake").get().asFile.absolutePath
+    systemProperty("java.library.path", libDir)
+    jvmArgs("-Djava.library.path=$libDir")
 }
 
 android {
