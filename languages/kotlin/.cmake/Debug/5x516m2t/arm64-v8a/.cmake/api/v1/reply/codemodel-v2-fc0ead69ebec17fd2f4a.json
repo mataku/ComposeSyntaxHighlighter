@@ -1,0 +1,60 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"jsonFile" : "directory-.-Debug-f5ebdc15457944623624.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.6.0"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0
+					]
+				}
+			],
+			"name" : "Debug",
+			"projects" : 
+			[
+				{
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "ktreesitter-kotlin",
+					"targetIndexes" : 
+					[
+						0
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "ktreesitter-kotlin::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-ktreesitter-kotlin-Debug-4952af2249f1130bbb45.json",
+					"name" : "ktreesitter-kotlin",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "/Users/mataku/src/github.com/mataku/ComposeSyntaxHighlighter/languages/kotlin/.cmake/Debug/5x516m2t/arm64-v8a",
+		"source" : "/Users/mataku/src/github.com/mataku/ComposeSyntaxHighlighter/languages/kotlin"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 3
+	}
+}

@@ -1,0 +1,38 @@
+{
+  "buildFiles": [
+    "/Users/mataku/src/github.com/mataku/ComposeSyntaxHighlighter/languages/kotlin/CMakeLists.txt"
+  ],
+  "cleanCommandsComponents": [
+    [
+      "/Users/mataku/Library/Android/sdk/cmake/3.22.1/bin/ninja",
+      "-C",
+      "/Users/mataku/src/github.com/mataku/ComposeSyntaxHighlighter/languages/kotlin/.cmake/Debug/5x516m2t/x86_64",
+      "clean"
+    ]
+  ],
+  "buildTargetsCommandComponents": [
+    "/Users/mataku/Library/Android/sdk/cmake/3.22.1/bin/ninja",
+    "-C",
+    "/Users/mataku/src/github.com/mataku/ComposeSyntaxHighlighter/languages/kotlin/.cmake/Debug/5x516m2t/x86_64",
+    "{LIST_OF_TARGETS_TO_BUILD}"
+  ],
+  "libraries": {
+    "ktreesitter-kotlin::@6890427a1f51a3e7e1df": {
+      "toolchain": "toolchain",
+      "abi": "x86_64",
+      "artifactName": "ktreesitter-kotlin",
+      "output": "/Users/mataku/src/github.com/mataku/ComposeSyntaxHighlighter/languages/kotlin/build/intermediates/cxx/Debug/5x516m2t/obj/x86_64/libktreesitter-kotlin.so",
+      "runtimeFiles": []
+    }
+  },
+  "toolchains": {
+    "toolchain": {
+      "cCompilerExecutable": "/Users/mataku/Library/Android/sdk/ndk/26.3.11579264/toolchains/llvm/prebuilt/darwin-x86_64/bin/clang.lld",
+      "cppCompilerExecutable": "/Users/mataku/Library/Android/sdk/ndk/26.3.11579264/toolchains/llvm/prebuilt/darwin-x86_64/bin/clang++.lld"
+    }
+  },
+  "cFileExtensions": [
+    "c"
+  ],
+  "cppFileExtensions": []
+}

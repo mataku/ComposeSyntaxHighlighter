@@ -1,0 +1,27 @@
+{
+  "buildFiles": [
+    "/Users/mataku/src/github.com/mataku/ComposeSyntaxHighlighter/languages/kotlin/CMakeLists.txt"
+  ],
+  "cleanCommandsComponents": [
+    [
+      "/Users/mataku/Library/Android/sdk/cmake/3.22.1/bin/ninja",
+      "-C",
+      "/Users/mataku/src/github.com/mataku/ComposeSyntaxHighlighter/languages/kotlin/.cmake/Debug/5x516m2t/x86_64",
+      "clean"
+    ]
+  ],
+  "buildTargetsCommandComponents": [
+    "/Users/mataku/Library/Android/sdk/cmake/3.22.1/bin/ninja",
+    "-C",
+    "/Users/mataku/src/github.com/mataku/ComposeSyntaxHighlighter/languages/kotlin/.cmake/Debug/5x516m2t/x86_64",
+    "{LIST_OF_TARGETS_TO_BUILD}"
+  ],
+  "libraries": {
+    "ktreesitter-kotlin::@6890427a1f51a3e7e1df": {
+      "artifactName": "ktreesitter-kotlin",
+      "abi": "x86_64",
+      "output": "/Users/mataku/src/github.com/mataku/ComposeSyntaxHighlighter/languages/kotlin/build/intermediates/cxx/Debug/5x516m2t/obj/x86_64/libktreesitter-kotlin.so",
+      "runtimeFiles": []
+    }
+  }
+}

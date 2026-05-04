@@ -1,0 +1,1 @@
+/Users/mataku/src/github.com/mataku/ComposeSyntaxHighlighter/languages/kotlin/build/intermediates/cxx/Debug/5x516m2t/obj/arm64-v8a
