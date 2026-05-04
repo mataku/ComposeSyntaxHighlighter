@@ -1,3 +1,0 @@
-/Users/mataku/src/github.com/mataku/ComposeSyntaxHighlighter/languages/kotlin/.cmake/Debug/5x516m2t/arm64-v8a/CMakeFiles/ktreesitter-kotlin.dir
-/Users/mataku/src/github.com/mataku/ComposeSyntaxHighlighter/languages/kotlin/.cmake/Debug/5x516m2t/arm64-v8a/CMakeFiles/edit_cache.dir
-/Users/mataku/src/github.com/mataku/ComposeSyntaxHighlighter/languages/kotlin/.cmake/Debug/5x516m2t/arm64-v8a/CMakeFiles/rebuild_cache.dir

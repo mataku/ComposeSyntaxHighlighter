@@ -70,3 +70,5 @@ vendor/
 .kotlin/
 docs/
 development.md
+
+**/.cmake

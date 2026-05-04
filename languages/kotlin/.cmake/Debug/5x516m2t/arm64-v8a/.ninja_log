@@ -1,5 +1,0 @@
-# ninja log v5
-0	34	1777885763410505502	CMakeFiles/ktreesitter-kotlin.dir/build/generated/src/jni/binding.c.o	f85f2889e67230ab
-1	60	1777885763436527803	CMakeFiles/ktreesitter-kotlin.dir/tree-sitter-kotlin/src/scanner.c.o	1b099f14b98bc068
-1	3802	1777885767145368634	CMakeFiles/ktreesitter-kotlin.dir/tree-sitter-kotlin/src/parser.c.o	850ba7a4be6216fe
-3802	3860	1777885767230936125	../../../../build/intermediates/cxx/Debug/5x516m2t/obj/arm64-v8a/libktreesitter-kotlin.so	e8c6dff64fbc9439
