@@ -1,4 +1,6 @@
+import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSetTree
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -8,6 +10,16 @@ plugins {
 }
 
 kotlin {
+    @OptIn(ExperimentalKotlinGradlePluginApi::class)
+    applyDefaultHierarchyTemplate {
+        common {
+            group("ktreesitter") {
+                withAndroidTarget()
+                withJvm()
+            }
+        }
+    }
+
     androidTarget {
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_17)
@@ -15,10 +27,7 @@ kotlin {
         publishLibraryVariants("release")
     }
 
-    // iOS targets are intentionally omitted: io.github.tree-sitter:ktreesitter
-    // on Maven Central (published from a Linux CI host) does not include iOS
-    // variants. Re-enable once we either build KTreeSitter locally or upstream
-    // publishes Apple targets.
+    jvm()
 
     sourceSets {
         commonMain.dependencies {
@@ -26,10 +35,19 @@ kotlin {
             implementation(libs.compose.foundation)
             implementation(libs.compose.material3)
             implementation(libs.compose.ui)
-            implementation(libs.ktreesitter)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
+        }
+        val ktreesitterMain by getting {
+            dependencies {
+                implementation(libs.ktreesitter)
+            }
+        }
+        val jvmTest by getting {
+            dependencies {
+                implementation(libs.kotlin.test)
+            }
         }
     }
 }
