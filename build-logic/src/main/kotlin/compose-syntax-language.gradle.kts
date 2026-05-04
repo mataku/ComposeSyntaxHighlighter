@@ -76,6 +76,36 @@ val generateHighlightsQuery = tasks.register("generateHighlightsQuery") {
     }
 }
 
+val generateParserSource = tasks.register<Exec>("generateParserSource") {
+    val grammarDirFileProvider = grammarDirProvider
+    val grammarJsProvider = grammarDirFileProvider.map { it.resolve("grammar.js") }
+    val parserCProvider = grammarDirFileProvider.map { it.resolve("src/parser.c") }
+    inputs.file(grammarJsProvider)
+    outputs.file(parserCProvider)
+    workingDir(grammarDirFileProvider)
+    commandLine("tree-sitter", "generate", "--abi=14")
+    doFirst {
+        val check = ProcessBuilder("which", "tree-sitter")
+            .redirectErrorStream(true)
+            .start()
+        check.waitFor()
+        if (check.exitValue() != 0) {
+            error(
+                "tree-sitter CLI is not on PATH. Install with: " +
+                    "npm i -g tree-sitter-cli  (Node 20+ required). " +
+                    "See CONTRIBUTING.md."
+            )
+        }
+    }
+    onlyIf {
+        val parserC = parserCProvider.get()
+        val grammarJs = grammarJsProvider.get()
+        if (!parserC.exists()) return@onlyIf true
+        if (!grammarJs.exists()) return@onlyIf false
+        grammarJs.lastModified() > parserC.lastModified()
+    }
+}
+
 val configureHostCMake = tasks.register<Exec>("configureHostCMake") {
     val workDirProvider = hostCMakeWorkDir.map { it.asFile }
     val srcDir = projectDir.resolve("host-cmake")
@@ -85,6 +115,7 @@ val configureHostCMake = tasks.register<Exec>("configureHostCMake") {
     workingDir(workDirProvider)
     commandLine("cmake", srcDir.absolutePath)
     dependsOn("generateGrammarFiles")
+    dependsOn(generateParserSource)
 }
 
 val buildHostCMake = tasks.register<Exec>("buildHostCMake") {
@@ -197,6 +228,9 @@ afterEvaluate {
     )
 
     val generateGrammarFilesTask = tasks.named<GrammarFilesTask>("generateGrammarFiles")
+    generateGrammarFilesTask.configure {
+        dependsOn(generateParserSource)
+    }
     val generatedSrc = generateGrammarFilesTask.get().generatedSrc.get()
     extensions.configure<KotlinMultiplatformExtension>("kotlin") {
         sourceSets.configureEach {
@@ -212,6 +246,7 @@ afterEvaluate {
         it.name.startsWith("configureCMake") || it.name.startsWith("buildCMake")
     }.configureEach {
         dependsOn(generateGrammarFilesTask)
+        dependsOn(generateParserSource)
     }
 
     tasks.named<Test>("jvmTest") {
