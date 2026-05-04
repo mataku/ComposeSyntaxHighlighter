@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -16,6 +17,9 @@ kotlin {
                 withAndroidTarget()
                 withJvm()
             }
+            group("web") {
+                withWasmJs()
+            }
         }
     }
 
@@ -27,6 +31,14 @@ kotlin {
     }
 
     jvm()
+
+    @OptIn(ExperimentalWasmDsl::class)
+    wasmJs {
+        browser()
+        compilerOptions {
+            optIn.add("kotlin.js.ExperimentalWasmJsInterop")
+        }
+    }
 
     sourceSets {
         commonMain.dependencies {
@@ -41,6 +53,13 @@ kotlin {
         val ktreesitterMain by getting {
             dependencies {
                 implementation(libs.ktreesitter)
+            }
+        }
+        val wasmJsMain by getting {
+            dependencies {
+                implementation(libs.kotlinx.coroutines.core)
+                implementation(libs.compose.components.resources)
+                implementation(npm("web-tree-sitter", libs.versions.webTreeSitter.get()))
             }
         }
         val jvmTest by getting {
