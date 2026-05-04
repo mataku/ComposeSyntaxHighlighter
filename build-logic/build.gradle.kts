@@ -12,6 +12,8 @@ dependencies {
     implementation(libs.plugins.kotlinMultiplatform.toGradle())
     implementation(libs.plugins.androidLibrary.toGradle())
     implementation(libs.plugins.ktreesitter.toGradle())
+    implementation(libs.plugins.composeMultiplatform.toGradle())
+    implementation(libs.plugins.composeCompiler.toGradle())
 }
 
 fun org.gradle.plugin.use.PluginDependency.toGradle(): String =
