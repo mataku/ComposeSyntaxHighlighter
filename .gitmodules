@@ -1,3 +1,6 @@
 [submodule "languages/kotlin/tree-sitter-kotlin"]
 	path = languages/kotlin/tree-sitter-kotlin
 	url = https://github.com/fwcd/tree-sitter-kotlin.git
+[submodule "languages/swift/tree-sitter-swift"]
+	path = languages/swift/tree-sitter-swift
+	url = https://github.com/alex-pinkus/tree-sitter-swift.git
