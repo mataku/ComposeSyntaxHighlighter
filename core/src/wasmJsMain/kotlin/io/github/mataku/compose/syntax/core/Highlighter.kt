@@ -20,31 +20,36 @@ internal suspend fun highlightAsync(
     val module = WebTreeSitterRuntime.module()
     val wtsLanguage = WebTreeSitterRuntime.loadGrammar(language.key, language.grammarBytesProvider)
     val parser = wtsCreateParser(module)
-    wtsParserSetLanguage(parser, wtsLanguage)
-    val tree = wtsParserParse(parser, code)
-    val query = wtsLanguageQuery(wtsLanguage, language.highlightsQuery)
-    val emptySpan = SpanStyle()
-    val codeLength = code.length
-
-    val annotated = buildAnnotatedString {
-        append(code)
-        if (theme.baseStyle != emptySpan) {
-            addStyle(theme.baseStyle, 0, code.length)
+    return try {
+        wtsParserSetLanguage(parser, wtsLanguage)
+        val tree = wtsParserParse(parser, code)
+        try {
+            val query = wtsLanguageQuery(wtsLanguage, language.highlightsQuery)
+            try {
+                val emptySpan = SpanStyle()
+                val codeLength = code.length
+                buildAnnotatedString {
+                    append(code)
+                    if (theme.baseStyle != emptySpan) {
+                        addStyle(theme.baseStyle, 0, codeLength)
+                    }
+                    val captures = wtsQueryCaptures(query, wtsTreeRootNode(tree))
+                    val count = captures.length
+                    for (i in 0 until count) {
+                        val capture = wtsCaptureAt(captures, i)
+                        val style = theme.resolve(capture.name) ?: continue
+                        val start = (capture.node.startIndex / 2).coerceIn(0, codeLength)
+                        val end = (capture.node.endIndex / 2).coerceIn(0, codeLength)
+                        if (start < end) addStyle(style, start, end)
+                    }
+                }
+            } finally {
+                wtsQueryDelete(query)
+            }
+        } finally {
+            wtsTreeDelete(tree)
         }
-        val captures = wtsQueryCaptures(query, wtsTreeRootNode(tree))
-        val count = captures.length
-        for (i in 0 until count) {
-            val capture = wtsCaptureAt(captures, i)
-            val style = theme.resolve(capture.name) ?: continue
-            val start = (capture.node.startIndex / 2).coerceIn(0, codeLength)
-            val end = (capture.node.endIndex / 2).coerceIn(0, codeLength)
-            if (start < end) addStyle(style, start, end)
-        }
+    } finally {
+        wtsParserDelete(parser)
     }
-
-    wtsQueryDelete(query)
-    wtsTreeDelete(tree)
-    wtsParserDelete(parser)
-
-    return annotated
 }
