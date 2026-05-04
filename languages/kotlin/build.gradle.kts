@@ -60,6 +60,9 @@ val buildHostCMake = tasks.register<Exec>("buildHostCMake") {
     val workDir = layout.buildDirectory.dir("host-cmake").get().asFile
     workingDir = workDir
     commandLine("cmake", "--build", ".")
+    inputs.dir(projectDir.resolve("host-cmake"))
+    inputs.dir(grammarDir.resolve("src"))
+    outputs.dir(workDir)
     dependsOn(configureHostCMake)
 }
 
@@ -121,7 +124,6 @@ tasks.named<Test>("jvmTest") {
     dependsOn(buildHostCMake)
     val libDir = layout.buildDirectory.dir("host-cmake").get().asFile.absolutePath
     systemProperty("java.library.path", libDir)
-    jvmArgs("-Djava.library.path=$libDir")
 }
 
 android {
