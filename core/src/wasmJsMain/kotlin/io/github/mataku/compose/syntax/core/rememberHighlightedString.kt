@@ -17,7 +17,12 @@ actual fun rememberHighlightedString(
         language,
         theme,
     ) {
-        value = highlightAsync(code, language, theme)
+        value = try {
+            highlightAsync(code, language, theme)
+        } catch (t: Throwable) {
+            wtsLogError("compose-syntax: highlightAsync failed for ${language.key}", t)
+            baseAnnotated(code, theme)
+        }
     }
     return state
 }

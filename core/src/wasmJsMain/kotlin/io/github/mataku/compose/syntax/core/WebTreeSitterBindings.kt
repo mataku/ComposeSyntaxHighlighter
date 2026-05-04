@@ -84,3 +84,11 @@ internal fun ByteArray.toUint8Array(): JsAny {
     }
     return buffer
 }
+
+internal fun wtsLogError(message: String, error: Throwable) {
+    consoleErrorJs(message, error.toString())
+}
+
+private fun consoleErrorJs(message: String, error: String) {
+    js("console.error(message, error)")
+}
