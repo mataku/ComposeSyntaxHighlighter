@@ -1,3 +1,4 @@
+import com.android.build.api.variant.LibraryAndroidComponentsExtension
 import com.android.build.gradle.LibraryExtension
 import io.github.mataku.compose.syntax.buildlogic.ComposeSyntaxLanguageExtension
 import io.github.mataku.compose.syntax.buildlogic.writeAndroidCMakeLists
@@ -21,6 +22,9 @@ val composeSyntaxLanguage = extensions.create<ComposeSyntaxLanguageExtension>("c
 
 val versionCatalog = extensions.getByType<VersionCatalogsExtension>().named("libs")
 
+val highlightsQueryDir = layout.buildDirectory.dir("generated/highlights")
+val hostCMakeWorkDir = layout.buildDirectory.dir("host-cmake")
+
 val grammarDirProvider: Provider<File> = composeSyntaxLanguage.grammarSubmodulePath.map { projectDir.resolve(it) }
 val packageNameProvider: Provider<String> = composeSyntaxLanguage.languageName.map {
     "io.github.mataku.compose.syntax.language.$it.internal"
@@ -28,8 +32,6 @@ val packageNameProvider: Provider<String> = composeSyntaxLanguage.languageName.m
 val highlightsPackageDirProvider: Provider<String> = composeSyntaxLanguage.languageName.map {
     "io/github/mataku/compose/syntax/language/$it"
 }
-
-val highlightsQueryDir = layout.buildDirectory.dir("generated/highlights")
 
 extensions.configure<GrammarExtension>("grammar") {
     baseDir.set(grammarDirProvider)
@@ -42,8 +44,6 @@ extensions.configure<GrammarExtension>("grammar") {
         }
     )
 }
-
-val generateGrammarFilesTask = tasks.named<GrammarFilesTask>("generateGrammarFiles")
 
 val generateHighlightsQuery = tasks.register("generateHighlightsQuery") {
     val srcProvider = composeSyntaxLanguage.queries.zip(grammarDirProvider) { queries, grammarDir ->
@@ -73,8 +73,6 @@ val generateHighlightsQuery = tasks.register("generateHighlightsQuery") {
     }
 }
 
-val hostCMakeWorkDir = layout.buildDirectory.dir("host-cmake")
-
 val configureHostCMake = tasks.register<Exec>("configureHostCMake") {
     val workDirProvider = hostCMakeWorkDir.map { it.asFile }
     val srcDir = projectDir.resolve("host-cmake")
@@ -83,7 +81,7 @@ val configureHostCMake = tasks.register<Exec>("configureHostCMake") {
     doFirst { workDirProvider.get().mkdirs() }
     workingDir(workDirProvider)
     commandLine("cmake", srcDir.absolutePath)
-    dependsOn(generateGrammarFilesTask)
+    dependsOn("generateGrammarFiles")
 }
 
 val buildHostCMake = tasks.register<Exec>("buildHostCMake") {
@@ -94,48 +92,6 @@ val buildHostCMake = tasks.register<Exec>("buildHostCMake") {
     inputs.dir(grammarDirProvider.map { it.resolve("src") })
     outputs.dir(workDirProvider)
     dependsOn(configureHostCMake)
-}
-
-val regenerateCMakeLists = tasks.register("regenerateCMakeLists") {
-    val androidFile = projectDir.resolve("CMakeLists.txt")
-    val hostFile = projectDir.resolve("host-cmake/CMakeLists.txt")
-    val nameProvider = composeSyntaxLanguage.languageName
-    val grammarPathProvider = composeSyntaxLanguage.grammarSubmodulePath
-    val sourcesProvider = composeSyntaxLanguage.sources
-    outputs.file(androidFile)
-    outputs.file(hostFile)
-    doLast {
-        writeAndroidCMakeLists(
-            androidFile,
-            nameProvider.get(),
-            grammarPathProvider.get(),
-            sourcesProvider.get(),
-        )
-        writeHostCMakeLists(
-            hostFile,
-            nameProvider.get(),
-            grammarPathProvider.get(),
-            sourcesProvider.get(),
-        )
-    }
-}
-
-afterEvaluate {
-    val name = composeSyntaxLanguage.languageName.get()
-    val grammarPath = composeSyntaxLanguage.grammarSubmodulePath.get()
-    val sourcesList = composeSyntaxLanguage.sources.get()
-    writeAndroidCMakeLists(
-        projectDir.resolve("CMakeLists.txt"),
-        name,
-        grammarPath,
-        sourcesList,
-    )
-    writeHostCMakeLists(
-        projectDir.resolve("host-cmake/CMakeLists.txt"),
-        name,
-        grammarPath,
-        sourcesList,
-    )
 }
 
 extensions.configure<KotlinMultiplatformExtension>("kotlin") {
@@ -159,10 +115,6 @@ extensions.configure<KotlinMultiplatformExtension>("kotlin") {
     jvm()
 
     sourceSets {
-        val generatedSrc = generateGrammarFilesTask.flatMap { it.generatedSrc }
-        configureEach {
-            kotlin.srcDir(generatedSrc.map { it.dir(name).dir("kotlin") })
-        }
         commonMain {
             dependencies {
                 api(project(":core"))
@@ -180,24 +132,6 @@ extensions.configure<KotlinMultiplatformExtension>("kotlin") {
                 implementation(versionCatalog.findLibrary("compose-ui").get())
             }
         }
-    }
-}
-
-tasks.withType<KotlinCompilationTask<*>>().configureEach {
-    dependsOn(generateGrammarFilesTask, generateHighlightsQuery)
-}
-
-tasks.matching {
-    it.name.startsWith("configureCMake") || it.name.startsWith("buildCMake")
-}.configureEach {
-    dependsOn(generateGrammarFilesTask)
-}
-
-tasks.named<Test>("jvmTest") {
-    dependsOn(buildHostCMake)
-    val libDirProvider = hostCMakeWorkDir.map { it.asFile.absolutePath }
-    doFirst {
-        systemProperty("java.library.path", libDirProvider.get())
     }
 }
 
@@ -224,8 +158,52 @@ extensions.configure<LibraryExtension>("android") {
     }
 }
 
+extensions.configure<LibraryAndroidComponentsExtension>("androidComponents") {
+    finalizeDsl { dsl ->
+        dsl.namespace = "io.github.mataku.compose.syntax.language.${composeSyntaxLanguage.languageName.get()}"
+    }
+}
+
 afterEvaluate {
-    extensions.configure<LibraryExtension>("android") {
-        namespace = "io.github.mataku.compose.syntax.language.${composeSyntaxLanguage.languageName.get()}"
+    val name = composeSyntaxLanguage.languageName.get()
+    val grammarPath = composeSyntaxLanguage.grammarSubmodulePath.get()
+    val sourcesList = composeSyntaxLanguage.sources.get()
+    writeAndroidCMakeLists(
+        projectDir.resolve("CMakeLists.txt"),
+        name,
+        grammarPath,
+        sourcesList,
+    )
+    writeHostCMakeLists(
+        projectDir.resolve("host-cmake/CMakeLists.txt"),
+        name,
+        grammarPath,
+        sourcesList,
+    )
+
+    val generateGrammarFilesTask = tasks.named<GrammarFilesTask>("generateGrammarFiles")
+    val generatedSrc = generateGrammarFilesTask.get().generatedSrc.get()
+    extensions.configure<KotlinMultiplatformExtension>("kotlin") {
+        sourceSets.configureEach {
+            kotlin.srcDir(generatedSrc.dir(this.name).dir("kotlin"))
+        }
+    }
+
+    tasks.withType<KotlinCompilationTask<*>>().configureEach {
+        dependsOn(generateGrammarFilesTask, generateHighlightsQuery)
+    }
+
+    tasks.matching {
+        it.name.startsWith("configureCMake") || it.name.startsWith("buildCMake")
+    }.configureEach {
+        dependsOn(generateGrammarFilesTask)
+    }
+
+    tasks.named<Test>("jvmTest") {
+        dependsOn(buildHostCMake)
+        val libDirProvider = hostCMakeWorkDir.map { it.asFile.absolutePath }
+        doFirst {
+            systemProperty("java.library.path", libDirProvider.get())
+        }
     }
 }
