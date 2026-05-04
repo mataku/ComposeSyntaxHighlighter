@@ -3,6 +3,7 @@ package com.mataku.composesyntaxhighlighter
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
@@ -66,11 +67,15 @@ private val darkTheme = SyntaxTheme(
 @Composable
 fun KotlinHighlightDemo() {
     MaterialTheme {
-        Surface(color = Color(0xFF1E1E1E), modifier = Modifier.fillMaxSize()) {
+        Surface(
+          color = Color(0xFF1E1E1E),
+          modifier = Modifier.fillMaxSize()
+        ) {
             Column(
                 modifier = Modifier
                     .verticalScroll(rememberScrollState())
-                    .padding(16.dp),
+                    .padding(16.dp)
+                  .safeContentPadding(),
             ) {
                 SyntaxHighlightedText(
                     code = sampleCode,
