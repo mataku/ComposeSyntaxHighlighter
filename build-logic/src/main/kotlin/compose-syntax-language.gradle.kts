@@ -83,7 +83,8 @@ val generateParserSource = tasks.register<Exec>("generateParserSource") {
     inputs.file(grammarJsProvider)
     outputs.file(parserCProvider)
     workingDir(grammarDirFileProvider)
-    commandLine("tree-sitter", "generate", "--abi=14")
+    val abi = versionCatalog.findVersion("treesitterAbi").get().requiredVersion
+    commandLine("tree-sitter", "generate", "--abi=$abi")
     doFirst {
         val check = ProcessBuilder("which", "tree-sitter")
             .redirectErrorStream(true)
