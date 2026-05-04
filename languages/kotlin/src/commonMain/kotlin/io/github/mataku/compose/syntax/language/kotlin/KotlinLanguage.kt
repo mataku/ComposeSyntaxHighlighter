@@ -1,10 +1,10 @@
 package io.github.mataku.compose.syntax.language.kotlin
 
 import io.github.mataku.compose.syntax.core.Language
+import io.github.mataku.compose.syntax.core.ktreesitterLanguage
 import io.github.mataku.compose.syntax.language.kotlin.internal.TreeSitterKotlin
 import io.github.treesitter.ktreesitter.Language as TsLanguage
 
-object KotlinLanguage : Language {
-    override val parser: TsLanguage by lazy { TsLanguage(TreeSitterKotlin.language()) }
-    override val highlightsQuery: String = HIGHLIGHTS_QUERY
+val KotlinLanguage: Language by lazy {
+    ktreesitterLanguage(TsLanguage(TreeSitterKotlin.language()), HIGHLIGHTS_QUERY)
 }
