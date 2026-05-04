@@ -7,5 +7,5 @@ actual class Language internal constructor(
     internal val highlightsQuery: String,
 )
 
-fun ktreesitterLanguage(parser: TsLanguage, highlightsQuery: String): Language =
+fun kTreeSitterLanguage(parser: TsLanguage, highlightsQuery: String): Language =
     Language(parser, highlightsQuery)
