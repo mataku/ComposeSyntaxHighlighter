@@ -49,7 +49,7 @@ val configureHostCMake = tasks.register<Exec>("configureHostCMake") {
     val workDir = layout.buildDirectory.dir("host-cmake").get().asFile
     val src = projectDir.resolve("host-cmake")
     inputs.file(src.resolve("CMakeLists.txt"))
-    outputs.dir(workDir)
+    outputs.file(File(workDir, "CMakeCache.txt"))
     doFirst { workDir.mkdirs() }
     workingDir = workDir
     commandLine("cmake", src.absolutePath)
