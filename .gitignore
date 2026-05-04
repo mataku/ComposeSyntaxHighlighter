@@ -42,6 +42,8 @@ local.properties
 .idea/artifacts/
 .idea/other.xml
 .idea/deploymentTargetSelector.xml
+.idea/receipt.json
+.idea/codeStyles
 
 *.iml
 .env
@@ -66,3 +68,5 @@ vendor/
 .envrc
 
 .kotlin/
+docs/
+development.md
