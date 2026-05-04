@@ -32,3 +32,4 @@ dependencyResolutionManagement {
 include(":composeApp")
 include(":core")
 include(":languages:kotlin")
+include(":languages:swift")
