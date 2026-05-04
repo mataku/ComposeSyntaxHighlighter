@@ -5,7 +5,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import io.github.treesitter.ktreesitter.Parser
 
-internal fun highlight(
+fun highlight(
     code: String,
     language: Language,
     theme: SyntaxTheme,

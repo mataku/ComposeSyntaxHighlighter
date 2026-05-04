@@ -105,6 +105,7 @@ kotlin {
         val jvmTest by getting {
             dependencies {
                 implementation(libs.kotlin.test)
+                implementation(libs.compose.ui)
             }
         }
     }
