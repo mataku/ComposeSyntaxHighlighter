@@ -1,7 +1,6 @@
 # Compose Highlight
 
-Compose Multiplatform syntax highlighter for Android (and any JVM-based Compose target). Built on
-tree-sitter for accurate, fast incremental highlighting.
+Compose Multiplatform syntax highlighter for Android (and any JVM-based Compose target). Built on tree-sitter for accurate, fast incremental highlighting.
 
 This is still an experimental project. Android is supported via the published AAR; the JVM artifact ships for Compose Desktop interop. iOS lands in a later release; for browser apps prefer a JS-side highlighter (e.g. highlight.js, Shiki) and keep this library on JVM-based targets.
 
@@ -95,25 +94,24 @@ Capture name resolution falls back to parent prefixes — defining `keyword` cov
 
 ## Performance
 
-`Language` instances pre-compile the tree-sitter highlights query on first access, so repeated
-highlighting of different code snippets with the same language is fast. The table below shows the
-full `highlight()` call measured on a single machine for realistic code samples (~75–150 lines).
+`Language` instances pre-compile the tree-sitter highlights query on first access, so repeated highlighting of different code snippets with the same language is fast. The table below shows the full `highlight()` call measured on a single machine for realistic code samples (~75–150 lines).
+
 These values illustrate relative differences between languages, not absolute guarantees.
 
-**What is measured?** The benchmark targets the `highlight()` function, which is the
-same call used internally by `SyntaxHighlightedText`. It covers the full end-to-end
-pipeline: tree-sitter parsing, highlight-query matching, UTF-8 byte-to-char index
-mapping, and building the final `AnnotatedString` with `SpanStyle` applied. The
-returned `AnnotatedString` is ready to be passed directly to Compose `Text`.
+### What is measured?
 
-The benchmark measures two distinct scenarios:
+The benchmark targets the `highlight()` function, which is the same call used internally by `SyntaxHighlightedText`. It covers the full end-to-end pipeline: tree-sitter parsing, highlight-query matching, UTF-8 byte-to-char index mapping, and building the final `AnnotatedString` with `SpanStyle` applied. The returned `AnnotatedString` is ready to be passed directly to Compose `Text`.
 
-- **Cold start**: first `highlight()` call on a fresh `Language` instance, which
-  includes the one-time tree-sitter query compilation.
-- **Steady state**: repeated `highlight()` calls after the query is compiled.
+The benchmark measures two distinct scenarios from the perspective of a Compose app:
 
-Both values are shown below so you can judge the first-frame impact and the
-ongoing per-call cost.
+- First use: the first time you display a code block with a given language.
+  This triggers one-time tree-sitter query compilation under the hood, so it is
+  slower.
+- Subsequent use: displaying another code block with the same language after
+  the first. The query is already compiled, so this reflects the actual per-call
+  cost during normal app usage.
+
+Both values are shown below so you can judge the one-time initial impact and the ongoing per-call cost.
 
 ```
 OS: Mac OS X (26.4.1)
@@ -125,29 +123,29 @@ Warmup iterations: 10
 Measure iterations: 50
 ```
 
-### Cold start (includes query compilation)
+### First use [Cold] (includes query compilation)
 
-| Language | Lines | Cold (ms) |
-|----------|-------|-----------|
-| Kotlin   | 76    | 721.420   |
-| Swift    | 91    | 380.727   |
-| Ruby     | 91    | 49.026    |
-| Rust     | 115   | 50.675    |
-| Python   | 92    | 19.693    |
-| Go       | 153   | 9.237     |
-| Java     | 120   | 20.709    |
+| Language | Lines | First use [Cold] (ms) |
+|----------|-------|----------------------|
+| Kotlin   | 100   | 533.608              |
+| Swift    | 100   | 378.779              |
+| Ruby     | 100   | 49.571               |
+| Rust     | 100   | 52.961               |
+| Python   | 100   | 19.873               |
+| Go       | 100   | 9.311                |
+| Java     | 100   | 20.797               |
 
-### Steady state (query already compiled)
+### Subsequent use [Warm] (query already compiled)
 
 | Language | Lines | Mean (ms) | Median (ms) | StdDev (ms) | P99 (ms) |
 |----------|-------|-----------|-------------|-------------|----------|
-| Kotlin   | 76    | 4.477     | 4.479       | 0.257       | 5.587    |
-| Swift    | 91    | 3.858     | 3.838       | 0.089       | 4.138    |
-| Ruby     | 91    | 3.515     | 3.503       | 0.079       | 3.884    |
-| Rust     | 115   | 1.414     | 1.405       | 0.035       | 1.523    |
-| Python   | 92    | 3.357     | 3.370       | 0.094       | 3.562    |
-| Go       | 153   | 2.909     | 2.900       | 0.062       | 3.028    |
-| Java     | 120   | 3.187     | 3.202       | 0.079       | 3.369    |
+| Kotlin   | 100   | 5.348     | 5.327       | 0.270       | 6.564    |
+| Swift    | 100   | 3.786     | 3.776       | 0.079       | 4.039    |
+| Ruby     | 100   | 3.544     | 3.520       | 0.091       | 3.779    |
+| Rust     | 100   | 3.508     | 3.521       | 0.099       | 3.693    |
+| Python   | 100   | 3.464     | 3.460       | 0.069       | 3.614    |
+| Go       | 100   | 2.337     | 2.335       | 0.045       | 2.438    |
+| Java     | 100   | 3.296     | 3.287       | 0.106       | 3.600    |
 
 Run `./gradlew :benchmark:jvmTest` to reproduce on your own machine.
 
