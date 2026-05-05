@@ -308,7 +308,9 @@ afterEvaluate {
             n.startsWith("copyNonXmlValueResources") ||
             n.startsWith("convertXmlValueResources") ||
             n == "mergeReleaseJavaResource" ||
-            n == "mergeDebugJavaResource"
+            n == "mergeDebugJavaResource" ||
+            n == "processReleaseJavaRes" ||
+            n == "processDebugJavaRes"
     }.configureEach {
         dependsOn(generateNotice)
     }
