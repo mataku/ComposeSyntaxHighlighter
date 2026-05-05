@@ -18,13 +18,13 @@ class JvmHighlightBenchmark {
         BenchmarkConfig.printEnvironment()
         BenchmarkConfig.printSampleSizes()
 
-        println("=== Cold start (includes query compilation) ===")
+        println("=== First use [Cold] (includes query compilation) ===")
         val coldResults = mutableListOf<Pair<String, Long>>()
 
         fun measureCold(name: String, block: () -> Unit): Long {
             val timeNs = measureNanoTime { block() }
             coldResults += name to timeNs
-            println("[Cold] $name: ${timeNs}ns (${"%.3f".format(timeNs / 1_000_000.0)}ms)")
+            println("[First use] $name: ${timeNs}ns (${"%.3f".format(timeNs / 1_000_000.0)}ms)")
             return timeNs
         }
 
@@ -51,7 +51,7 @@ class JvmHighlightBenchmark {
         }
 
         println()
-        println("=== Steady state (query already compiled) ===")
+        println("=== Subsequent use [Warm] (query already compiled) ===")
         val warmResults = mutableListOf<BenchmarkConfig.BenchmarkResult>()
 
         fun runAndRecord(name: String, block: () -> Unit) {
@@ -85,9 +85,9 @@ class JvmHighlightBenchmark {
         }
 
         println()
-        println("### Cold start Markdown table")
-        println("| Language | Cold (ms) |")
-        println("|----------|-----------|")
+        println("### First use Markdown table")
+        println("| Language | First use [Cold] (ms) |")
+        println("|----------|----------------------|")
         coldResults.forEach { (name, ns) ->
             println("| $name | ${"%.3f".format(ns / 1_000_000.0)} |")
         }
