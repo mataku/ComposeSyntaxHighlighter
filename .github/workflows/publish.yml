@@ -17,6 +17,12 @@ jobs:
 
       - uses: ./.github/actions/setup
 
+      - name: Build & publish to Maven Local (pre-flight)
+        run: ./gradlew publishToMavenLocal -PRELEASE_SIGNING_ENABLED=false --no-configuration-cache
+
+      - name: Verify META-INF/NOTICE in published artifacts
+        run: bash scripts/verify-notice.sh
+
       - name: Publish to Maven Central
         env:
           ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.ORG_GRADLE_PROJECT_MAVENCENTRALUSERNAME }}
