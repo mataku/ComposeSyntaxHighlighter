@@ -29,8 +29,8 @@ Maven coordinates: `io.github.mataku:compose-highlight-core:<version>`.
 
 Public API in `commonMain` (no expect/actual — every target is JVM-based):
 - `SyntaxHighlightedText(code, language, theme, style, modifier)` — main composable.
-- `SyntaxTheme(baseStyle, styles)` — maps tree-sitter capture names (e.g. `keyword`, `string.escape`) to `SpanStyle`. Provides `SyntaxTheme.darkDefault()` / `SyntaxTheme.lightDefault()`.
-- `LocalSyntaxTheme` — composition local that defaults to `SyntaxTheme.darkDefault()`.
+- `SyntaxTheme(baseStyle, styles)` — maps tree-sitter capture names (e.g. `keyword`, `string.escape`) to `SpanStyle`. Provides `SyntaxTheme.DarkDefault` / `SyntaxTheme.LightDefault`.
+- `LocalSyntaxTheme` — composition local that defaults to `SyntaxTheme.DarkDefault`.
 - `Language` — concrete class wrapping a KTreeSitter `Language` + a highlights query.
 - `kTreeSitterLanguage(parser, highlightsQuery)` — factory used by language modules.
 - `highlight(code, language, theme)` / `rememberHighlightedString(...)` — the underlying functions.

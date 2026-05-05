@@ -49,7 +49,7 @@ fun MyScreen() {
 }
 ```
 
-The default theme is `SyntaxTheme.darkDefault()`. To override it for a single call, pass `theme` directly:
+The default theme is `SyntaxTheme.DarkDefault`. To override it for a single call, pass `theme` directly:
 
 ```kotlin
 SyntaxHighlightedText(code = code, language = KotlinLanguage, theme = myCustomTheme)

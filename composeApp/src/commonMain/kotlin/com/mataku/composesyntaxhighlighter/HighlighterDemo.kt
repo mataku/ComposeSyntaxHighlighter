@@ -68,8 +68,8 @@ fun HighlighterDemo() {
     DemoLanguage.Java -> SampleCode.java to JavaLanguage
   }
   val theme = when (selectedTheme) {
-    DemoTheme.Dark -> SyntaxTheme.darkDefault()
-    DemoTheme.Light -> SyntaxTheme.lightDefault()
+    DemoTheme.Dark -> SyntaxTheme.DarkDefault
+    DemoTheme.Light -> SyntaxTheme.LightDefault
   }
   val surfaceColor = if (selectedTheme == DemoTheme.Dark) Color(0xFF1E1E1E) else Color(0xFFFFFFFF)
 
