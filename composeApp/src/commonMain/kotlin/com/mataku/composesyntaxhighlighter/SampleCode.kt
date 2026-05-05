@@ -87,4 +87,66 @@ object SampleCode {
             println!("{}: {}", u.greet(), n);
         }
     """.trimIndent()
+
+    val python: String = """
+        import json
+
+        class UserRepository:
+            STATUS = "active"
+
+            def __init__(self, api):
+                self.api = api
+
+            def observe(self, id):
+                return self.api.stream_user(id).map(
+                    lambda dto: {"id": dto["id"], "name": dto.get("name", "anonymous")}
+                )
+
+        n = 42
+        print(f"hello, world: {n}")
+    """.trimIndent()
+
+    val go: String = """
+        package main
+
+        import "fmt"
+
+        type User struct {
+            ID   int64
+            Name string
+        }
+
+        func (u User) Greet() string {
+            if u.Name == "" {
+                return "hello, anonymous"
+            }
+            return fmt.Sprintf("hello, %s", u.Name)
+        }
+
+        func main() {
+            n := 42
+            u := User{ID: 1, Name: "world"}
+            fmt.Printf("%s: %d\n", u.Greet(), n)
+        }
+    """.trimIndent()
+
+    val java: String = """
+        import java.util.List;
+        import java.util.stream.Collectors;
+
+        public class UserRepository {
+            private static final String STATUS = "active";
+            private final Api api;
+
+            public UserRepository(Api api) {
+                this.api = api;
+            }
+
+            public List<User> observe(long id) {
+                return api.streamUser(id)
+                    .map(dto -> new User(dto.getId(), dto.getName()))
+                    .collect(Collectors.toList());
+            }
+        }
+    """.trimIndent()
 }

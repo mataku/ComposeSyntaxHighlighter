@@ -32,6 +32,9 @@ kotlin {
             implementation(projects.languages.swift)
             implementation(projects.languages.ruby)
             implementation(projects.languages.rust)
+            implementation(projects.languages.python)
+            implementation(projects.languages.go)
+            implementation(projects.languages.java)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

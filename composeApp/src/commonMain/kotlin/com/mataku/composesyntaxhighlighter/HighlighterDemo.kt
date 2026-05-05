@@ -31,7 +31,10 @@ import androidx.compose.ui.unit.dp
 import io.github.mataku.compose.highlight.core.LocalSyntaxTheme
 import io.github.mataku.compose.highlight.core.SyntaxHighlightedText
 import io.github.mataku.compose.highlight.core.SyntaxTheme
+import io.github.mataku.compose.highlight.go.GoLanguage
+import io.github.mataku.compose.highlight.java.JavaLanguage
 import io.github.mataku.compose.highlight.kotlin.KotlinLanguage
+import io.github.mataku.compose.highlight.python.PythonLanguage
 import io.github.mataku.compose.highlight.ruby.RubyLanguage
 import io.github.mataku.compose.highlight.rust.RustLanguage
 import io.github.mataku.compose.highlight.swift.SwiftLanguage
@@ -41,6 +44,9 @@ private enum class DemoLanguage(val label: String) {
     Swift("Swift"),
     Ruby("Ruby"),
     Rust("Rust"),
+    Python("Python"),
+    Go("Go"),
+    Java("Java"),
 }
 
 private enum class DemoTheme(val label: String) {
@@ -59,6 +65,9 @@ fun HighlighterDemo() {
         DemoLanguage.Swift -> SampleCode.swift to SwiftLanguage
         DemoLanguage.Ruby -> SampleCode.ruby to RubyLanguage
         DemoLanguage.Rust -> SampleCode.rust to RustLanguage
+        DemoLanguage.Python -> SampleCode.python to PythonLanguage
+        DemoLanguage.Go -> SampleCode.go to GoLanguage
+        DemoLanguage.Java -> SampleCode.java to JavaLanguage
     }
     val theme = when (selectedTheme) {
         DemoTheme.Dark -> SyntaxTheme.darkDefault()
