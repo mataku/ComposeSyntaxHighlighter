@@ -38,22 +38,10 @@ kotlin {
                 implementation(libs.androidx.test.runner)
                 implementation(libs.androidx.testExt.junit)
                 implementation(libs.compose.ui)
-                implementation(projects.core)
-                implementation(projects.languages.kotlin)
-                implementation(projects.languages.swift)
-                implementation(projects.languages.ruby)
-                implementation(projects.languages.rust)
-                implementation(projects.languages.python)
-                implementation(projects.languages.go)
-                implementation(projects.languages.java)
             }
         }
 
-        val jvmTest by getting {
-            dependencies {
-                implementation(libs.kotlin.test)
-            }
-        }
+        val jvmTest by getting
     }
 }
 
