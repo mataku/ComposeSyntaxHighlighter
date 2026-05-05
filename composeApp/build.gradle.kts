@@ -1,4 +1,3 @@
-import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
@@ -15,33 +14,17 @@ kotlin {
             jvmTarget.set(JvmTarget.JVM_17)
         }
     }
-    
-    listOf(
-        iosArm64(),
-        iosSimulatorArm64()
-    ).forEach { iosTarget ->
-        iosTarget.binaries.framework {
-            baseName = "ComposeApp"
-            isStatic = true
-        }
-    }
-    
-    js {
-        browser()
-        binaries.executable()
-    }
-    
+
     @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
         browser()
         binaries.executable()
     }
-    
+
     sourceSets {
         androidMain.dependencies {
             implementation(libs.compose.uiToolingPreview)
             implementation(libs.androidx.activity.compose)
-            implementation(projects.languages.kotlin)
         }
         commonMain.dependencies {
             implementation(libs.compose.runtime)
@@ -52,6 +35,8 @@ kotlin {
             implementation(libs.compose.uiToolingPreview)
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
+            implementation(projects.languages.kotlin)
+            implementation(projects.languages.swift)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
@@ -89,4 +74,3 @@ android {
 dependencies {
     debugImplementation(libs.compose.uiTooling)
 }
-
