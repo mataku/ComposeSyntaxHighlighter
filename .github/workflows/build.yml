@@ -14,7 +14,7 @@ jobs:
         with:
           submodules: recursive
       - uses: ./.github/actions/setup
-      - run: ./gradlew :core:jvmTest :languages:kotlin:jvmTest :languages:swift:jvmTest :languages:ruby:jvmTest :languages:rust:jvmTest :languages:python:jvmTest :languages:go:jvmTest
+      - run: ./gradlew :core:jvmTest :languages:kotlin:jvmTest :languages:swift:jvmTest :languages:ruby:jvmTest :languages:rust:jvmTest :languages:python:jvmTest :languages:go:jvmTest :languages:java:jvmTest
 
   android:
     name: Android demo
