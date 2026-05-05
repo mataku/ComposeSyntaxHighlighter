@@ -1,4 +1,4 @@
-package io.github.mataku.compose.highlight.core
+package io.github.mataku.compose.highlight.api
 
 /**
  * Cross-module catalog of bundled languages.
