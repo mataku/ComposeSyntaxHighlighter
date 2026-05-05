@@ -11,6 +11,8 @@ repo="${HOME}/.m2/repository"
 modules=(
   compose-highlight-kotlin
   compose-highlight-swift
+  compose-highlight-ruby
+  compose-highlight-rust
 )
 
 variants=(
