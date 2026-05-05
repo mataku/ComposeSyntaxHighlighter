@@ -1,8 +1,12 @@
 # Compose Highlight
 
-Compose Multiplatform syntax highlighter for Android (and any JVM-based Compose target). Built on tree-sitter for accurate, fast incremental highlighting.
+Compose Multiplatform syntax highlighter for Android (and any JVM-based Compose target). Built on
+tree-sitter for accurate, fast incremental highlighting.
 
-> **Status:** `0.1.0-SNAPSHOT` is available on Maven Central's snapshot repository while the first stable release is being prepared. Android is supported via the published AAR; the JVM artifact ships for Compose Desktop interop. iOS lands in a later release; for browser apps prefer a JS-side highlighter (e.g. highlight.js, Shiki) and keep this library on JVM-based targets.
+> **Status:** `0.1.0-SNAPSHOT` is available on Maven Central's snapshot repository while the first
+> stable release is being prepared. Android is supported via the published AAR; the JVM artifact ships
+> for Compose Desktop interop. iOS lands in a later release; for browser apps prefer a JS-side
+> highlighter (e.g. highlight.js, Shiki) and keep this library on JVM-based targets.
 
 ## Installation
 
@@ -10,17 +14,18 @@ TBA — the first stable `0.1.0` release is being prepared and will be published
 
 ### Trying the snapshot
 
-A `0.1.0-SNAPSHOT` build is available on Maven Central's snapshot repository if you want to try the library now. Add the snapshot repository and depend on the language modules you need:
+A `0.1.0-SNAPSHOT` build is available on Maven Central's snapshot repository if you want to try the
+library now. Add the snapshot repository and depend on the language modules you need:
 
 ```kotlin
 // settings.gradle.kts
 dependencyResolutionManagement {
-    repositories {
-        mavenCentral()
-        maven("https://central.sonatype.com/repository/maven-snapshots/") {
-            mavenContent { snapshotsOnly() }
-        }
+  repositories {
+    mavenCentral()
+    maven("https://central.sonatype.com/repository/maven-snapshots/") {
+      mavenContent { snapshotsOnly() }
     }
+  }
 }
 ```
 
@@ -38,21 +43,26 @@ import io.github.mataku.compose.highlight.kotlin.KotlinLanguage
 
 @Composable
 fun MyScreen() {
-    SyntaxHighlightedText(
-        code = """
+  SyntaxHighlightedText(
+    code = """
             fun main() {
                 println("hello")
             }
         """.trimIndent(),
-        language = KotlinLanguage,
-    )
+    language = KotlinLanguage,
+  )
 }
 ```
 
-The default theme is `SyntaxTheme.DarkDefault`. To override it for a single call, pass `theme` directly:
+The default theme is `SyntaxTheme.DarkDefault`. To override it for a single call, pass `theme`
+directly:
 
 ```kotlin
-SyntaxHighlightedText(code = code, language = KotlinLanguage, theme = myCustomTheme)
+SyntaxHighlightedText(
+  code = code,
+  language = KotlinLanguage,
+  theme = SyntaxTheme.LightDefault
+)
 ```
 
 Or override for an entire subtree with `CompositionLocalProvider`:
@@ -62,21 +72,21 @@ import io.github.mataku.compose.highlight.core.LocalSyntaxTheme
 import io.github.mataku.compose.highlight.core.SyntaxTheme
 
 CompositionLocalProvider(LocalSyntaxTheme provides SyntaxTheme.LightDefault) {
-    SyntaxHighlightedText(code = code, language = KotlinLanguage)
+  SyntaxHighlightedText(code = code, language = KotlinLanguage)
 }
 ```
 
 ## Supported
 
-| Platform     | Status     | Notes                                              |
-|--------------|------------|----------------------------------------------------|
-| Android      | yes        | minSdk 26                                          |
-| Desktop JVM  | yes        | KTreeSitter native lib must be on `java.library.path` |
-| Web (wasmJs) | not in scope | use highlight.js / Shiki on the JS side          |
-| iOS          | wip        | later release                                      |
+| Platform     | Status       | Notes                                                 |
+|--------------|--------------|-------------------------------------------------------|
+| Android      | yes          | minSdk 26                                             |
+| Desktop JVM  | yes          | KTreeSitter native lib must be on `java.library.path` |
+| Web (wasmJs) | not in scope | use highlight.js / Shiki on the JS side               |
+| iOS          | wip          | later release                                         |
 
-| Language | Artifact                         |
-|----------|----------------------------------|
+| Language | Artifact                   |
+|----------|----------------------------|
 | Kotlin   | `compose-highlight-kotlin` |
 | Swift    | `compose-highlight-swift`  |
 | Ruby     | `compose-highlight-ruby`   |
@@ -88,17 +98,20 @@ CompositionLocalProvider(LocalSyntaxTheme provides SyntaxTheme.LightDefault) {
 
 ```kotlin
 val myTheme = SyntaxTheme(
-    baseStyle = SpanStyle(color = Color.White),
-    styles = mapOf(
-        "keyword" to SpanStyle(color = Color.Magenta, fontWeight = FontWeight.Bold),
-        "string" to SpanStyle(color = Color.Yellow),
-        // ...
-    ),
+  baseStyle = SpanStyle(color = Color.White),
+  styles = mapOf(
+    "keyword" to SpanStyle(color = Color.Magenta, fontWeight = FontWeight.Bold),
+    "string" to SpanStyle(color = Color.Yellow),
+    // ...
+  ),
 )
 ```
 
-Capture name resolution falls back to parent prefixes — defining `keyword` covers `keyword.return`, `keyword.function`, etc. unless a more specific entry is provided.
+Capture name resolution falls back to parent prefixes — defining `keyword` covers `keyword.return`,
+`keyword.function`, etc. unless a more specific entry is provided.
 
 ## License
 
-MIT. Bundled grammars (tree-sitter, KTreeSitter, fwcd/tree-sitter-kotlin, alex-pinkus/tree-sitter-swift) are MIT-licensed; full attributions are in the published `META-INF/NOTICE` of each language artifact.
+MIT. Bundled grammars (tree-sitter, KTreeSitter, fwcd/tree-sitter-kotlin,
+alex-pinkus/tree-sitter-swift) are MIT-licensed; full attributions are in the published
+`META-INF/NOTICE` of each language artifact.
