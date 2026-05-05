@@ -21,6 +21,7 @@ data class SyntaxTheme(
     }
 
     companion object {
+        /** Neutral dark default with VSCode-inspired colors. Used by [LocalSyntaxTheme]. */
         val DarkDefault: SyntaxTheme by lazy {
             SyntaxTheme(
                 baseStyle = SpanStyle(color = Color(0xFFE0E0E0)),
@@ -44,6 +45,7 @@ data class SyntaxTheme(
             )
         }
 
+        /** Neutral light default with VSCode-inspired colors. */
         val LightDefault: SyntaxTheme by lazy {
             SyntaxTheme(
                 baseStyle = SpanStyle(color = Color(0xFF1F1F1F)),
@@ -67,6 +69,7 @@ data class SyntaxTheme(
             )
         }
 
+        /** Ethan Schoonover's Solarized Dark (base03 background). Attribution in META-INF/NOTICE. */
         val SolarizedDark: SyntaxTheme by lazy {
             SyntaxTheme(
                 baseStyle = SpanStyle(color = Color(0xFF839496)),
@@ -90,6 +93,7 @@ data class SyntaxTheme(
             )
         }
 
+        /** Ethan Schoonover's Solarized Light (base3 background). Attribution in META-INF/NOTICE. */
         val SolarizedLight: SyntaxTheme by lazy {
             SyntaxTheme(
                 baseStyle = SpanStyle(color = Color(0xFF657B83)),
@@ -113,6 +117,7 @@ data class SyntaxTheme(
             )
         }
 
+        /** GitHub Primer Dark syntax tokens. Attribution in META-INF/NOTICE. */
         val GitHubDark: SyntaxTheme by lazy {
             SyntaxTheme(
                 baseStyle = SpanStyle(color = Color(0xFFC9D1D9)),
@@ -136,6 +141,7 @@ data class SyntaxTheme(
             )
         }
 
+        /** GitHub Primer Light syntax tokens. Attribution in META-INF/NOTICE. */
         val GitHubLight: SyntaxTheme by lazy {
             SyntaxTheme(
                 baseStyle = SpanStyle(color = Color(0xFF1F2328)),
@@ -159,6 +165,7 @@ data class SyntaxTheme(
             )
         }
 
+        /** Atom One Dark from atom/atom one-dark-syntax. Attribution in META-INF/NOTICE. */
         val OneDark: SyntaxTheme by lazy {
             SyntaxTheme(
                 baseStyle = SpanStyle(color = Color(0xFFABB2BF)),
@@ -182,6 +189,7 @@ data class SyntaxTheme(
             )
         }
 
+        /** Atom One Light from atom/atom one-light-syntax. Attribution in META-INF/NOTICE. */
         val OneLight: SyntaxTheme by lazy {
             SyntaxTheme(
                 baseStyle = SpanStyle(color = Color(0xFF383A42)),
@@ -205,6 +213,7 @@ data class SyntaxTheme(
             )
         }
 
+        /** Dracula (dark only — no canonical light variant). Attribution in META-INF/NOTICE. */
         val Dracula: SyntaxTheme by lazy {
             SyntaxTheme(
                 baseStyle = SpanStyle(color = Color(0xFFF8F8F2)),
