@@ -1,0 +1,29 @@
+name: Setup toolchain
+description: Install JDK, Android SDK + NDK + CMake, Node, tree-sitter CLI, and Gradle.
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-java@c1e323688fd81a25caa38c78aa6df2d33d3e20d9 # v4.8.0
+      with:
+        distribution: temurin
+        java-version: 17
+
+    - uses: android-actions/setup-android@9fc6c4e9069bf8d3d10b2204b1fb8f6ef7065407 # v3.2.2
+      with:
+        packages: |
+          cmdline-tools;latest
+          platforms;android-36
+          build-tools;36.0.0
+          cmake;3.22.1
+          ndk;26.3.11579264
+
+    - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+      with:
+        node-version: 20
+
+    - name: Install tree-sitter CLI
+      shell: bash
+      run: npm i -g tree-sitter-cli@0.24.4
+
+    - uses: gradle/actions/setup-gradle@ed408507eac070d1f99cc633dbcf757c94c7933a # v4.4.3

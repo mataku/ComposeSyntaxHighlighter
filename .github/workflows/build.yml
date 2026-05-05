@@ -1,0 +1,50 @@
+name: Build
+
+on:
+  pull_request:
+  push:
+    branches: [main, develop]
+
+jobs:
+  jvm-tests:
+    name: JVM tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          submodules: recursive
+      - uses: ./.github/actions/setup
+      - run: ./gradlew :core:jvmTest :languages:kotlin:jvmTest :languages:swift:jvmTest
+
+  android:
+    name: Android demo
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          submodules: recursive
+      - uses: ./.github/actions/setup
+      - run: ./gradlew :composeApp:assembleDebug
+
+  web:
+    name: Web demo
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          submodules: recursive
+      - uses: ./.github/actions/setup
+      - run: ./gradlew :composeApp:wasmJsBrowserDistribution
+
+  verify-notice:
+    name: Verify NOTICE in language artifacts
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          submodules: recursive
+      - uses: ./.github/actions/setup
+      - name: Publish to Maven Local
+        run: ./gradlew publishToMavenLocal -PRELEASE_SIGNING_ENABLED=false --no-configuration-cache
+      - name: Verify META-INF/NOTICE in published artifacts
+        run: bash scripts/verify-notice.sh
