@@ -90,7 +90,7 @@ commonMain  (all production code)
 ## Adding a new language
 
 1. **Create module**: `languages/<lang>/`.
-2. **Add submodule**: `git submodule add <tree-sitter-grammar-repo> languages/<lang>/tree-sitter-<lang>`.
+2. **Add submodule**: `git submodule add <tree-sitter-grammar-repo> languages/<lang>/tree-sitter-<lang>`. Pin to a tag whose bundled `src/parser.c` ships at the ABI configured in `libs.versions.toml/treesitterAbi` (currently 14). Verify with `git -C languages/<lang>/tree-sitter-<lang> show <tag>:src/parser.c | grep LANGUAGE_VERSION` before committing the gitlink — newer upstream tags often ship ABI 15, which ktreesitter 0.24.1 rejects at runtime.
 3. **Create `build.gradle.kts`**:
    ```kotlin
    plugins { id("compose-highlight-language") }
@@ -168,6 +168,8 @@ Environment variables (`ORG_GRADLE_PROJECT_*`) take precedence over `local.prope
 ## Tree-sitter ABI version pinning
 
 `libs.versions.toml` pins `treesitterAbi = "14"` because `ktreesitter 0.24.1` only supports ABI 13–14. Modern `tree-sitter-cli` (0.25+) defaults to ABI 15, so the plugin explicitly passes `--abi=14` when generating the parser. Bump in lockstep with `ktreesitter` when it adds ABI 15 support.
+
+When picking a submodule pin for a new (or updated) language module, the bundled `src/parser.c` MUST already be at ABI 14 — `generateParserSource` only regenerates when `parser.c` is missing or `grammar.js` mtime is newer, so an ABI 15 parser.c bundled upstream will reach `Language(...)` and throw `IllegalArgumentException: Incompatible language version 15`. Concrete examples: `tree-sitter/tree-sitter-rust` main currently bundles ABI 15 — pin to `v0.23.3` instead, which ships ABI 14.
 
 ## Key dependencies
 
