@@ -48,6 +48,15 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
+    sourceSets.named("main") {
+        resources.srcDirs("src/commonMain/resources")
+    }
+    packaging {
+        resources {
+            excludes -= setOf("/META-INF/NOTICE", "/META-INF/NOTICE.txt", "/META-INF/NOTICE.md")
+            pickFirsts += "/META-INF/NOTICE"
+        }
+    }
 }
 
 mavenPublishing {
