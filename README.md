@@ -49,7 +49,13 @@ fun MyScreen() {
 }
 ```
 
-The default theme is `SyntaxTheme.darkDefault()`. To override per-screen:
+The default theme is `SyntaxTheme.darkDefault()`. To override it for a single call, pass `theme` directly:
+
+```kotlin
+SyntaxHighlightedText(code = code, language = KotlinLanguage, theme = myCustomTheme)
+```
+
+Or override for an entire subtree with `CompositionLocalProvider`:
 
 ```kotlin
 import io.github.mataku.compose.highlight.core.LocalSyntaxTheme
@@ -58,12 +64,6 @@ import io.github.mataku.compose.highlight.core.SyntaxTheme
 CompositionLocalProvider(LocalSyntaxTheme provides SyntaxTheme.lightDefault()) {
     SyntaxHighlightedText(code = code, language = KotlinLanguage)
 }
-```
-
-Or pass `theme` directly:
-
-```kotlin
-SyntaxHighlightedText(code = code, language = KotlinLanguage, theme = myCustomTheme)
 ```
 
 ## Supported
