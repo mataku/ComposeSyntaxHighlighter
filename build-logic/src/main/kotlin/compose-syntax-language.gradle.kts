@@ -7,6 +7,7 @@ import io.github.mataku.compose.syntax.buildlogic.writeHostCMakeLists
 import io.github.treesitter.ktreesitter.plugin.GrammarExtension
 import io.github.treesitter.ktreesitter.plugin.GrammarFilesTask
 import org.gradle.api.tasks.Exec
+import org.gradle.api.tasks.bundling.Jar
 import org.gradle.api.tasks.testing.Test
 import org.jetbrains.compose.resources.ResourcesExtension
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
@@ -21,6 +22,7 @@ plugins {
     id("io.github.tree-sitter.ktreesitter-plugin")
     id("org.jetbrains.compose")
     id("org.jetbrains.kotlin.plugin.compose")
+    id("com.vanniktech.maven.publish")
 }
 
 val composeSyntaxLanguage = extensions.create<ComposeSyntaxLanguageExtension>("composeSyntaxLanguage")
@@ -33,6 +35,7 @@ fun catalogVersionInt(alias: String): Int =
 val highlightsQueryDir = layout.buildDirectory.dir("generated/highlights")
 val hostCMakeWorkDir = layout.buildDirectory.dir("host-cmake")
 val wasmStubsDir = layout.buildDirectory.dir("generated/wasm-stubs")
+val noticeOutDir = layout.buildDirectory.dir("notice")
 
 val grammarDirProvider: Provider<File> = composeSyntaxLanguage.grammarSubmodulePath.map { projectDir.resolve(it) }
 val packageNameProvider: Provider<String> = composeSyntaxLanguage.languageName.map {
@@ -79,6 +82,32 @@ val generateWasmTreeSitterStub = tasks.register("generateWasmTreeSitterStub") {
             |
             """.trimMargin()
         )
+    }
+}
+
+val generateNotice = tasks.register("generateNotice") {
+    val tplFile = rootProject.file("NOTICE.tpl")
+    val outDirProvider = noticeOutDir.map { it.asFile }
+    val nameProvider = composeSyntaxLanguage.languageName
+    val licenseSpdxProvider = composeSyntaxLanguage.licenseSpdx
+    val licenseSourceProvider = composeSyntaxLanguage.licenseSource
+    inputs.file(tplFile)
+    inputs.property("languageName", nameProvider)
+    inputs.property("licenseSpdx", licenseSpdxProvider)
+    inputs.property("licenseSource", licenseSourceProvider)
+    outputs.dir(outDirProvider)
+    doLast {
+        val baseTpl = tplFile.readText()
+        val entry = buildString {
+            appendLine()
+            appendLine("Bundled grammar:")
+            appendLine("  Component: tree-sitter-${nameProvider.get()}")
+            appendLine("  License: ${licenseSpdxProvider.get()}")
+            appendLine("  Source: ${licenseSourceProvider.get()}")
+        }
+        val outFile = File(outDirProvider.get(), "META-INF/NOTICE")
+        outFile.parentFile.mkdirs()
+        outFile.writeText(baseTpl + entry)
     }
 }
 
@@ -216,6 +245,7 @@ extensions.configure<KotlinMultiplatformExtension>("kotlin") {
 
     sourceSets {
         commonMain {
+            resources.srcDir(noticeOutDir)
             dependencies {
                 api(project(":core"))
                 implementation(versionCatalog.findLibrary("compose-runtime").get())
@@ -261,6 +291,15 @@ extensions.configure<LibraryExtension>("android") {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
+    }
+    sourceSets.named("main") {
+        resources.srcDirs(noticeOutDir)
+    }
+    packaging {
+        resources {
+            excludes -= setOf("/META-INF/NOTICE", "/META-INF/NOTICE.txt", "/META-INF/NOTICE.md")
+            pickFirsts += "/META-INF/NOTICE"
+        }
     }
 }
 
@@ -325,6 +364,12 @@ afterEvaluate {
     }
 
     tasks.matching {
+        it.name.endsWith("SourcesJar", ignoreCase = true)
+    }.configureEach {
+        dependsOn(generateGrammarFilesTask, generateHighlightsQuery, generateWasmTreeSitterStub)
+    }
+
+    tasks.matching {
         it.name.startsWith("configureCMake") || it.name.startsWith("buildCMake")
     }.configureEach {
         dependsOn(generateGrammarFilesTask)
@@ -347,5 +392,23 @@ afterEvaluate {
             it.name == "convertXmlValueResourcesForWasmJsMain"
     }.configureEach {
         dependsOn(buildGrammarWasm)
+    }
+
+    tasks.matching {
+        val n = it.name
+        n.endsWith("ProcessResources") ||
+            n.startsWith("copyNonXmlValueResources") ||
+            n.startsWith("convertXmlValueResources") ||
+            n == "mergeReleaseJavaResource" ||
+            n == "mergeDebugJavaResource"
+    }.configureEach {
+        dependsOn(generateNotice)
+    }
+
+    val mavenPublishing = extensions.getByType(com.vanniktech.maven.publish.MavenPublishBaseExtension::class.java)
+    mavenPublishing.coordinates(artifactId = "compose-syntax-language-$languageName")
+    mavenPublishing.pom {
+        name.set("Compose Syntax Language: $languageName")
+        description.set("tree-sitter $languageName grammar for the Compose Syntax Highlighter")
     }
 }

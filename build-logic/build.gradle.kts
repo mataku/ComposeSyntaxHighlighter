@@ -14,6 +14,7 @@ dependencies {
     implementation(libs.plugins.ktreesitter.toGradle())
     implementation(libs.plugins.composeMultiplatform.toGradle())
     implementation(libs.plugins.composeCompiler.toGradle())
+    implementation(libs.plugins.vanniktechPublish.toGradle())
 }
 
 fun org.gradle.plugin.use.PluginDependency.toGradle(): String =

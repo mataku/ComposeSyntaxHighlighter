@@ -7,6 +7,7 @@ plugins {
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
+    alias(libs.plugins.vanniktechPublish)
 }
 
 kotlin {
@@ -80,5 +81,13 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
+    }
+}
+
+mavenPublishing {
+    coordinates(artifactId = "compose-syntax-core")
+    pom {
+        name.set("Compose Syntax Core")
+        description.set("Compose Multiplatform syntax highlighter — core API")
     }
 }
