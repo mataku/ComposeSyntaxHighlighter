@@ -38,6 +38,7 @@ include(":languages:rust")
 include(":languages:python")
 include(":languages:go")
 include(":languages:java")
+include(":benchmark")
 
 val localPropsFile = rootDir.resolve("local.properties")
 if (localPropsFile.exists()) {
