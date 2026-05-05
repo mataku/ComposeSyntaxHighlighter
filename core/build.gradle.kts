@@ -21,10 +21,10 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             api(libs.ktreesitter)
-            implementation(libs.compose.runtime)
-            implementation(libs.compose.foundation)
-            implementation(libs.compose.material3)
-            implementation(libs.compose.ui)
+            api(libs.compose.runtime)
+            api(libs.compose.foundation)
+            api(libs.compose.material3)
+            api(libs.compose.ui)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
