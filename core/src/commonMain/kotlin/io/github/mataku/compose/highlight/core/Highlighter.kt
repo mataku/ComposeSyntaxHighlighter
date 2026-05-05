@@ -13,7 +13,7 @@ fun highlight(
 ): AnnotatedString {
     val parser = Parser(language.parser)
     val tree = parser.parse(code)
-    val query = language.parser.query(language.highlightsQuery)
+    val query = language.query
     val byteToChar = Utf8ByteIndex(code)
     val emptySpan = SpanStyle()
 
