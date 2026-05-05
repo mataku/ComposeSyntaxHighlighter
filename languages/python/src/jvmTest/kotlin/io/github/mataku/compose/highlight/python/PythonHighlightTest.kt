@@ -13,6 +13,7 @@ class PythonHighlightTest {
     private val keywordColor = Color.Red
     private val stringColor = Color.Green
     private val commentColor = Color.Blue
+    private val numberColor = Color.Yellow
     private val baseColor = Color.White
 
     private val theme = SyntaxTheme(
@@ -21,6 +22,7 @@ class PythonHighlightTest {
             "keyword" to SpanStyle(color = keywordColor),
             "string" to SpanStyle(color = stringColor),
             "comment" to SpanStyle(color = commentColor),
+            "number" to SpanStyle(color = numberColor),
         ),
     )
 
@@ -50,6 +52,18 @@ class PythonHighlightTest {
         assertTrue(
             annotated.spanStyles.any { it.start == 0 && it.end == commentEnd && it.item.color == commentColor },
             "expected comment 0..$commentEnd styled with commentColor; spans=${annotated.spanStyles}",
+        )
+    }
+
+    @Test
+    fun integer_literal_is_styled() {
+        val code = "x = 42"
+        val annotated = highlight(code, PythonLanguage, theme)
+        val start = code.indexOf("42")
+        val end = start + 2
+        assertTrue(
+            annotated.spanStyles.any { it.start == start && it.end == end && it.item.color == numberColor },
+            "expected number $start..$end styled with numberColor; spans=${annotated.spanStyles}",
         )
     }
 
