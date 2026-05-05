@@ -13,3 +13,6 @@
 [submodule "languages/python/tree-sitter-python"]
 	path = languages/python/tree-sitter-python
 	url = https://github.com/tree-sitter/tree-sitter-python.git
+[submodule "languages/go/tree-sitter-go"]
+	path = languages/go/tree-sitter-go
+	url = https://github.com/tree-sitter/tree-sitter-go.git
