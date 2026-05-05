@@ -34,6 +34,7 @@ include(":core")
 include(":languages:kotlin")
 include(":languages:swift")
 include(":languages:ruby")
+include(":languages:rust")
 
 val localPropsFile = rootDir.resolve("local.properties")
 if (localPropsFile.exists()) {

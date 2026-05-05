@@ -7,3 +7,6 @@
 [submodule "languages/ruby/tree-sitter-ruby"]
 	path = languages/ruby/tree-sitter-ruby
 	url = https://github.com/tree-sitter/tree-sitter-ruby.git
+[submodule "languages/rust/tree-sitter-rust"]
+	path = languages/rust/tree-sitter-rust
+	url = https://github.com/tree-sitter/tree-sitter-rust.git
