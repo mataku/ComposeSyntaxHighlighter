@@ -79,6 +79,10 @@ SyntaxHighlightedText(code = code, language = KotlinLanguage, theme = myCustomTh
 |----------|----------------------------------|
 | Kotlin   | `compose-highlight-kotlin` |
 | Swift    | `compose-highlight-swift`  |
+| Ruby     | `compose-highlight-ruby`   |
+| Rust     | `compose-highlight-rust`   |
+| Python   | `compose-highlight-python` |
+| Go       | `compose-highlight-go`     |
 
 ## Custom theme
 
