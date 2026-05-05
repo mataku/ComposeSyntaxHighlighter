@@ -11,9 +11,9 @@ Artifacts are published on Maven Central. Add `mavenCentral()` to your repositor
 
 ```kotlin
 // build.gradle.kts (commonMain)
-implementation("io.github.mataku:compose-highlight-core:0.1.0")
-implementation("io.github.mataku:compose-highlight-kotlin:0.1.0")
-implementation("io.github.mataku:compose-highlight-swift:0.1.0")
+implementation("io.github.mataku:compose-highlight-core:$latestVersion")
+implementation("io.github.mataku:compose-highlight-kotlin:$latestHighlightKotlinVersion")
+implementation("io.github.mataku:compose-highlight-swift:$latestHighlightSwiftVersion")
 ```
 
 `compose-highlight-core` ships the `SyntaxHighlightedText` composable and built-in themes; each `compose-highlight-<lang>` artifact ships its tree-sitter grammar and the `Language` value you pass to the composable. Bumping `compose-highlight-core` to pick up new themes does not require updating the language artifacts.
