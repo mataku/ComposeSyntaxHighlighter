@@ -32,11 +32,15 @@ import io.github.mataku.compose.highlight.core.LocalSyntaxTheme
 import io.github.mataku.compose.highlight.core.SyntaxHighlightedText
 import io.github.mataku.compose.highlight.core.SyntaxTheme
 import io.github.mataku.compose.highlight.kotlin.KotlinLanguage
+import io.github.mataku.compose.highlight.ruby.RubyLanguage
+import io.github.mataku.compose.highlight.rust.RustLanguage
 import io.github.mataku.compose.highlight.swift.SwiftLanguage
 
 private enum class DemoLanguage(val label: String) {
     Kotlin("Kotlin"),
     Swift("Swift"),
+    Ruby("Ruby"),
+    Rust("Rust"),
 }
 
 private enum class DemoTheme(val label: String) {
@@ -53,6 +57,8 @@ fun HighlighterDemo() {
     val (code, language) = when (selectedLang) {
         DemoLanguage.Kotlin -> SampleCode.kotlin to KotlinLanguage
         DemoLanguage.Swift -> SampleCode.swift to SwiftLanguage
+        DemoLanguage.Ruby -> SampleCode.ruby to RubyLanguage
+        DemoLanguage.Rust -> SampleCode.rust to RustLanguage
     }
     val theme = when (selectedTheme) {
         DemoTheme.Dark -> SyntaxTheme.darkDefault()
