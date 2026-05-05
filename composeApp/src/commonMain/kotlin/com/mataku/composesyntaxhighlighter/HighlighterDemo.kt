@@ -19,7 +19,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -28,7 +27,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import io.github.mataku.compose.highlight.core.LocalSyntaxTheme
 import io.github.mataku.compose.highlight.core.SyntaxHighlightedText
 import io.github.mataku.compose.highlight.core.SyntaxTheme
 import io.github.mataku.compose.highlight.go.GoLanguage
@@ -40,123 +38,122 @@ import io.github.mataku.compose.highlight.rust.RustLanguage
 import io.github.mataku.compose.highlight.swift.SwiftLanguage
 
 private enum class DemoLanguage(val label: String) {
-    Kotlin("Kotlin"),
-    Swift("Swift"),
-    Ruby("Ruby"),
-    Rust("Rust"),
-    Python("Python"),
-    Go("Go"),
-    Java("Java"),
+  Kotlin("Kotlin"),
+  Swift("Swift"),
+  Ruby("Ruby"),
+  Rust("Rust"),
+  Python("Python"),
+  Go("Go"),
+  Java("Java"),
 }
 
 private enum class DemoTheme(val label: String) {
-    Dark("Dark"),
-    Light("Light"),
+  Dark("Dark"),
+  Light("Light"),
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HighlighterDemo() {
-    var selectedLang by remember { mutableStateOf(DemoLanguage.Kotlin) }
-    var selectedTheme by remember { mutableStateOf(DemoTheme.Dark) }
+  var selectedLang by remember { mutableStateOf(DemoLanguage.Kotlin) }
+  var selectedTheme by remember { mutableStateOf(DemoTheme.Dark) }
 
-    val (code, language) = when (selectedLang) {
-        DemoLanguage.Kotlin -> SampleCode.kotlin to KotlinLanguage
-        DemoLanguage.Swift -> SampleCode.swift to SwiftLanguage
-        DemoLanguage.Ruby -> SampleCode.ruby to RubyLanguage
-        DemoLanguage.Rust -> SampleCode.rust to RustLanguage
-        DemoLanguage.Python -> SampleCode.python to PythonLanguage
-        DemoLanguage.Go -> SampleCode.go to GoLanguage
-        DemoLanguage.Java -> SampleCode.java to JavaLanguage
-    }
-    val theme = when (selectedTheme) {
-        DemoTheme.Dark -> SyntaxTheme.darkDefault()
-        DemoTheme.Light -> SyntaxTheme.lightDefault()
-    }
-    val surfaceColor = if (selectedTheme == DemoTheme.Dark) Color(0xFF1E1E1E) else Color(0xFFFFFFFF)
+  val (code, language) = when (selectedLang) {
+    DemoLanguage.Kotlin -> SampleCode.kotlin to KotlinLanguage
+    DemoLanguage.Swift -> SampleCode.swift to SwiftLanguage
+    DemoLanguage.Ruby -> SampleCode.ruby to RubyLanguage
+    DemoLanguage.Rust -> SampleCode.rust to RustLanguage
+    DemoLanguage.Python -> SampleCode.python to PythonLanguage
+    DemoLanguage.Go -> SampleCode.go to GoLanguage
+    DemoLanguage.Java -> SampleCode.java to JavaLanguage
+  }
+  val theme = when (selectedTheme) {
+    DemoTheme.Dark -> SyntaxTheme.darkDefault()
+    DemoTheme.Light -> SyntaxTheme.lightDefault()
+  }
+  val surfaceColor = if (selectedTheme == DemoTheme.Dark) Color(0xFF1E1E1E) else Color(0xFFFFFFFF)
 
-    MaterialTheme {
-        CompositionLocalProvider(LocalSyntaxTheme provides theme) {
-            Scaffold(
-                topBar = {
-                    TopAppBar(title = { Text("Compose Highlight Demo") })
-                },
-            ) { padding ->
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(padding)
-                        .verticalScroll(rememberScrollState()),
-                    verticalArrangement = Arrangement.spacedBy(16.dp),
-                ) {
-                    Row(
-                        modifier = Modifier.padding(horizontal = 16.dp),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    ) {
-                        DemoDropdown(
-                            label = "Language",
-                            options = DemoLanguage.entries,
-                            selected = selectedLang,
-                            optionLabel = { it.label },
-                            onSelect = { selectedLang = it },
-                            modifier = Modifier.weight(1f),
-                        )
-                        DemoDropdown(
-                            label = "Theme",
-                            options = DemoTheme.entries,
-                            selected = selectedTheme,
-                            optionLabel = { it.label },
-                            onSelect = { selectedTheme = it },
-                            modifier = Modifier.weight(1f),
-                        )
-                    }
-                    Surface(color = surfaceColor, modifier = Modifier.fillMaxSize()) {
-                        Column(modifier = Modifier.padding(16.dp)) {
-                            SyntaxHighlightedText(code = code, language = language)
-                        }
-                    }
-                }
-            }
+  MaterialTheme {
+    Scaffold(
+      topBar = {
+        TopAppBar(title = { Text("Compose Highlight Demo") })
+      },
+    ) { padding ->
+      Column(
+        modifier = Modifier
+          .fillMaxSize()
+          .padding(padding)
+          .verticalScroll(rememberScrollState()),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+      ) {
+        Row(
+          modifier = Modifier.padding(horizontal = 16.dp),
+          horizontalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+          DemoDropdown(
+            label = "Language",
+            options = DemoLanguage.entries,
+            selected = selectedLang,
+            optionLabel = { it.label },
+            onSelect = { selectedLang = it },
+            modifier = Modifier.weight(1f),
+          )
+          DemoDropdown(
+            label = "Theme",
+            options = DemoTheme.entries,
+            selected = selectedTheme,
+            optionLabel = { it.label },
+            onSelect = { selectedTheme = it },
+            modifier = Modifier.weight(1f),
+          )
         }
+        Surface(color = surfaceColor, modifier = Modifier.fillMaxSize()) {
+          Column(modifier = Modifier.padding(16.dp)) {
+            SyntaxHighlightedText(code = code, language = language, theme = theme)
+          }
+        }
+      }
     }
+  }
 }
+
 
 @Composable
 private fun <T> DemoDropdown(
-    label: String,
-    options: List<T>,
-    selected: T,
-    optionLabel: (T) -> String,
-    onSelect: (T) -> Unit,
-    modifier: Modifier = Modifier,
+  label: String,
+  options: List<T>,
+  selected: T,
+  optionLabel: (T) -> String,
+  onSelect: (T) -> Unit,
+  modifier: Modifier = Modifier,
 ) {
-    var expanded by remember { mutableStateOf(false) }
-    Box(modifier) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable { expanded = true }
-                .padding(vertical = 8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Text(
-                text = "$label: ${optionLabel(selected)} ▾",
-                style = MaterialTheme.typography.bodyLarge,
-            )
-        }
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false },
-        ) {
-            options.forEach { option ->
-                DropdownMenuItem(
-                    text = { Text(optionLabel(option)) },
-                    onClick = {
-                        onSelect(option)
-                        expanded = false
-                    },
-                )
-            }
-        }
+  var expanded by remember { mutableStateOf(false) }
+  Box(modifier) {
+    Row(
+      modifier = Modifier
+        .fillMaxWidth()
+        .clickable { expanded = true }
+        .padding(vertical = 8.dp),
+      verticalAlignment = Alignment.CenterVertically,
+    ) {
+      Text(
+        text = "$label: ${optionLabel(selected)} ▾",
+        style = MaterialTheme.typography.bodyLarge,
+      )
     }
+    DropdownMenu(
+      expanded = expanded,
+      onDismissRequest = { expanded = false },
+    ) {
+      options.forEach { option ->
+        DropdownMenuItem(
+          text = { Text(optionLabel(option)) },
+          onClick = {
+            onSelect(option)
+            expanded = false
+          },
+        )
+      }
+    }
+  }
 }
