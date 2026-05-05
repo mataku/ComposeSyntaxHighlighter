@@ -20,9 +20,6 @@ kotlin {
         commonMain.dependencies {
             api(libs.ktreesitter)
         }
-        commonTest.dependencies {
-            implementation(libs.kotlin.test)
-        }
     }
 }
 
