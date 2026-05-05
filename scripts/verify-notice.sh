@@ -24,6 +24,33 @@ variants=(
   jvm:jar
 )
 
+# Per-module keywords that must appear in the NOTICE body. Empty = presence check only.
+required_keywords_compose_highlight_core=("Solarized" "GitHub Primer" "Atom One" "Dracula")
+
+required_keywords_for() {
+  case "$1" in
+    compose-highlight-core) printf '%s\n' "${required_keywords_compose_highlight_core[@]}" ;;
+    *) ;;
+  esac
+}
+
+assert_keywords() {
+  local module="$1"
+  local source_label="$2"
+  local notice_content="$3"
+  local missing=()
+  while IFS= read -r kw; do
+    [[ -z "${kw}" ]] && continue
+    if ! grep -qF -- "${kw}" <<<"${notice_content}"; then
+      missing+=("${kw}")
+    fi
+  done < <(required_keywords_for "${module}")
+  if (( ${#missing[@]} > 0 )); then
+    echo "FAIL: ${source_label} missing required attributions: ${missing[*]}" >&2
+    exit 1
+  fi
+}
+
 for module in "${modules[@]}"; do
   for variant_ext in "${variants[@]}"; do
     variant="${variant_ext%%:*}"
@@ -36,7 +63,8 @@ for module in "${modules[@]}"; do
       exit 1
     fi
 
-    if unzip -p "${file}" 'META-INF/NOTICE' >/dev/null 2>&1; then
+    if notice_content="$(unzip -p "${file}" 'META-INF/NOTICE' 2>/dev/null)" && [[ -n "${notice_content}" ]]; then
+      assert_keywords "${module}" "${artifact}" "${notice_content}"
       echo "OK: ${artifact} contains META-INF/NOTICE"
       continue
     fi
@@ -45,7 +73,8 @@ for module in "${modules[@]}"; do
       tmp="$(mktemp -d)"
       trap 'rm -rf "${tmp}"' EXIT
       unzip -q "${file}" -d "${tmp}"
-      if unzip -p "${tmp}/classes.jar" 'META-INF/NOTICE' >/dev/null 2>&1; then
+      if notice_content="$(unzip -p "${tmp}/classes.jar" 'META-INF/NOTICE' 2>/dev/null)" && [[ -n "${notice_content}" ]]; then
+        assert_keywords "${module}" "${artifact}/classes.jar" "${notice_content}"
         echo "OK: ${artifact}/classes.jar contains META-INF/NOTICE"
         rm -rf "${tmp}"
         trap - EXIT
