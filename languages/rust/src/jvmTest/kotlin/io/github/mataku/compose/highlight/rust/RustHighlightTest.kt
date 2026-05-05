@@ -2,10 +2,12 @@ package io.github.mataku.compose.highlight.rust
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
+import io.github.mataku.compose.highlight.core.Languages
 import io.github.mataku.compose.highlight.core.SyntaxTheme
 import io.github.mataku.compose.highlight.core.highlight
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
 class RustHighlightTest {
@@ -75,5 +77,10 @@ class RustHighlightTest {
         val annotated = highlight(code, RustLanguage, theme)
         val baseSpan = annotated.spanStyles.firstOrNull { it.start == 0 && it.end == code.length && it.item.color == baseColor }
         assertTrue(baseSpan != null, "expected base style covering 0..${code.length}; spans=${annotated.spanStyles}")
+    }
+
+    @Test
+    fun languages_extension_returns_canonical_language() {
+        assertSame(RustLanguage, Languages.rust)
     }
 }
