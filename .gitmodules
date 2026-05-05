@@ -16,3 +16,6 @@
 [submodule "languages/go/tree-sitter-go"]
 	path = languages/go/tree-sitter-go
 	url = https://github.com/tree-sitter/tree-sitter-go.git
+[submodule "languages/java/tree-sitter-java"]
+	path = languages/java/tree-sitter-java
+	url = https://github.com/tree-sitter/tree-sitter-java.git
