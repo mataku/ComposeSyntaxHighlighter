@@ -4,3 +4,6 @@
 [submodule "languages/swift/tree-sitter-swift"]
 	path = languages/swift/tree-sitter-swift
 	url = https://github.com/alex-pinkus/tree-sitter-swift.git
+[submodule "languages/ruby/tree-sitter-ruby"]
+	path = languages/ruby/tree-sitter-ruby
+	url = https://github.com/tree-sitter/tree-sitter-ruby.git
