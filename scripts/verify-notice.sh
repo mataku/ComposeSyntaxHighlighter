@@ -13,6 +13,9 @@ modules=(
   compose-highlight-swift
   compose-highlight-ruby
   compose-highlight-rust
+  compose-highlight-python
+  compose-highlight-go
+  compose-highlight-java
 )
 
 variants=(
