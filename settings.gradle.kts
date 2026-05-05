@@ -33,3 +33,24 @@ include(":composeApp")
 include(":core")
 include(":languages:kotlin")
 include(":languages:swift")
+
+val localPropsFile = rootDir.resolve("local.properties")
+if (localPropsFile.exists()) {
+    val localProps = java.util.Properties().apply {
+        localPropsFile.inputStream().use(::load)
+    }
+    val publishKeys = listOf(
+        "mavenCentralUsername",
+        "mavenCentralPassword",
+        "signingInMemoryKey",
+        "signingInMemoryKeyId",
+        "signingInMemoryKeyPassword",
+    )
+    gradle.beforeProject {
+        publishKeys.forEach { key ->
+            if (!hasProperty(key)) {
+                localProps.getProperty(key)?.let { extensions.extraProperties.set(key, it) }
+            }
+        }
+    }
+}
