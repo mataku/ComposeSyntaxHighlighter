@@ -1,0 +1,20 @@
+{
+  "name": "compose-syntax-highlighter-toolchain",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Build-time toolchain for ComposeSyntaxHighlighter (tree-sitter CLI used by the convention plugin to generate parser.c).",
+  "engines": {
+    "node": ">=20"
+  },
+  "packageManager": "pnpm@10.33.3",
+  "devDependencies": {
+    "tree-sitter-cli": "0.24.4"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "tree-sitter-cli"
+    ],
+    "minimumReleaseAge": 10080,
+    "minimumReleaseAgeExclude": []
+  }
+}

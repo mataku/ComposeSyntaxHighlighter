@@ -1,5 +1,5 @@
 name: Setup toolchain
-description: Install JDK, Android SDK + NDK + CMake, Node, tree-sitter CLI, and Gradle.
+description: Install JDK, Android SDK + NDK + CMake, Node, pnpm (via corepack), tree-sitter CLI, and Gradle.
 
 runs:
   using: composite
@@ -22,10 +22,27 @@ runs:
       with:
         node-version: 20
 
-    - name: Install tree-sitter CLI
+    # The convention plugin invokes `tree-sitter generate` to materialize parser.c
+    # for grammars (notably tree-sitter-swift) that do not commit a generated parser.
+    # Security posture:
+    #   - pnpm version is pinned via the `packageManager` field in package.json
+    #     and fetched by corepack, so the toolchain version is reproducible and
+    #     auditable from the manifest.
+    #   - `pnpm.onlyBuiltDependencies` in package.json is a strict allow-list:
+    #     only `tree-sitter-cli` may run lifecycle scripts. Any new transitive
+    #     dependency that ships an install/postinstall script will be blocked
+    #     until explicitly added to this list.
+    #   - `pnpm.minimumReleaseAge` (10080 minutes / 7 days) holds back versions
+    #     published less than a week ago, mitigating "fresh malicious publish"
+    #     supply-chain attacks.
+    - name: Enable corepack (resolves pnpm pinned in packageManager field)
       shell: bash
-      # tree-sitter generate is invoked by the convention plugin to materialize
-      # parser.c when the grammar submodule does not commit a generated parser.
-      run: npm i -g tree-sitter-cli@0.24.4
+      run: corepack enable
+    - name: Install npm deps via pnpm
+      shell: bash
+      run: pnpm install --frozen-lockfile
+    - name: Expose tree-sitter on PATH
+      shell: bash
+      run: echo "${GITHUB_WORKSPACE}/node_modules/.bin" >> "$GITHUB_PATH"
 
     - uses: gradle/actions/setup-gradle@ed408507eac070d1f99cc633dbcf757c94c7933a # v4.4.3
