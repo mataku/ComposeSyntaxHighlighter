@@ -173,7 +173,7 @@ extensions.configure<KotlinMultiplatformExtension>("kotlin") {
             resources.srcDir(noticeOutDir)
             kotlin.srcDir(highlightsQueryDir)
             dependencies {
-                api(project(":core"))
+                api(project(":core-api"))
                 api(versionCatalog.findLibrary("ktreesitter").get())
                 implementation(versionCatalog.findLibrary("compose-runtime").get())
             }
@@ -184,6 +184,10 @@ extensions.configure<KotlinMultiplatformExtension>("kotlin") {
                 implementation(versionCatalog.findLibrary("compose-ui").get())
             }
         }
+    }
+
+    sourceSets.all {
+        languageSettings.optIn("io.github.mataku.compose.highlight.api.InternalSyntaxHighlightApi")
     }
 }
 
