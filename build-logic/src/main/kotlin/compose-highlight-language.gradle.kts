@@ -15,8 +15,6 @@ plugins {
     id("org.jetbrains.kotlin.multiplatform")
     id("com.android.library")
     id("io.github.tree-sitter.ktreesitter-plugin")
-    id("org.jetbrains.compose")
-    id("org.jetbrains.kotlin.plugin.compose")
     id("com.vanniktech.maven.publish")
 }
 
@@ -187,10 +185,9 @@ extensions.configure<KotlinMultiplatformExtension>("kotlin") {
             dependencies {
                 api(project(":core-api"))
                 api(versionCatalog.findLibrary("ktreesitter").get())
-                implementation(versionCatalog.findLibrary("compose-runtime").get())
             }
         }
-        val jvmTest by getting {
+        getByName("jvmTest") {
             dependencies {
                 implementation(versionCatalog.findLibrary("kotlin-test").get())
                 implementation(versionCatalog.findLibrary("compose-ui").get())
