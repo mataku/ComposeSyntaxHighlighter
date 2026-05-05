@@ -24,6 +24,8 @@ runs:
 
     - name: Install tree-sitter CLI
       shell: bash
+      # tree-sitter generate is invoked by the convention plugin to materialize
+      # parser.c when the grammar submodule does not commit a generated parser.
       run: npm i -g tree-sitter-cli@0.24.4
 
     - uses: gradle/actions/setup-gradle@ed408507eac070d1f99cc633dbcf757c94c7933a # v4.4.3

@@ -16,7 +16,6 @@ modules=(
 variants=(
   android:aar
   jvm:jar
-  wasm-js:klib
 )
 
 for module in "${modules[@]}"; do
