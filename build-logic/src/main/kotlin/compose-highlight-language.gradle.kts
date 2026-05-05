@@ -109,21 +109,33 @@ val generateParserSource = tasks.register<Exec>("generateParserSource") {
     val grammarDirFileProvider = grammarDirProvider
     val grammarJsProvider = grammarDirFileProvider.map { it.resolve("grammar.js") }
     val parserCProvider = grammarDirFileProvider.map { it.resolve("src/parser.c") }
+    val localTreeSitterBin = rootProject.file("node_modules/.bin/tree-sitter")
     inputs.file(grammarJsProvider)
     outputs.file(parserCProvider)
     workingDir(grammarDirFileProvider)
     val abi = versionCatalog.findVersion("treesitterAbi").get().requiredVersion
-    commandLine("tree-sitter", "generate", "--abi=$abi")
+    val resolvedCommand = if (localTreeSitterBin.exists()) localTreeSitterBin.absolutePath else "tree-sitter"
+    commandLine(resolvedCommand, "generate", "--abi=$abi")
     doFirst {
-        val check = ProcessBuilder("which", "tree-sitter")
-            .redirectErrorStream(true)
-            .start()
-        check.waitFor()
-        if (check.exitValue() != 0) {
+        val available = if (localTreeSitterBin.exists()) {
+            true
+        } else {
+            val check = ProcessBuilder("which", "tree-sitter")
+                .redirectErrorStream(true)
+                .start()
+            check.waitFor()
+            check.exitValue() == 0
+        }
+        if (!available) {
             error(
-                "tree-sitter CLI is not on PATH. Install with: " +
-                    "npm i -g tree-sitter-cli  (Node 20+ required). " +
-                    "See CONTRIBUTING.md."
+                "tree-sitter CLI was not found. The convention plugin prefers the project-local " +
+                    "install at <repo>/node_modules/.bin/tree-sitter and falls back to any " +
+                    "tree-sitter on PATH. To populate the project-local install, run your " +
+                    "package manager from the repository root (e.g. " +
+                    "`pnpm install --frozen-lockfile`; see package.json for the pinned " +
+                    "version). If lifecycle scripts are disabled in your environment " +
+                    "(e.g. ~/.npmrc sets ignore-scripts=true), trigger the CLI binary " +
+                    "download explicitly afterward (e.g. `pnpm rebuild tree-sitter-cli`)."
             )
         }
     }
