@@ -117,6 +117,35 @@ val myTheme = SyntaxTheme(
 Capture name resolution falls back to parent prefixes — defining `keyword` covers `keyword.return`,
 `keyword.function`, etc. unless a more specific entry is provided.
 
+## Performance
+
+`Language` instances pre-compile the tree-sitter highlights query on first access, so repeated
+highlighting of different code snippets with the same language is fast. The table below shows the
+full `highlight()` call measured on a single machine. Values are for small code snippets
+(~10–15 lines) and illustrate relative differences, not absolute guarantees.
+
+```
+OS: Mac OS X (26.4.1)
+Arch: aarch64
+JVM: OpenJDK 64-Bit Server VM 21.0.11
+Processors: 12
+Max heap: 512 MB
+Warmup iterations: 10
+Measure iterations: 50
+```
+
+| Language | Mean (ms) | Median (ms) | StdDev (ms) | Min (ms) | Max (ms) | P99 (ms) |
+|----------|-----------|-------------|-------------|----------|----------|----------|
+| Kotlin   | 0.510     | 0.509       | 0.010       | 0.493    | 0.539    | 0.539    |
+| Swift    | 0.293     | 0.291       | 0.006       | 0.284    | 0.312    | 0.312    |
+| Ruby     | 0.286     | 0.284       | 0.017       | 0.257    | 0.331    | 0.331    |
+| Rust     | 0.279     | 0.277       | 0.005       | 0.272    | 0.297    | 0.297    |
+| Python   | 0.208     | 0.209       | 0.006       | 0.194    | 0.230    | 0.230    |
+| Go       | 0.200     | 0.198       | 0.017       | 0.184    | 0.310    | 0.310    |
+| Java     | 0.255     | 0.254       | 0.008       | 0.233    | 0.275    | 0.275    |
+
+Run `./gradlew :benchmark:jvmTest` to reproduce on your own machine.
+
 ## License
 
 MIT. Bundled grammars (tree-sitter, KTreeSitter, fwcd/tree-sitter-kotlin,
