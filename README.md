@@ -61,7 +61,7 @@ Or override for an entire subtree with `CompositionLocalProvider`:
 import io.github.mataku.compose.highlight.core.LocalSyntaxTheme
 import io.github.mataku.compose.highlight.core.SyntaxTheme
 
-CompositionLocalProvider(LocalSyntaxTheme provides SyntaxTheme.lightDefault()) {
+CompositionLocalProvider(LocalSyntaxTheme provides SyntaxTheme.LightDefault) {
     SyntaxHighlightedText(code = code, language = KotlinLanguage)
 }
 ```
