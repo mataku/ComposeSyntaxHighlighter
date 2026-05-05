@@ -31,9 +31,15 @@ dependencyResolutionManagement {
 
 ```kotlin
 // build.gradle.kts (commonMain)
+implementation("io.github.mataku:compose-highlight-core:0.1.0-SNAPSHOT")
 implementation("io.github.mataku:compose-highlight-kotlin:0.1.0-SNAPSHOT")
 implementation("io.github.mataku:compose-highlight-swift:0.1.0-SNAPSHOT")
 ```
+
+`compose-highlight-core` ships the `SyntaxHighlightedText` composable and built-in
+themes; each `compose-highlight-<lang>` artifact ships its tree-sitter grammar and
+the `Language` value you pass to the composable. Bumping `compose-highlight-core` to
+pick up new themes does not require updating the language artifacts.
 
 ## Basic usage
 
