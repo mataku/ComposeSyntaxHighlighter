@@ -66,5 +66,51 @@ data class SyntaxTheme(
                 background = Color(0xFFFFFFFF),
             )
         }
+
+        val SolarizedDark: SyntaxTheme by lazy {
+            SyntaxTheme(
+                baseStyle = SpanStyle(color = Color(0xFF839496)),
+                styles = mapOf(
+                    "keyword" to SpanStyle(color = Color(0xFF859900), fontWeight = FontWeight.Bold),
+                    "function" to SpanStyle(color = Color(0xFF268BD2)),
+                    "type" to SpanStyle(color = Color(0xFFB58900)),
+                    "string" to SpanStyle(color = Color(0xFF2AA198)),
+                    "string.escape" to SpanStyle(color = Color(0xFFCB4B16)),
+                    "number" to SpanStyle(color = Color(0xFFD33682)),
+                    "boolean" to SpanStyle(color = Color(0xFF6C71C4)),
+                    "comment" to SpanStyle(color = Color(0xFF586E75)),
+                    "constant" to SpanStyle(color = Color(0xFFCB4B16)),
+                    "property" to SpanStyle(color = Color(0xFF268BD2)),
+                    "variable" to SpanStyle(color = Color(0xFF839496)),
+                    "namespace" to SpanStyle(color = Color(0xFFB58900)),
+                    "operator" to SpanStyle(color = Color(0xFF93A1A1)),
+                    "punctuation" to SpanStyle(color = Color(0xFF586E75)),
+                ),
+                background = Color(0xFF002B36),
+            )
+        }
+
+        val SolarizedLight: SyntaxTheme by lazy {
+            SyntaxTheme(
+                baseStyle = SpanStyle(color = Color(0xFF657B83)),
+                styles = mapOf(
+                    "keyword" to SpanStyle(color = Color(0xFF859900), fontWeight = FontWeight.Bold),
+                    "function" to SpanStyle(color = Color(0xFF268BD2)),
+                    "type" to SpanStyle(color = Color(0xFFB58900)),
+                    "string" to SpanStyle(color = Color(0xFF2AA198)),
+                    "string.escape" to SpanStyle(color = Color(0xFFCB4B16)),
+                    "number" to SpanStyle(color = Color(0xFFD33682)),
+                    "boolean" to SpanStyle(color = Color(0xFF6C71C4)),
+                    "comment" to SpanStyle(color = Color(0xFF93A1A1)),
+                    "constant" to SpanStyle(color = Color(0xFFCB4B16)),
+                    "property" to SpanStyle(color = Color(0xFF268BD2)),
+                    "variable" to SpanStyle(color = Color(0xFF657B83)),
+                    "namespace" to SpanStyle(color = Color(0xFFB58900)),
+                    "operator" to SpanStyle(color = Color(0xFF586E75)),
+                    "punctuation" to SpanStyle(color = Color(0xFF93A1A1)),
+                ),
+                background = Color(0xFFFDF6E3),
+            )
+        }
     }
 }
