@@ -90,4 +90,24 @@ class SyntaxThemeTest {
         assertEquals(theme.styles["keyword"], theme.resolve("keyword.return"))
         assertEquals(Color(0xFFFDF6E3), theme.background)
     }
+
+    @Test
+    fun github_dark_provides_required_capture_keys_and_background() {
+        val theme = SyntaxTheme.GitHubDark
+        assertEquals(true, theme.styles.containsKey("keyword"))
+        assertEquals(true, theme.styles.containsKey("string"))
+        assertEquals(true, theme.styles.containsKey("comment"))
+        assertEquals(theme.styles["keyword"], theme.resolve("keyword.return"))
+        assertEquals(Color(0xFF0D1117), theme.background)
+    }
+
+    @Test
+    fun github_light_provides_required_capture_keys_and_background() {
+        val theme = SyntaxTheme.GitHubLight
+        assertEquals(true, theme.styles.containsKey("keyword"))
+        assertEquals(true, theme.styles.containsKey("string"))
+        assertEquals(true, theme.styles.containsKey("comment"))
+        assertEquals(theme.styles["keyword"], theme.resolve("keyword.return"))
+        assertEquals(Color(0xFFFFFFFF), theme.background)
+    }
 }
