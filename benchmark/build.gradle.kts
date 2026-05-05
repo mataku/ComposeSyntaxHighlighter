@@ -12,7 +12,11 @@ kotlin {
         }
     }
 
-    jvm()
+    jvm {
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_17)
+        }
+    }
 
     sourceSets {
         commonTest.dependencies {
@@ -31,6 +35,7 @@ kotlin {
             dependencies {
                 implementation(libs.androidx.benchmark.junit4)
                 implementation(libs.androidx.test.runner)
+                implementation(libs.androidx.testExt.junit)
             }
         }
 
@@ -53,6 +58,7 @@ android {
 
     buildTypes {
         create("benchmark") {
+            signingConfig = signingConfigs.getByName("debug")
             matchingFallbacks += listOf("release")
         }
     }
@@ -62,3 +68,4 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 }
+
