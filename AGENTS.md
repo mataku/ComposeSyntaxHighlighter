@@ -207,6 +207,13 @@ fun CodeBlock(code: String) {
 }
 ```
 
+## Documentation paths
+
+- Design specs: `docs/specs/YYYY-MM-DD-<topic>-design.md`
+- Implementation plans: `docs/plans/YYYY-MM-DD-<topic>-plan.md`
+
+Use these paths instead of any tool/skill default (e.g. `docs/superpowers/specs/`).
+
 ## License notes
 
 Each language module bundles a `tree-sitter-*` grammar submodule. Ensure `licenseSpdx` and `licenseSource` in `composeHighlightLanguage` reflect the upstream grammar license. Currently all bundled grammars are MIT licensed.
