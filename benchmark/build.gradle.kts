@@ -32,10 +32,20 @@ kotlin {
         }
 
         val androidInstrumentedTest by getting {
+            dependsOn(commonTest.get())
             dependencies {
                 implementation(libs.androidx.benchmark.junit4)
                 implementation(libs.androidx.test.runner)
                 implementation(libs.androidx.testExt.junit)
+                implementation(libs.compose.ui)
+                implementation(projects.core)
+                implementation(projects.languages.kotlin)
+                implementation(projects.languages.swift)
+                implementation(projects.languages.ruby)
+                implementation(projects.languages.rust)
+                implementation(projects.languages.python)
+                implementation(projects.languages.go)
+                implementation(projects.languages.java)
             }
         }
 
