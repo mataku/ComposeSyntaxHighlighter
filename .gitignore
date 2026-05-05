@@ -44,6 +44,11 @@ local.properties
 .idea/deploymentTargetSelector.xml
 .idea/receipt.json
 .idea/codeStyles
+.idea/.gitignore
+.idea/markdown.xml
+.idea/xcode.xml
+.idea/AndroidProjectSystem.xml
+.idea/runConfigurations.xml
 
 *.iml
 .env
