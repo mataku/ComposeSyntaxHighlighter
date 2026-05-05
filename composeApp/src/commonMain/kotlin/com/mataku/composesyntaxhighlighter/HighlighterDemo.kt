@@ -25,7 +25,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import io.github.mataku.compose.highlight.core.SyntaxHighlightedText
 import io.github.mataku.compose.highlight.core.SyntaxTheme
@@ -48,15 +47,22 @@ private enum class DemoLanguage(val label: String) {
 }
 
 private enum class DemoTheme(val label: String) {
-  Dark("Dark"),
-  Light("Light"),
+  DefaultDark("Default Dark"),
+  DefaultLight("Default Light"),
+  SolarizedDark("Solarized Dark"),
+  SolarizedLight("Solarized Light"),
+  GitHubDark("GitHub Dark"),
+  GitHubLight("GitHub Light"),
+  OneDark("One Dark"),
+  OneLight("One Light"),
+  Dracula("Dracula"),
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HighlighterDemo() {
   var selectedLang by remember { mutableStateOf(DemoLanguage.Kotlin) }
-  var selectedTheme by remember { mutableStateOf(DemoTheme.Dark) }
+  var selectedTheme by remember { mutableStateOf(DemoTheme.DefaultDark) }
 
   val (code, language) = when (selectedLang) {
     DemoLanguage.Kotlin -> SampleCode.kotlin to KotlinLanguage
@@ -68,10 +74,16 @@ fun HighlighterDemo() {
     DemoLanguage.Java -> SampleCode.java to JavaLanguage
   }
   val theme = when (selectedTheme) {
-    DemoTheme.Dark -> SyntaxTheme.DarkDefault
-    DemoTheme.Light -> SyntaxTheme.LightDefault
+    DemoTheme.DefaultDark -> SyntaxTheme.DarkDefault
+    DemoTheme.DefaultLight -> SyntaxTheme.LightDefault
+    DemoTheme.SolarizedDark -> SyntaxTheme.SolarizedDark
+    DemoTheme.SolarizedLight -> SyntaxTheme.SolarizedLight
+    DemoTheme.GitHubDark -> SyntaxTheme.GitHubDark
+    DemoTheme.GitHubLight -> SyntaxTheme.GitHubLight
+    DemoTheme.OneDark -> SyntaxTheme.OneDark
+    DemoTheme.OneLight -> SyntaxTheme.OneLight
+    DemoTheme.Dracula -> SyntaxTheme.Dracula
   }
-  val surfaceColor = if (selectedTheme == DemoTheme.Dark) Color(0xFF1E1E1E) else Color(0xFFFFFFFF)
 
   MaterialTheme {
     Scaffold(
@@ -107,7 +119,7 @@ fun HighlighterDemo() {
             modifier = Modifier.weight(1f),
           )
         }
-        Surface(color = surfaceColor, modifier = Modifier.fillMaxSize()) {
+        Surface(color = theme.background ?: MaterialTheme.colorScheme.surface, modifier = Modifier.fillMaxSize()) {
           Column(modifier = Modifier.padding(16.dp)) {
             SyntaxHighlightedText(code = code, language = language, theme = theme)
           }
