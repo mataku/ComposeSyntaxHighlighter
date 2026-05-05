@@ -1,17 +1,12 @@
 import com.android.build.api.variant.LibraryAndroidComponentsExtension
 import com.android.build.gradle.LibraryExtension
 import io.github.mataku.compose.syntax.buildlogic.ComposeSyntaxLanguageExtension
-import io.github.mataku.compose.syntax.buildlogic.WasmToolchainAvailableSpec
 import io.github.mataku.compose.syntax.buildlogic.writeAndroidCMakeLists
 import io.github.mataku.compose.syntax.buildlogic.writeHostCMakeLists
 import io.github.treesitter.ktreesitter.plugin.GrammarExtension
 import io.github.treesitter.ktreesitter.plugin.GrammarFilesTask
 import org.gradle.api.tasks.Exec
-import org.gradle.api.tasks.bundling.Jar
 import org.gradle.api.tasks.testing.Test
-import org.jetbrains.compose.resources.ResourcesExtension
-import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
-import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
@@ -34,7 +29,6 @@ fun catalogVersionInt(alias: String): Int =
 
 val highlightsQueryDir = layout.buildDirectory.dir("generated/highlights")
 val hostCMakeWorkDir = layout.buildDirectory.dir("host-cmake")
-val wasmStubsDir = layout.buildDirectory.dir("generated/wasm-stubs")
 val noticeOutDir = layout.buildDirectory.dir("notice")
 
 val grammarDirProvider: Provider<File> = composeSyntaxLanguage.grammarSubmodulePath.map { projectDir.resolve(it) }
@@ -55,34 +49,6 @@ extensions.configure<GrammarExtension>("grammar") {
             sources.map { grammarDir.resolve(it) }.toTypedArray()
         }
     )
-}
-
-val generateWasmTreeSitterStub = tasks.register("generateWasmTreeSitterStub") {
-    val pkgProvider = packageNameProvider
-    val classNameProvider = composeSyntaxLanguage.parserClassName
-    val outDirProvider = wasmStubsDir.map { it.asFile }
-    inputs.property("packageName", pkgProvider)
-    inputs.property("className", classNameProvider)
-    outputs.dir(outDirProvider)
-    doLast {
-        val pkg = pkgProvider.get()
-        val cls = classNameProvider.get()
-        val pkgDir = pkg.replace('.', '/')
-        val out = File(outDirProvider.get(), "$pkgDir/$cls.kt")
-        out.parentFile.mkdirs()
-        out.writeText(
-            """
-            |// Automatically generated wasmJs stub. The wasmJs target loads grammars
-            |// via web-tree-sitter at runtime, so this actual is never invoked.
-            |package $pkg
-            |
-            |actual object $cls {
-            |    actual fun language(): Any = error("$cls.language() is not used on wasmJs; load grammars via webTreeSitterLanguage instead")
-            |}
-            |
-            """.trimMargin()
-        )
-    }
 }
 
 val generateNotice = tasks.register("generateNotice") {
@@ -192,40 +158,7 @@ val buildHostCMake = tasks.register<Exec>("buildHostCMake") {
     dependsOn(configureHostCMake)
 }
 
-val wasmGrammarOutFileProvider: Provider<File> = composeSyntaxLanguage.languageName.map {
-    projectDir.resolve("src/wasmJsMain/composeResources/files/grammars/tree-sitter-$it.wasm")
-}
-
-val buildGrammarWasm = tasks.register<Exec>("buildGrammarWasm") {
-    inputs.dir(grammarDirProvider.map { it.resolve("src") })
-    inputs.file(grammarDirProvider.map { it.resolve("grammar.js") })
-    outputs.file(wasmGrammarOutFileProvider)
-    workingDir(grammarDirProvider)
-    val outFileProvider = wasmGrammarOutFileProvider
-    doFirst {
-        val out = outFileProvider.get()
-        out.parentFile.mkdirs()
-        commandLine("tree-sitter", "build", "--wasm", "-o", out.absolutePath)
-    }
-    commandLine("tree-sitter", "--version")
-    dependsOn(generateParserSource)
-    onlyIf(WasmToolchainAvailableSpec)
-}
-
 extensions.configure<KotlinMultiplatformExtension>("kotlin") {
-    @OptIn(ExperimentalKotlinGradlePluginApi::class)
-    applyDefaultHierarchyTemplate {
-        common {
-            group("ktreesitter") {
-                withAndroidTarget()
-                withJvm()
-            }
-            group("web") {
-                withWasmJs()
-            }
-        }
-    }
-
     androidTarget {
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_17)
@@ -235,32 +168,15 @@ extensions.configure<KotlinMultiplatformExtension>("kotlin") {
 
     jvm()
 
-    @OptIn(ExperimentalWasmDsl::class)
-    wasmJs {
-        browser()
-        compilerOptions {
-            optIn.add("kotlin.js.ExperimentalWasmJsInterop")
-        }
-    }
-
     sourceSets {
         commonMain {
             resources.srcDir(noticeOutDir)
+            kotlin.srcDir(highlightsQueryDir)
             dependencies {
                 api(project(":core"))
-                implementation(versionCatalog.findLibrary("compose-runtime").get())
-                implementation(versionCatalog.findLibrary("compose-components-resources").get())
-            }
-        }
-        val ktreesitterMain by getting {
-            kotlin.srcDir(highlightsQueryDir)
-            dependencies {
                 api(versionCatalog.findLibrary("ktreesitter").get())
+                implementation(versionCatalog.findLibrary("compose-runtime").get())
             }
-        }
-        val wasmJsMain by getting {
-            kotlin.srcDir(highlightsQueryDir)
-            kotlin.srcDir(wasmStubsDir)
         }
         val jvmTest by getting {
             dependencies {
@@ -311,28 +227,16 @@ extensions.configure<LibraryAndroidComponentsExtension>("androidComponents") {
     }
 }
 
-val composeExtension = extensions.getByType(org.jetbrains.compose.ComposeExtension::class.java)
-val composeResourcesExtension = (composeExtension as ExtensionAware).extensions.getByType(ResourcesExtension::class.java)
-composeResourcesExtension.apply {
-    publicResClass = false
-    generateResClass = always
-}
-
 afterEvaluate {
-    composeResourcesExtension.packageOfResClass =
-        "io.github.mataku.compose.syntax.language.${composeSyntaxLanguage.languageName.get()}.resources"
-
     val languageName = composeSyntaxLanguage.languageName.orNull
         ?: error("composeSyntaxLanguage.languageName must be set in the consumer build script")
     val grammarSubmodulePath = composeSyntaxLanguage.grammarSubmodulePath.orNull
         ?: error("composeSyntaxLanguage.grammarSubmodulePath must be set")
-    @Suppress("UNUSED_VARIABLE")
-    val parserClassName = composeSyntaxLanguage.parserClassName.orNull
+    composeSyntaxLanguage.parserClassName.orNull
         ?: error("composeSyntaxLanguage.parserClassName must be set")
     val sources = composeSyntaxLanguage.sources.orNull?.takeIf { it.isNotEmpty() }
         ?: error("composeSyntaxLanguage.sources must contain at least one C source path relative to the grammar submodule")
-    @Suppress("UNUSED_VARIABLE")
-    val queries = composeSyntaxLanguage.queries.orNull?.takeIf { it.isNotEmpty() }
+    composeSyntaxLanguage.queries.orNull?.takeIf { it.isNotEmpty() }
         ?: error("composeSyntaxLanguage.queries must contain at least the highlights.scm path")
 
     writeAndroidCMakeLists(
@@ -360,13 +264,13 @@ afterEvaluate {
     }
 
     tasks.withType<KotlinCompilationTask<*>>().configureEach {
-        dependsOn(generateGrammarFilesTask, generateHighlightsQuery, generateWasmTreeSitterStub)
+        dependsOn(generateGrammarFilesTask, generateHighlightsQuery)
     }
 
     tasks.matching {
         it.name.endsWith("SourcesJar", ignoreCase = true)
     }.configureEach {
-        dependsOn(generateGrammarFilesTask, generateHighlightsQuery, generateWasmTreeSitterStub)
+        dependsOn(generateGrammarFilesTask, generateHighlightsQuery)
     }
 
     tasks.matching {
@@ -382,16 +286,6 @@ afterEvaluate {
         doFirst {
             systemProperty("java.library.path", libDirProvider.get())
         }
-    }
-
-    tasks.matching {
-        it.name == "wasmJsBrowserProductionWebpack" ||
-            it.name == "wasmJsBrowserDevelopmentWebpack" ||
-            it.name == "wasmJsProcessResources" ||
-            it.name == "copyNonXmlValueResourcesForWasmJsMain" ||
-            it.name == "convertXmlValueResourcesForWasmJsMain"
-    }.configureEach {
-        dependsOn(buildGrammarWasm)
     }
 
     tasks.matching {
