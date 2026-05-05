@@ -6,7 +6,7 @@ ComposeSyntaxHighlighter is a **Kotlin Multiplatform (KMP)** library that provid
 
 - **Rendering**: Produces an `AnnotatedString` from `tree-sitter` query captures and renders it with Compose `Text`.
 - **Targets**: Android (published AAR) and JVM (published JAR for Compose Desktop interop).
-- **Languages**: Kotlin and Swift (more can be added as separate modules).
+- **Languages**: Kotlin, Swift, Ruby, Rust, Python, Go, Java (more can be added as separate modules).
 - **UI target**: Material3 only (`minSdk = 26`).
 - **Browser**: out of scope — use a JS-side highlighter (highlight.js, Shiki) for web apps.
 
@@ -19,7 +19,12 @@ root
 ├── core/                           # Core highlighting engine & public API
 ├── languages/
 │   ├── kotlin/                     # Kotlin language support
-│   └── swift/                      # Swift language support
+│   ├── swift/                      # Swift language support
+│   ├── ruby/                       # Ruby language support
+│   ├── rust/                       # Rust language support
+│   ├── python/                     # Python language support
+│   ├── go/                         # Go language support
+│   └── java/                       # Java language support
 └── gradle/libs.versions.toml       # Version catalog
 ```
 
@@ -89,34 +94,7 @@ commonMain  (all production code)
 
 ## Adding a new language
 
-1. **Create module**: `languages/<lang>/`.
-2. **Add submodule**: `git submodule add <tree-sitter-grammar-repo> languages/<lang>/tree-sitter-<lang>`. Pin to a tag whose bundled `src/parser.c` ships at the ABI configured in `libs.versions.toml/treesitterAbi` (currently 14). Verify with `git -C languages/<lang>/tree-sitter-<lang> show <tag>:src/parser.c | grep LANGUAGE_VERSION` before committing the gitlink — newer upstream tags often ship ABI 15, which ktreesitter 0.24.1 rejects at runtime.
-3. **Create `build.gradle.kts`**:
-   ```kotlin
-   plugins { id("compose-highlight-language") }
-
-   composeHighlightLanguage {
-       languageName.set("<lang>")
-       grammarSubmodulePath.set("tree-sitter-<lang>")
-       parserClassName.set("TreeSitter<Lang>")
-       sources.set(listOf("src/parser.c", "src/scanner.c"))
-       queries.set(listOf("queries/highlights.scm"))
-       licenseSpdx.set("MIT")
-       licenseSource.set("<owner>/tree-sitter-<lang> (MIT)")
-   }
-   ```
-4. **Register in `settings.gradle.kts`**:
-   ```kotlin
-   include(":languages:<lang>")
-   ```
-5. **Implement** `src/commonMain/kotlin/io/github/mataku/compose/highlight/<lang>/<Lang>Language.kt`:
-   ```kotlin
-   val <Lang>Language: Language by lazy {
-       kTreeSitterLanguage(TsLanguage(TreeSitter<Lang>.language()), HIGHLIGHTS_QUERY)
-   }
-   ```
-6. **Add JVM golden tests** in `src/jvmTest/kotlin/.../` (loads the host CMake `.dylib`/`.so` automatically).
-7. **Run** `./gradlew :languages:<lang>:jvmTest` and `./gradlew :composeApp:assembleDebug`.
+End-to-end workflow lives in `.claude/skills/add-tree-sitter-language/SKILL.md`. The skill covers grammar selection (with the ABI-14 pin trap), submodule add, Gradle wiring, the `Language` object, the `Languages.<name>` extension forwarder, golden tests, demo wiring, and CI updates. Invoke it explicitly via slash command rather than reproducing the steps here.
 
 ## Running tests
 

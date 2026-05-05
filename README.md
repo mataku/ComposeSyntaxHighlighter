@@ -93,6 +93,7 @@ CompositionLocalProvider(LocalSyntaxTheme provides SyntaxTheme.LightDefault) {
 | Rust     | `compose-highlight-rust`   |
 | Python   | `compose-highlight-python` |
 | Go       | `compose-highlight-go`     |
+| Java     | `compose-highlight-java`   |
 
 ## Custom theme
 
