@@ -18,14 +18,48 @@ class JvmHighlightBenchmark {
         BenchmarkConfig.printEnvironment()
         BenchmarkConfig.printSampleSizes()
 
-        val results = mutableListOf<BenchmarkConfig.BenchmarkResult>()
+        println("=== Cold start (includes query compilation) ===")
+        val coldResults = mutableListOf<Pair<String, Long>>()
+
+        fun measureCold(name: String, block: () -> Unit): Long {
+            val timeNs = measureNanoTime { block() }
+            coldResults += name to timeNs
+            println("[Cold] $name: ${timeNs}ns (${"%.3f".format(timeNs / 1_000_000.0)}ms)")
+            return timeNs
+        }
+
+        measureCold("Kotlin") {
+            highlight(BenchmarkSamples.Kotlin, KotlinLanguage, BenchmarkConfig.theme)
+        }
+        measureCold("Swift") {
+            highlight(BenchmarkSamples.Swift, SwiftLanguage, BenchmarkConfig.theme)
+        }
+        measureCold("Ruby") {
+            highlight(BenchmarkSamples.Ruby, RubyLanguage, BenchmarkConfig.theme)
+        }
+        measureCold("Rust") {
+            highlight(BenchmarkSamples.Rust, RustLanguage, BenchmarkConfig.theme)
+        }
+        measureCold("Python") {
+            highlight(BenchmarkSamples.Python, PythonLanguage, BenchmarkConfig.theme)
+        }
+        measureCold("Go") {
+            highlight(BenchmarkSamples.Go, GoLanguage, BenchmarkConfig.theme)
+        }
+        measureCold("Java") {
+            highlight(BenchmarkSamples.Java, JavaLanguage, BenchmarkConfig.theme)
+        }
+
+        println()
+        println("=== Steady state (query already compiled) ===")
+        val warmResults = mutableListOf<BenchmarkConfig.BenchmarkResult>()
 
         fun runAndRecord(name: String, block: () -> Unit) {
             repeat(BenchmarkConfig.JVM_WARMUP_ITERATIONS) { block() }
             val times = List(BenchmarkConfig.JVM_MEASURE_ITERATIONS) {
                 measureNanoTime { block() }
             }
-            results += BenchmarkConfig.reportStatistics(name, times)
+            warmResults += BenchmarkConfig.reportStatistics(name, times)
         }
 
         runAndRecord("Kotlin") {
@@ -50,7 +84,16 @@ class JvmHighlightBenchmark {
             highlight(BenchmarkSamples.Java, JavaLanguage, BenchmarkConfig.theme)
         }
 
-        BenchmarkConfig.printMarkdown(results)
+        println()
+        println("### Cold start Markdown table")
+        println("| Language | Cold (ms) |")
+        println("|----------|-----------|")
+        coldResults.forEach { (name, ns) ->
+            println("| $name | ${"%.3f".format(ns / 1_000_000.0)} |")
+        }
+
+        println()
+        BenchmarkConfig.printMarkdown(warmResults)
     }
 
     @Test

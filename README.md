@@ -100,6 +100,21 @@ highlighting of different code snippets with the same language is fast. The tabl
 full `highlight()` call measured on a single machine for realistic code samples (~75–150 lines).
 These values illustrate relative differences between languages, not absolute guarantees.
 
+**What is measured?** The benchmark targets the `highlight()` function, which is the
+same call used internally by `SyntaxHighlightedText`. It covers the full end-to-end
+pipeline: tree-sitter parsing, highlight-query matching, UTF-8 byte-to-char index
+mapping, and building the final `AnnotatedString` with `SpanStyle` applied. The
+returned `AnnotatedString` is ready to be passed directly to Compose `Text`.
+
+The benchmark measures two distinct scenarios:
+
+- **Cold start**: first `highlight()` call on a fresh `Language` instance, which
+  includes the one-time tree-sitter query compilation.
+- **Steady state**: repeated `highlight()` calls after the query is compiled.
+
+Both values are shown below so you can judge the first-frame impact and the
+ongoing per-call cost.
+
 ```
 OS: Mac OS X (26.4.1)
 Arch: aarch64
@@ -110,15 +125,29 @@ Warmup iterations: 10
 Measure iterations: 50
 ```
 
+### Cold start (includes query compilation)
+
+| Language | Lines | Cold (ms) |
+|----------|-------|-----------|
+| Kotlin   | 76    | 721.420   |
+| Swift    | 91    | 380.727   |
+| Ruby     | 91    | 49.026    |
+| Rust     | 115   | 50.675    |
+| Python   | 92    | 19.693    |
+| Go       | 153   | 9.237     |
+| Java     | 120   | 20.709    |
+
+### Steady state (query already compiled)
+
 | Language | Lines | Mean (ms) | Median (ms) | StdDev (ms) | P99 (ms) |
 |----------|-------|-----------|-------------|-------------|----------|
-| Kotlin   | 76    | 4.036     | 4.008       | 0.084       | 4.261    |
-| Swift    | 91    | 3.703     | 3.697       | 0.049       | 3.811    |
-| Ruby     | 91    | 3.330     | 3.308       | 0.107       | 3.746    |
-| Rust     | 115   | 1.364     | 1.371       | 0.045       | 1.505    |
-| Python   | 92    | 3.389     | 3.416       | 0.097       | 3.544    |
-| Go       | 153   | 2.819     | 2.809       | 0.054       | 2.947    |
-| Java     | 120   | 3.098     | 3.101       | 0.061       | 3.245    |
+| Kotlin   | 76    | 4.477     | 4.479       | 0.257       | 5.587    |
+| Swift    | 91    | 3.858     | 3.838       | 0.089       | 4.138    |
+| Ruby     | 91    | 3.515     | 3.503       | 0.079       | 3.884    |
+| Rust     | 115   | 1.414     | 1.405       | 0.035       | 1.523    |
+| Python   | 92    | 3.357     | 3.370       | 0.094       | 3.562    |
+| Go       | 153   | 2.909     | 2.900       | 0.062       | 3.028    |
+| Java     | 120   | 3.187     | 3.202       | 0.079       | 3.369    |
 
 Run `./gradlew :benchmark:jvmTest` to reproduce on your own machine.
 
