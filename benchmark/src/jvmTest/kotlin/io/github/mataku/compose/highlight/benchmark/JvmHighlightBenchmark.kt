@@ -14,6 +14,46 @@ import kotlin.test.Test
 class JvmHighlightBenchmark {
 
     @Test
+    fun runAllBenchmarks() {
+        BenchmarkConfig.printEnvironment()
+        BenchmarkConfig.printSampleSizes()
+
+        val results = mutableListOf<BenchmarkConfig.BenchmarkResult>()
+
+        fun runAndRecord(name: String, block: () -> Unit) {
+            repeat(BenchmarkConfig.JVM_WARMUP_ITERATIONS) { block() }
+            val times = List(BenchmarkConfig.JVM_MEASURE_ITERATIONS) {
+                measureNanoTime { block() }
+            }
+            results += BenchmarkConfig.reportStatistics(name, times)
+        }
+
+        runAndRecord("Kotlin") {
+            highlight(BenchmarkSamples.Kotlin, KotlinLanguage, BenchmarkConfig.theme)
+        }
+        runAndRecord("Swift") {
+            highlight(BenchmarkSamples.Swift, SwiftLanguage, BenchmarkConfig.theme)
+        }
+        runAndRecord("Ruby") {
+            highlight(BenchmarkSamples.Ruby, RubyLanguage, BenchmarkConfig.theme)
+        }
+        runAndRecord("Rust") {
+            highlight(BenchmarkSamples.Rust, RustLanguage, BenchmarkConfig.theme)
+        }
+        runAndRecord("Python") {
+            highlight(BenchmarkSamples.Python, PythonLanguage, BenchmarkConfig.theme)
+        }
+        runAndRecord("Go") {
+            highlight(BenchmarkSamples.Go, GoLanguage, BenchmarkConfig.theme)
+        }
+        runAndRecord("Java") {
+            highlight(BenchmarkSamples.Java, JavaLanguage, BenchmarkConfig.theme)
+        }
+
+        BenchmarkConfig.printMarkdown(results)
+    }
+
+    @Test
     fun kotlinHighlight() = runBenchmark("kotlinHighlight") {
         highlight(BenchmarkSamples.Kotlin, KotlinLanguage, BenchmarkConfig.theme)
     }
@@ -53,14 +93,6 @@ class JvmHighlightBenchmark {
         val times = List(BenchmarkConfig.JVM_MEASURE_ITERATIONS) {
             measureNanoTime { block() }
         }
-        reportStatistics(name, times)
-    }
-
-    private fun reportStatistics(name: String, times: List<Long>) {
-        val sorted = times.sorted()
-        val mean = times.average()
-        val median = sorted[sorted.size / 2]
-        val p99 = sorted[(sorted.size * 0.99).toInt().coerceAtMost(sorted.lastIndex)]
-        println("[Benchmark] $name: mean=${mean.toLong()}ns, median=${median}ns, p99=${p99}ns")
+        BenchmarkConfig.reportStatistics(name, times)
     }
 }
