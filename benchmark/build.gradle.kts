@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.gradle.api.tasks.testing.Test
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -42,6 +43,25 @@ kotlin {
         }
 
         val jvmTest by getting
+    }
+}
+
+tasks.named<Test>("jvmTest") {
+    val languageProjects = listOf(
+        project(":languages:kotlin"),
+        project(":languages:swift"),
+        project(":languages:ruby"),
+        project(":languages:rust"),
+        project(":languages:python"),
+        project(":languages:go"),
+        project(":languages:java"),
+    )
+    languageProjects.forEach { dependsOn(it.tasks.named("buildHostCMake")) }
+    val libPaths = languageProjects.joinToString(":") {
+        it.layout.buildDirectory.dir("host-cmake").get().asFile.absolutePath
+    }
+    doFirst {
+        systemProperty("java.library.path", libPaths)
     }
 }
 
