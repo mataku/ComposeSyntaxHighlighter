@@ -319,7 +319,7 @@ afterEvaluate {
     val mavenPublishing = extensions.getByType(com.vanniktech.maven.publish.MavenPublishBaseExtension::class.java)
     mavenPublishing.coordinates(artifactId = "compose-highlight-$languageName")
     mavenPublishing.pom {
-        name.set("Compose Highlight Language: $languageName")
-        description.set("tree-sitter $languageName grammar for the Compose Highlight library")
+        name.set("Compose Highlight $languageName")
+        description.set("$languageName syntax highlighting for Compose Multiplatform powered by tree-sitter")
     }
 }
