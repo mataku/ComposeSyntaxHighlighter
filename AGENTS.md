@@ -139,6 +139,20 @@ bash scripts/verify-notice.sh
 
 CI (`.github/workflows/build.yml`) runs JVM tests, the Android demo build, and NOTICE verification on every PR / push to main / develop. `.github/workflows/publish.yml` runs `publishToMavenCentral` on every `v*` tag push using vanniktech with in-memory signing keys from repository secrets.
 
+### Local Maven Central publishing
+
+For ad-hoc publishes (e.g. cutting a SNAPSHOT for downstream verification) `settings.gradle.kts` loads the following keys from `local.properties` (gitignored) and exposes them as gradle properties:
+
+- `mavenCentralUsername` / `mavenCentralPassword` — Central Portal user token
+- `signingInMemoryKey` / `signingInMemoryKeyId` / `signingInMemoryKeyPassword` — GPG signing material (the key may be base64-encoded for single-line storage)
+
+Environment variables (`ORG_GRADLE_PROJECT_*`) take precedence over `local.properties`, so CI continues to work unchanged.
+
+### SNAPSHOT vs release
+
+- Set `VERSION_NAME=0.1.0-SNAPSHOT` in `gradle.properties` and run `./gradlew publishToMavenCentral --no-configuration-cache` to push to Central Portal's snapshot repository (`https://central.sonatype.com/repository/maven-snapshots/`). Snapshots are auto-published with no manual gate.
+- For a release, set `VERSION_NAME=0.1.0`, push a `v0.1.0` tag to fire `publish.yml`, then click **Publish** on the Central Portal Deployments page (the workflow uses `publishToMavenCentral`, which uploads to staging without auto-releasing).
+
 ## Platform notes
 
 ### Android
@@ -161,10 +175,10 @@ CI (`.github/workflows/build.yml`) runs JVM tests, the Android demo build, and N
 |----------------------|-----------------|------------------------------------|
 | Kotlin               | 2.3.20          | KMP compiler                       |
 | Compose Multiplatform| 1.10.3          | UI framework                       |
-| AGP                  | 8.11.2          | Android build                      |
+| AGP                  | 8.13.2          | Android build                      |
 | ktreesitter          | 0.24.1          | Tree-sitter Kotlin bindings (JNI)  |
 | material3            | 1.10.0-alpha05  | Compose Material3                  |
-| vanniktech publish   | 0.30.0          | Maven Central publishing           |
+| vanniktech publish   | 0.34.0          | Maven Central publishing (CENTRAL_PORTAL host, supports snapshots) |
 
 ## Public API usage example
 

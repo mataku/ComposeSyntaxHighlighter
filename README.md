@@ -2,22 +2,32 @@
 
 Compose Multiplatform syntax highlighter for Android (and any JVM-based Compose target). Built on tree-sitter for accurate, fast incremental highlighting.
 
-> **Status:** 0.1.0. Android supported via the published AAR. The JVM artifact ships for Compose Desktop interop. iOS lands in a later release; for browser apps prefer a JS-side highlighter (e.g. highlight.js, Shiki) and keep this library on JVM-based targets.
+> **Status:** `0.1.0-SNAPSHOT` is available on Maven Central's snapshot repository while the first stable release is being prepared. Android is supported via the published AAR; the JVM artifact ships for Compose Desktop interop. iOS lands in a later release; for browser apps prefer a JS-side highlighter (e.g. highlight.js, Shiki) and keep this library on JVM-based targets.
 
 ## Installation
+
+TBA — the first stable `0.1.0` release is being prepared and will be published to Maven Central.
+
+### Trying the snapshot
+
+A `0.1.0-SNAPSHOT` build is available on Maven Central's snapshot repository if you want to try the library now. Add the snapshot repository and depend on the language modules you need:
 
 ```kotlin
 // settings.gradle.kts
 dependencyResolutionManagement {
-    repositories { mavenCentral() }
+    repositories {
+        mavenCentral()
+        maven("https://central.sonatype.com/repository/maven-snapshots/") {
+            mavenContent { snapshotsOnly() }
+        }
+    }
 }
 ```
 
 ```kotlin
 // build.gradle.kts (commonMain)
-// Declare only the language modules you need.
-implementation("io.github.mataku:compose-highlight-kotlin:0.1.0")
-implementation("io.github.mataku:compose-highlight-swift:0.1.0")
+implementation("io.github.mataku:compose-highlight-kotlin:0.1.0-SNAPSHOT")
+implementation("io.github.mataku:compose-highlight-swift:0.1.0-SNAPSHOT")
 ```
 
 ## Basic usage
