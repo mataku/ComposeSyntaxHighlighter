@@ -9,6 +9,7 @@ group_path="io/github/mataku"
 repo="${HOME}/.m2/repository"
 
 modules=(
+  compose-highlight-core
   compose-highlight-kotlin
   compose-highlight-swift
   compose-highlight-ruby
