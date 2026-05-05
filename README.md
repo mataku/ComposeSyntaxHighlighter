@@ -3,9 +3,7 @@
 Compose Multiplatform syntax highlighter for Android (and any JVM-based Compose target). Built on
 tree-sitter for accurate, fast incremental highlighting.
 
-Android is supported via the published AAR; the JVM artifact ships for Compose Desktop interop. iOS
-lands in a later release; for browser apps prefer a JS-side highlighter (e.g. highlight.js, Shiki)
-and keep this library on JVM-based targets.
+This is still an experimental project. Android is supported via the published AAR; the JVM artifact ships for Compose Desktop interop. iOS lands in a later release; for browser apps prefer a JS-side highlighter (e.g. highlight.js, Shiki) and keep this library on JVM-based targets.
 
 ## Installation
 
@@ -19,10 +17,7 @@ implementation("io.github.mataku:compose-highlight-kotlin:0.1.0")
 implementation("io.github.mataku:compose-highlight-swift:0.1.0")
 ```
 
-`compose-highlight-core` ships the `SyntaxHighlightedText` composable and built-in
-themes; each `compose-highlight-<lang>` artifact ships its tree-sitter grammar and
-the `Language` value you pass to the composable. Bumping `compose-highlight-core` to
-pick up new themes does not require updating the language artifacts.
+`compose-highlight-core` ships the `SyntaxHighlightedText` composable and built-in themes; each `compose-highlight-<lang>` artifact ships its tree-sitter grammar and the `Language` value you pass to the composable. Bumping `compose-highlight-core` to pick up new themes does not require updating the language artifacts.
 
 ## Basic usage
 
@@ -43,8 +38,7 @@ fun MyScreen() {
 }
 ```
 
-The default theme is `SyntaxTheme.DarkDefault`. To override it for a single call, pass `theme`
-directly:
+The default theme is `SyntaxTheme.DarkDefault`. To override it for a single call, pass `theme` directly:
 
 ```kotlin
 SyntaxHighlightedText(
@@ -97,15 +91,14 @@ val myTheme = SyntaxTheme(
 )
 ```
 
-Capture name resolution falls back to parent prefixes — defining `keyword` covers `keyword.return`,
-`keyword.function`, etc. unless a more specific entry is provided.
+Capture name resolution falls back to parent prefixes — defining `keyword` covers `keyword.return`, `keyword.function`, etc. unless a more specific entry is provided.
 
 ## Performance
 
 `Language` instances pre-compile the tree-sitter highlights query on first access, so repeated
 highlighting of different code snippets with the same language is fast. The table below shows the
-full `highlight()` call measured on a single machine. Values are for small code snippets
-(~10–15 lines) and illustrate relative differences, not absolute guarantees.
+full `highlight()` call measured on a single machine for realistic code samples (~75–150 lines).
+These values illustrate relative differences between languages, not absolute guarantees.
 
 ```
 OS: Mac OS X (26.4.1)
@@ -117,15 +110,15 @@ Warmup iterations: 10
 Measure iterations: 50
 ```
 
-| Language | Mean (ms) | Median (ms) | StdDev (ms) | Min (ms) | Max (ms) | P99 (ms) |
-|----------|-----------|-------------|-------------|----------|----------|----------|
-| Kotlin   | 0.510     | 0.509       | 0.010       | 0.493    | 0.539    | 0.539    |
-| Swift    | 0.293     | 0.291       | 0.006       | 0.284    | 0.312    | 0.312    |
-| Ruby     | 0.286     | 0.284       | 0.017       | 0.257    | 0.331    | 0.331    |
-| Rust     | 0.279     | 0.277       | 0.005       | 0.272    | 0.297    | 0.297    |
-| Python   | 0.208     | 0.209       | 0.006       | 0.194    | 0.230    | 0.230    |
-| Go       | 0.200     | 0.198       | 0.017       | 0.184    | 0.310    | 0.310    |
-| Java     | 0.255     | 0.254       | 0.008       | 0.233    | 0.275    | 0.275    |
+| Language | Lines | Mean (ms) | Median (ms) | StdDev (ms) | P99 (ms) |
+|----------|-------|-----------|-------------|-------------|----------|
+| Kotlin   | 76    | 4.036     | 4.008       | 0.084       | 4.261    |
+| Swift    | 91    | 3.703     | 3.697       | 0.049       | 3.811    |
+| Ruby     | 91    | 3.330     | 3.308       | 0.107       | 3.746    |
+| Rust     | 115   | 1.364     | 1.371       | 0.045       | 1.505    |
+| Python   | 92    | 3.389     | 3.416       | 0.097       | 3.544    |
+| Go       | 153   | 2.819     | 2.809       | 0.054       | 2.947    |
+| Java     | 120   | 3.098     | 3.101       | 0.061       | 3.245    |
 
 Run `./gradlew :benchmark:jvmTest` to reproduce on your own machine.
 
