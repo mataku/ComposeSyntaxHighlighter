@@ -2,7 +2,7 @@ package io.github.mataku.compose.highlight.kotlin
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
-import io.github.mataku.compose.highlight.core.Languages
+import io.github.mataku.compose.highlight.api.Languages
 import io.github.mataku.compose.highlight.core.SyntaxTheme
 import io.github.mataku.compose.highlight.core.highlight
 import kotlin.test.Test

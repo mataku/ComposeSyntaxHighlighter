@@ -182,6 +182,7 @@ extensions.configure<KotlinMultiplatformExtension>("kotlin") {
             dependencies {
                 implementation(versionCatalog.findLibrary("kotlin-test").get())
                 implementation(versionCatalog.findLibrary("compose-ui").get())
+                implementation(project(":core"))
             }
         }
     }

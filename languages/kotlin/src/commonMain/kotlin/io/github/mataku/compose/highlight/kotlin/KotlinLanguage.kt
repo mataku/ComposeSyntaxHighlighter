@@ -1,8 +1,8 @@
 package io.github.mataku.compose.highlight.kotlin
 
-import io.github.mataku.compose.highlight.core.Language
-import io.github.mataku.compose.highlight.core.Languages
-import io.github.mataku.compose.highlight.core.kTreeSitterLanguage
+import io.github.mataku.compose.highlight.api.Language
+import io.github.mataku.compose.highlight.api.Languages
+import io.github.mataku.compose.highlight.api.kTreeSitterLanguage
 import io.github.mataku.compose.highlight.kotlin.internal.TreeSitterKotlin
 import io.github.treesitter.ktreesitter.Language as TsLanguage
 

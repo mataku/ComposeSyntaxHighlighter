@@ -1,8 +1,8 @@
 package io.github.mataku.compose.highlight.go
 
-import io.github.mataku.compose.highlight.core.Language
-import io.github.mataku.compose.highlight.core.Languages
-import io.github.mataku.compose.highlight.core.kTreeSitterLanguage
+import io.github.mataku.compose.highlight.api.Language
+import io.github.mataku.compose.highlight.api.Languages
+import io.github.mataku.compose.highlight.api.kTreeSitterLanguage
 import io.github.mataku.compose.highlight.go.internal.TreeSitterGo
 import io.github.treesitter.ktreesitter.Language as TsLanguage
 
