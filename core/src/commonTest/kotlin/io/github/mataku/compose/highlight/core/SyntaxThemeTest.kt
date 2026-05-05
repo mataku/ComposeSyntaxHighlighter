@@ -43,7 +43,7 @@ class SyntaxThemeTest {
 
     @Test
     fun dark_default_provides_keyword_string_comment_styles() {
-        val theme = SyntaxTheme.darkDefault()
+        val theme = SyntaxTheme.DarkDefault
         assertEquals(true, theme.styles.containsKey("keyword"))
         assertEquals(true, theme.styles.containsKey("string"))
         assertEquals(true, theme.styles.containsKey("comment"))
@@ -51,7 +51,23 @@ class SyntaxThemeTest {
 
     @Test
     fun light_default_resolves_keyword_function_via_parent_fallback() {
-        val theme = SyntaxTheme.lightDefault()
+        val theme = SyntaxTheme.LightDefault
         assertEquals(theme.styles["keyword"], theme.resolve("keyword.function"))
+    }
+
+    @Test
+    fun background_defaults_to_null_for_user_constructed_theme() {
+        assertNull(SyntaxTheme().background)
+        assertNull(SyntaxTheme(styles = mapOf("keyword" to keywordStyle)).background)
+    }
+
+    @Test
+    fun dark_default_carries_canonical_background() {
+        assertEquals(Color(0xFF1E1E1E), SyntaxTheme.DarkDefault.background)
+    }
+
+    @Test
+    fun light_default_carries_canonical_background() {
+        assertEquals(Color(0xFFFFFFFF), SyntaxTheme.LightDefault.background)
     }
 }
