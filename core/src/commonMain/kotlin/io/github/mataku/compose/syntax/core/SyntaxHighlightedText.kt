@@ -11,8 +11,8 @@ import androidx.compose.ui.text.font.FontFamily
 fun SyntaxHighlightedText(
     code: String,
     language: Language,
-    theme: SyntaxTheme,
     modifier: Modifier = Modifier,
+    theme: SyntaxTheme = LocalSyntaxTheme.current,
     style: TextStyle = LocalTextStyle.current.copy(fontFamily = FontFamily.Monospace),
 ) {
     Text(

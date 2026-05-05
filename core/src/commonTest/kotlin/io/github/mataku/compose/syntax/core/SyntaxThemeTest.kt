@@ -40,4 +40,18 @@ class SyntaxThemeTest {
         assertNull(theme.resolve("string"))
         assertNull(theme.resolve("string.escape"))
     }
+
+    @Test
+    fun dark_default_provides_keyword_string_comment_styles() {
+        val theme = SyntaxTheme.darkDefault()
+        assertEquals(true, theme.styles.containsKey("keyword"))
+        assertEquals(true, theme.styles.containsKey("string"))
+        assertEquals(true, theme.styles.containsKey("comment"))
+    }
+
+    @Test
+    fun light_default_resolves_keyword_function_via_parent_fallback() {
+        val theme = SyntaxTheme.lightDefault()
+        assertEquals(theme.styles["keyword"], theme.resolve("keyword.function"))
+    }
 }
