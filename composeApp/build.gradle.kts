@@ -28,6 +28,7 @@ kotlin {
             implementation(libs.compose.uiToolingPreview)
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
+            implementation(projects.core)
             implementation(projects.languages.kotlin)
             implementation(projects.languages.swift)
             implementation(projects.languages.ruby)
