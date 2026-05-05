@@ -3,6 +3,7 @@ package io.github.mataku.compose.highlight.core
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import io.github.mataku.compose.highlight.api.Language
 import io.github.treesitter.ktreesitter.Parser
 
 fun highlight(

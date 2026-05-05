@@ -20,6 +20,7 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
+            api(project(":core-api"))
             api(libs.ktreesitter)
             api(libs.compose.runtime)
             api(libs.compose.foundation)
@@ -34,6 +35,10 @@ kotlin {
                 implementation(libs.kotlin.test)
             }
         }
+    }
+
+    sourceSets.all {
+        languageSettings.optIn("io.github.mataku.compose.highlight.api.InternalSyntaxHighlightApi")
     }
 }
 

@@ -6,6 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
+import io.github.mataku.compose.highlight.api.Language
 
 @Composable
 fun SyntaxHighlightedText(

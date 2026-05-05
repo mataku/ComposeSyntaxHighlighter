@@ -3,6 +3,7 @@ package io.github.mataku.compose.highlight.core
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.text.AnnotatedString
+import io.github.mataku.compose.highlight.api.Language
 
 @Composable
 fun rememberHighlightedString(
