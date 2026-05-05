@@ -1,8 +1,8 @@
 plugins {
-    id("compose-syntax-language")
+    id("compose-highlight-language")
 }
 
-composeSyntaxLanguage {
+composeHighlightLanguage {
     languageName.set("swift")
     grammarSubmodulePath.set("tree-sitter-swift")
     parserClassName.set("TreeSitterSwift")

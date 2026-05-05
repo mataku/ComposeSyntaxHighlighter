@@ -1,8 +1,8 @@
 plugins {
-    id("compose-syntax-language")
+    id("compose-highlight-language")
 }
 
-composeSyntaxLanguage {
+composeHighlightLanguage {
     languageName.set("kotlin")
     grammarSubmodulePath.set("tree-sitter-kotlin")
     parserClassName.set("TreeSitterKotlin")

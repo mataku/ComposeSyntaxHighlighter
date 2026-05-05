@@ -38,7 +38,7 @@ kotlin {
 }
 
 android {
-    namespace = "io.github.mataku.compose.syntax.core"
+    namespace = "io.github.mataku.compose.highlight.core"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
 
     defaultConfig {
@@ -51,9 +51,9 @@ android {
 }
 
 mavenPublishing {
-    coordinates(artifactId = "compose-syntax-core")
+    coordinates(artifactId = "compose-highlight-core")
     pom {
-        name.set("Compose Syntax Core")
-        description.set("Compose Multiplatform syntax highlighter — core API")
+        name.set("Compose Highlight Core")
+        description.set("Compose Multiplatform syntax highlighter (core API)")
     }
 }

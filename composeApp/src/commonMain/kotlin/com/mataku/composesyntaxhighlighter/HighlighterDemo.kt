@@ -23,11 +23,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import io.github.mataku.compose.syntax.core.LocalSyntaxTheme
-import io.github.mataku.compose.syntax.core.SyntaxHighlightedText
-import io.github.mataku.compose.syntax.core.SyntaxTheme
-import io.github.mataku.compose.syntax.language.kotlin.KotlinLanguage
-import io.github.mataku.compose.syntax.language.swift.SwiftLanguage
+import io.github.mataku.compose.highlight.core.LocalSyntaxTheme
+import io.github.mataku.compose.highlight.core.SyntaxHighlightedText
+import io.github.mataku.compose.highlight.core.SyntaxTheme
+import io.github.mataku.compose.highlight.kotlin.KotlinLanguage
+import io.github.mataku.compose.highlight.swift.SwiftLanguage
 
 private enum class DemoLanguage(val label: String) {
     Kotlin("Kotlin"),

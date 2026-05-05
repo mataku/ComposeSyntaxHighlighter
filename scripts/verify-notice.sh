@@ -9,8 +9,8 @@ group_path="io/github/mataku"
 repo="${HOME}/.m2/repository"
 
 modules=(
-  compose-syntax-language-kotlin
-  compose-syntax-language-swift
+  compose-highlight-kotlin
+  compose-highlight-swift
 )
 
 variants=(
