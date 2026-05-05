@@ -131,6 +131,13 @@ val generateParserSource = tasks.register<Exec>("generateParserSource") {
         val parserC = parserCProvider.get()
         val grammarJs = grammarJsProvider.get()
         if (!parserC.exists()) return@onlyIf true
+        // Regenerate when the bundled parser.c was produced against a different
+        // ABI than we pin. Upstream grammars sometimes ship parser.c at ABI 15
+        // while ktreesitter still requires 13–14; mtime alone misses this.
+        val parserAbi = parserC.useLines { lines ->
+            lines.firstOrNull { it.startsWith("#define LANGUAGE_VERSION") }
+        }?.substringAfter("LANGUAGE_VERSION")?.trim()
+        if (parserAbi != null && parserAbi != abi) return@onlyIf true
         if (!grammarJs.exists()) return@onlyIf false
         grammarJs.lastModified() > parserC.lastModified()
     }
