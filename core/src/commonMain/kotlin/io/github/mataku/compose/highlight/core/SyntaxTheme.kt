@@ -204,5 +204,28 @@ data class SyntaxTheme(
                 background = Color(0xFFFAFAFA),
             )
         }
+
+        val Dracula: SyntaxTheme by lazy {
+            SyntaxTheme(
+                baseStyle = SpanStyle(color = Color(0xFFF8F8F2)),
+                styles = mapOf(
+                    "keyword" to SpanStyle(color = Color(0xFFFF79C6), fontWeight = FontWeight.Bold),
+                    "function" to SpanStyle(color = Color(0xFF50FA7B)),
+                    "type" to SpanStyle(color = Color(0xFF8BE9FD)),
+                    "string" to SpanStyle(color = Color(0xFFF1FA8C)),
+                    "string.escape" to SpanStyle(color = Color(0xFFFFB86C)),
+                    "number" to SpanStyle(color = Color(0xFFBD93F9)),
+                    "boolean" to SpanStyle(color = Color(0xFFBD93F9)),
+                    "comment" to SpanStyle(color = Color(0xFF6272A4)),
+                    "constant" to SpanStyle(color = Color(0xFFBD93F9)),
+                    "property" to SpanStyle(color = Color(0xFF50FA7B)),
+                    "variable" to SpanStyle(color = Color(0xFFF8F8F2)),
+                    "namespace" to SpanStyle(color = Color(0xFF8BE9FD)),
+                    "operator" to SpanStyle(color = Color(0xFFFF79C6)),
+                    "punctuation" to SpanStyle(color = Color(0xFFF8F8F2)),
+                ),
+                background = Color(0xFF282A36),
+            )
+        }
     }
 }

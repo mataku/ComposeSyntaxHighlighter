@@ -130,4 +130,14 @@ class SyntaxThemeTest {
         assertEquals(theme.styles["keyword"], theme.resolve("keyword.return"))
         assertEquals(Color(0xFFFAFAFA), theme.background)
     }
+
+    @Test
+    fun dracula_provides_required_capture_keys_and_background() {
+        val theme = SyntaxTheme.Dracula
+        assertEquals(true, theme.styles.containsKey("keyword"))
+        assertEquals(true, theme.styles.containsKey("string"))
+        assertEquals(true, theme.styles.containsKey("comment"))
+        assertEquals(theme.styles["keyword"], theme.resolve("keyword.return"))
+        assertEquals(Color(0xFF282A36), theme.background)
+    }
 }
