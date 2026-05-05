@@ -26,15 +26,16 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import io.github.mataku.compose.highlight.core.Languages
 import io.github.mataku.compose.highlight.core.SyntaxHighlightedText
 import io.github.mataku.compose.highlight.core.SyntaxTheme
-import io.github.mataku.compose.highlight.go.GoLanguage
-import io.github.mataku.compose.highlight.java.JavaLanguage
-import io.github.mataku.compose.highlight.kotlin.KotlinLanguage
-import io.github.mataku.compose.highlight.python.PythonLanguage
-import io.github.mataku.compose.highlight.ruby.RubyLanguage
-import io.github.mataku.compose.highlight.rust.RustLanguage
-import io.github.mataku.compose.highlight.swift.SwiftLanguage
+import io.github.mataku.compose.highlight.go.go
+import io.github.mataku.compose.highlight.java.java
+import io.github.mataku.compose.highlight.kotlin.kotlin
+import io.github.mataku.compose.highlight.python.python
+import io.github.mataku.compose.highlight.ruby.ruby
+import io.github.mataku.compose.highlight.rust.rust
+import io.github.mataku.compose.highlight.swift.swift
 
 private enum class DemoLanguage(val label: String) {
   Kotlin("Kotlin"),
@@ -65,13 +66,13 @@ fun HighlighterDemo() {
   var selectedTheme by remember { mutableStateOf(DemoTheme.DefaultDark) }
 
   val (code, language) = when (selectedLang) {
-    DemoLanguage.Kotlin -> SampleCode.kotlin to KotlinLanguage
-    DemoLanguage.Swift -> SampleCode.swift to SwiftLanguage
-    DemoLanguage.Ruby -> SampleCode.ruby to RubyLanguage
-    DemoLanguage.Rust -> SampleCode.rust to RustLanguage
-    DemoLanguage.Python -> SampleCode.python to PythonLanguage
-    DemoLanguage.Go -> SampleCode.go to GoLanguage
-    DemoLanguage.Java -> SampleCode.java to JavaLanguage
+    DemoLanguage.Kotlin -> SampleCode.kotlin to Languages.kotlin
+    DemoLanguage.Swift -> SampleCode.swift to Languages.swift
+    DemoLanguage.Ruby -> SampleCode.ruby to Languages.ruby
+    DemoLanguage.Rust -> SampleCode.rust to Languages.rust
+    DemoLanguage.Python -> SampleCode.python to Languages.python
+    DemoLanguage.Go -> SampleCode.go to Languages.go
+    DemoLanguage.Java -> SampleCode.java to Languages.java
   }
   val theme = when (selectedTheme) {
     DemoTheme.DefaultDark -> SyntaxTheme.DarkDefault
