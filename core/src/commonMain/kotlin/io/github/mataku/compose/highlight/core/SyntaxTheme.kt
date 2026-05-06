@@ -40,7 +40,7 @@ data class SyntaxTheme(
     }
 
     companion object {
-        /** Neutral dark default with VSCode-inspired colors. Used by [LocalSyntaxTheme]. */
+        /** VSCode-inspired neutral dark theme. Used as the default for [LocalSyntaxTheme]. */
         val DarkDefault: SyntaxTheme by lazy {
             SyntaxTheme(
                 baseStyle = SpanStyle(color = Color(0xFFE0E0E0)),
@@ -64,7 +64,7 @@ data class SyntaxTheme(
             )
         }
 
-        /** Neutral light default with VSCode-inspired colors. */
+        /** VSCode-inspired neutral light theme. */
         val LightDefault: SyntaxTheme by lazy {
             SyntaxTheme(
                 baseStyle = SpanStyle(color = Color(0xFF1F1F1F)),
@@ -184,7 +184,7 @@ data class SyntaxTheme(
             )
         }
 
-        /** Atom One Dark from atom/atom one-dark-syntax. Attribution in META-INF/NOTICE. */
+        /** Atom One Dark (atom/atom one-dark-syntax). Attribution in META-INF/NOTICE. */
         val OneDark: SyntaxTheme by lazy {
             SyntaxTheme(
                 baseStyle = SpanStyle(color = Color(0xFFABB2BF)),
@@ -208,7 +208,7 @@ data class SyntaxTheme(
             )
         }
 
-        /** Atom One Light from atom/atom one-light-syntax. Attribution in META-INF/NOTICE. */
+        /** Atom One Light (atom/atom one-light-syntax). Attribution in META-INF/NOTICE. */
         val OneLight: SyntaxTheme by lazy {
             SyntaxTheme(
                 baseStyle = SpanStyle(color = Color(0xFF383A42)),
@@ -232,7 +232,7 @@ data class SyntaxTheme(
             )
         }
 
-        /** Dracula (dark only — no canonical light variant). Attribution in META-INF/NOTICE. */
+        /** Dracula (dark only — there is no canonical light variant). Attribution in META-INF/NOTICE. */
         val Dracula: SyntaxTheme by lazy {
             SyntaxTheme(
                 baseStyle = SpanStyle(color = Color(0xFFF8F8F2)),
