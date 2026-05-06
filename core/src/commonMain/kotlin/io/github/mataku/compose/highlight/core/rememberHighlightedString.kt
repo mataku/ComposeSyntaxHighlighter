@@ -5,6 +5,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.text.AnnotatedString
 import io.github.mataku.compose.highlight.api.Language
 
+/**
+ * Composable wrapper around [highlight] that memoizes the produced [AnnotatedString], keyed on
+ * `(code, language, theme)`.
+ */
 @Composable
 fun rememberHighlightedString(
     code: String,

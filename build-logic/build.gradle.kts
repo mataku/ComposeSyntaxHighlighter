@@ -15,6 +15,7 @@ dependencies {
     implementation(libs.plugins.composeMultiplatform.toGradle())
     implementation(libs.plugins.composeCompiler.toGradle())
     implementation(libs.plugins.vanniktechPublish.toGradle())
+    implementation(libs.plugins.dokka.toGradle())
 }
 
 fun org.gradle.plugin.use.PluginDependency.toGradle(): String =

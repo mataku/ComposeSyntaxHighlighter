@@ -4,11 +4,30 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.font.FontWeight
 
+/**
+ * Maps tree-sitter highlight-query capture names to [SpanStyle] values.
+ *
+ * @property baseStyle Applied to the entire string before any capture-specific style. Use this
+ *   to set the default text color and font properties.
+ * @property styles Capture-name-to-style overrides. Keys are tree-sitter capture names such as
+ *   `keyword`, `string`, or `string.escape`. Resolution falls back along dotted prefixes — see
+ *   [resolve].
+ * @property background Optional background color hint for the surrounding container. Not
+ *   applied automatically by [SyntaxHighlightedText]; consumers may read it to color a code
+ *   block's container.
+ */
 data class SyntaxTheme(
     val baseStyle: SpanStyle = SpanStyle(),
     val styles: Map<String, SpanStyle> = emptyMap(),
     val background: Color? = null,
 ) {
+    /**
+     * Returns the [SpanStyle] for [captureName], falling back along dotted prefixes.
+     *
+     * For a capture like `string.escape`, the lookup tries `string.escape`, then `string`, and
+     * finally returns `null` if no entry exists. This mirrors how tree-sitter highlight queries
+     * group fine-grained captures under broader categories.
+     */
     fun resolve(captureName: String): SpanStyle? {
         styles[captureName]?.let { return it }
         var dot = captureName.lastIndexOf('.')
@@ -21,7 +40,7 @@ data class SyntaxTheme(
     }
 
     companion object {
-        /** Neutral dark default with VSCode-inspired colors. Used by [LocalSyntaxTheme]. */
+        /** VSCode-inspired neutral dark theme. Used as the default for [LocalSyntaxTheme]. */
         val DarkDefault: SyntaxTheme by lazy {
             SyntaxTheme(
                 baseStyle = SpanStyle(color = Color(0xFFE0E0E0)),
@@ -45,7 +64,7 @@ data class SyntaxTheme(
             )
         }
 
-        /** Neutral light default with VSCode-inspired colors. */
+        /** VSCode-inspired neutral light theme. */
         val LightDefault: SyntaxTheme by lazy {
             SyntaxTheme(
                 baseStyle = SpanStyle(color = Color(0xFF1F1F1F)),
@@ -165,7 +184,7 @@ data class SyntaxTheme(
             )
         }
 
-        /** Atom One Dark from atom/atom one-dark-syntax. Attribution in META-INF/NOTICE. */
+        /** Atom One Dark (atom/atom one-dark-syntax). Attribution in META-INF/NOTICE. */
         val OneDark: SyntaxTheme by lazy {
             SyntaxTheme(
                 baseStyle = SpanStyle(color = Color(0xFFABB2BF)),
@@ -189,7 +208,7 @@ data class SyntaxTheme(
             )
         }
 
-        /** Atom One Light from atom/atom one-light-syntax. Attribution in META-INF/NOTICE. */
+        /** Atom One Light (atom/atom one-light-syntax). Attribution in META-INF/NOTICE. */
         val OneLight: SyntaxTheme by lazy {
             SyntaxTheme(
                 baseStyle = SpanStyle(color = Color(0xFF383A42)),
@@ -213,7 +232,7 @@ data class SyntaxTheme(
             )
         }
 
-        /** Dracula (dark only — no canonical light variant). Attribution in META-INF/NOTICE. */
+        /** Dracula (dark only — there is no canonical light variant). Attribution in META-INF/NOTICE. */
         val Dracula: SyntaxTheme by lazy {
             SyntaxTheme(
                 baseStyle = SpanStyle(color = Color(0xFFF8F8F2)),
