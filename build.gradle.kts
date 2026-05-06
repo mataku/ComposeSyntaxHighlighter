@@ -7,5 +7,17 @@ plugins {
     alias(libs.plugins.composeCompiler) apply false
     alias(libs.plugins.kotlinMultiplatform) apply false
     alias(libs.plugins.vanniktechPublish) apply false
-    alias(libs.plugins.dokka) apply false
+    alias(libs.plugins.dokka)
+}
+
+dependencies {
+    dokka(project(":core"))
+    dokka(project(":core-api"))
+    dokka(project(":languages:kotlin"))
+    dokka(project(":languages:swift"))
+    dokka(project(":languages:ruby"))
+    dokka(project(":languages:rust"))
+    dokka(project(":languages:python"))
+    dokka(project(":languages:go"))
+    dokka(project(":languages:java"))
 }
