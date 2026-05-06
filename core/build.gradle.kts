@@ -6,7 +6,7 @@ plugins {
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.vanniktechPublish)
-    alias(libs.plugins.dokka)
+    id("compose-highlight-dokka")
 }
 
 kotlin {
