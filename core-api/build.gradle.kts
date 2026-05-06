@@ -4,7 +4,7 @@ plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.vanniktechPublish)
-    id("compose-highlight-dokka")
+    id("compose-highlight-kdoc")
 }
 
 kotlin {

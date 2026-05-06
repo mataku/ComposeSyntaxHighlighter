@@ -16,7 +16,7 @@ plugins {
     id("com.android.library")
     id("io.github.tree-sitter.ktreesitter-plugin")
     id("com.vanniktech.maven.publish")
-    id("compose-highlight-dokka")
+    id("compose-highlight-kdoc")
 }
 
 val composeHighlightLanguage = extensions.create<ComposeHighlightLanguageExtension>("composeHighlightLanguage")
