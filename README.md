@@ -4,6 +4,8 @@ Compose Multiplatform syntax highlighter for Android (and any JVM-based Compose 
 
 This is still an experimental project. Android is supported via the published AAR; the JVM artifact ships for Compose Desktop interop. iOS lands in a later release; for browser apps prefer a JS-side highlighter (e.g. highlight.js, Shiki) and keep this library on JVM-based targets.
 
+**API documentation:** https://mataku.github.io/ComposeSyntaxHighlighter/ (latest release)
+
 ## Installation
 
 Artifacts are published on Maven Central. Add `mavenCentral()` to your repositories and depend on
