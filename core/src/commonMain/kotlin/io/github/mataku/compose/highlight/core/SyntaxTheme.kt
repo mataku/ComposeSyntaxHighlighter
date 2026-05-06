@@ -4,11 +4,30 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.font.FontWeight
 
+/**
+ * Maps tree-sitter highlight-query capture names to [SpanStyle] values.
+ *
+ * @property baseStyle Applied to the entire string before any capture-specific style. Use this
+ *   to set the default text color and font properties.
+ * @property styles Capture-name-to-style overrides. Keys are tree-sitter capture names such as
+ *   `keyword`, `string`, or `string.escape`. Resolution falls back along dotted prefixes — see
+ *   [resolve].
+ * @property background Optional background color hint for the surrounding container. Not
+ *   applied automatically by [SyntaxHighlightedText]; consumers may read it to color a code
+ *   block's container.
+ */
 data class SyntaxTheme(
     val baseStyle: SpanStyle = SpanStyle(),
     val styles: Map<String, SpanStyle> = emptyMap(),
     val background: Color? = null,
 ) {
+    /**
+     * Returns the [SpanStyle] for [captureName], falling back along dotted prefixes.
+     *
+     * For a capture like `string.escape`, the lookup tries `string.escape`, then `string`, and
+     * finally returns `null` if no entry exists. This mirrors how tree-sitter highlight queries
+     * group fine-grained captures under broader categories.
+     */
     fun resolve(captureName: String): SpanStyle? {
         styles[captureName]?.let { return it }
         var dot = captureName.lastIndexOf('.')
