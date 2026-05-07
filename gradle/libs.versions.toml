@@ -19,7 +19,7 @@ ktreesitterPlugin = "0.24.1"
 # while modern tree-sitter-cli (0.25+) defaults to ABI 15. Bump in lockstep
 # with ktreesitter when it adds ABI 15 support.
 treesitterAbi = "14"
-material3 = "1.10.0-alpha05"
+material3 = "1.9.0"
 vanniktechPublish = "0.34.0"
 dokka = "2.2.0"
 
