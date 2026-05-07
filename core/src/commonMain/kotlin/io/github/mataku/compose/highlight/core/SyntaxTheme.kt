@@ -1,5 +1,6 @@
 package io.github.mataku.compose.highlight.core
 
+import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -11,7 +12,13 @@ import androidx.compose.ui.text.font.FontWeight
  * prefix (e.g. `string.escape` falls back to [string]), and finally to [baseStyle]. For
  * grammar-specific captures not covered by a field (e.g. `keyword.return`, `variable.member`),
  * use [extras]; entries there win over typed fields for the same name.
+ *
+ * Marked [Immutable] so Compose treats it as a stable parameter and skips recomposition when
+ * the same instance is passed. Callers must honor that contract: build a [SyntaxTheme] once
+ * (typically as a top-level/companion `val` or hoisted into a [LocalSyntaxTheme]) and never
+ * mutate the [extras] map after passing it in.
  */
+@Immutable
 data class SyntaxTheme(
   /** Applied to the entire string before any capture-specific style. Set the default text color here. */
   val baseStyle: SpanStyle = SpanStyle(),
@@ -48,7 +55,12 @@ data class SyntaxTheme(
   val operator: SpanStyle? = null,
   /** Style for `punctuation` captures. */
   val punctuation: SpanStyle? = null,
-  /** Overrides for capture names not represented as typed fields. Wins over typed fields for the same name. */
+  /**
+   * Overrides for capture names not represented as typed fields. Wins over typed fields for
+   * the same name. Pass a stable map instance (e.g. an immutable `mapOf(...)` constructed once
+   * and reused) — mutating the map after handing it to [SyntaxTheme] breaks the [Immutable]
+   * contract and leads to stale recomposition.
+   */
   val extras: Map<String, SpanStyle> = emptyMap(),
 ) {
   /**
