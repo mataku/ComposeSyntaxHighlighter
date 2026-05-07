@@ -27,7 +27,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import io.github.mataku.compose.highlight.api.Languages
-import io.github.mataku.compose.highlight.core.SyntaxHighlightedText
+import io.github.mataku.compose.highlight.material3.SyntaxHighlightedText
 import io.github.mataku.compose.highlight.core.SyntaxTheme
 import io.github.mataku.compose.highlight.go.go
 import io.github.mataku.compose.highlight.java.java
