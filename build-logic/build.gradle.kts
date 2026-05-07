@@ -1,5 +1,6 @@
 plugins {
     `kotlin-dsl`
+    alias(libs.plugins.spotless)
 }
 
 repositories {
@@ -16,9 +17,27 @@ dependencies {
     implementation(libs.plugins.composeCompiler.toGradle())
     implementation(libs.plugins.vanniktechPublish.toGradle())
     implementation(libs.plugins.dokka.toGradle())
+    implementation(libs.plugins.spotless.toGradle())
 }
 
 fun org.gradle.plugin.use.PluginDependency.toGradle(): String =
     "$pluginId:$pluginId.gradle.plugin:${version.requiredVersion}"
 
 fun Provider<org.gradle.plugin.use.PluginDependency>.toGradle(): String = get().toGradle()
+
+val ktlintOverrides = mapOf(
+    "ktlint_standard_filename" to "disabled",
+    "ktlint_function_naming_ignore_when_annotated_with" to "Composable",
+)
+
+spotless {
+    kotlin {
+        target("src/**/*.kt")
+        targetExclude("**/build/**", "**/generated/**")
+        ktlint().editorConfigOverride(ktlintOverrides)
+    }
+    kotlinGradle {
+        target("*.gradle.kts", "src/**/*.gradle.kts")
+        ktlint().editorConfigOverride(ktlintOverrides)
+    }
+}

@@ -17,6 +17,7 @@ plugins {
     id("io.github.tree-sitter.ktreesitter-plugin")
     id("com.vanniktech.maven.publish")
     id("compose-highlight-kdoc")
+    id("compose-highlight-spotless")
 }
 
 val composeHighlightLanguage = extensions.create<ComposeHighlightLanguageExtension>("composeHighlightLanguage")
