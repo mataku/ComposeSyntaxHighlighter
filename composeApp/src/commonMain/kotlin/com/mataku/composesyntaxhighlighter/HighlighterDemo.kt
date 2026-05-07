@@ -89,7 +89,7 @@ fun HighlighterDemo() {
   MaterialTheme {
     Scaffold(
       topBar = {
-        TopAppBar(title = { Text("Compose Highlight Demo") })
+        TopAppBar(title = { Text("Compose Syntax Highlight Demo") })
       },
     ) { padding ->
       Column(

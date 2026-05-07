@@ -6,8 +6,8 @@ plugins {
   alias(libs.plugins.composeMultiplatform)
   alias(libs.plugins.composeCompiler)
   alias(libs.plugins.vanniktechPublish)
-  id("compose-highlight-kdoc")
-  id("compose-highlight-spotless")
+  id("compose-syntax-highlight-kdoc")
+  id("compose-syntax-highlight-spotless")
 }
 
 kotlin {
@@ -67,9 +67,9 @@ android {
 }
 
 mavenPublishing {
-  coordinates(artifactId = "compose-highlight-core")
+  coordinates(artifactId = "compose-syntax-highlight-core")
   pom {
-    name.set("Compose Highlight Core")
+    name.set("Compose Syntax Highlight Core")
     description.set("Compose Multiplatform syntax highlighter (core API)")
   }
 }

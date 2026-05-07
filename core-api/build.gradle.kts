@@ -4,8 +4,8 @@ plugins {
   alias(libs.plugins.kotlinMultiplatform)
   alias(libs.plugins.androidLibrary)
   alias(libs.plugins.vanniktechPublish)
-  id("compose-highlight-kdoc")
-  id("compose-highlight-spotless")
+  id("compose-syntax-highlight-kdoc")
+  id("compose-syntax-highlight-spotless")
 }
 
 kotlin {
@@ -48,9 +48,9 @@ android {
 }
 
 mavenPublishing {
-  coordinates(artifactId = "compose-highlight-api")
+  coordinates(artifactId = "compose-syntax-highlight-api")
   pom {
-    name.set("Compose Highlight API")
-    description.set("Stable cross-module SPI for Compose Highlight language modules")
+    name.set("Compose Syntax Highlight API")
+    description.set("Stable cross-module SPI for Compose Syntax Highlight language modules")
   }
 }

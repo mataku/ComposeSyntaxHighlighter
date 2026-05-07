@@ -5,7 +5,7 @@ plugins {
   alias(libs.plugins.androidApplication)
   alias(libs.plugins.composeMultiplatform)
   alias(libs.plugins.composeCompiler)
-  id("compose-highlight-spotless")
+  id("compose-syntax-highlight-spotless")
 }
 
 kotlin {

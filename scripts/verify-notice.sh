@@ -9,15 +9,15 @@ group_path="io/github/mataku"
 repo="${HOME}/.m2/repository"
 
 modules=(
-  compose-highlight-api
-  compose-highlight-core
-  compose-highlight-kotlin
-  compose-highlight-swift
-  compose-highlight-ruby
-  compose-highlight-rust
-  compose-highlight-python
-  compose-highlight-go
-  compose-highlight-java
+  compose-syntax-highlight-api
+  compose-syntax-highlight-core
+  compose-syntax-highlight-kotlin
+  compose-syntax-highlight-swift
+  compose-syntax-highlight-ruby
+  compose-syntax-highlight-rust
+  compose-syntax-highlight-python
+  compose-syntax-highlight-go
+  compose-syntax-highlight-java
 )
 
 variants=(
@@ -26,11 +26,11 @@ variants=(
 )
 
 # Per-module keywords that must appear in the NOTICE body. Empty = presence check only.
-required_keywords_compose_highlight_core=("Solarized" "GitHub Primer" "Atom One" "Dracula")
+required_keywords_compose_syntax_highlight_core=("Solarized" "GitHub Primer" "Atom One" "Dracula")
 
 required_keywords_for() {
   case "$1" in
-    compose-highlight-core) printf '%s\n' "${required_keywords_compose_highlight_core[@]}" ;;
+    compose-syntax-highlight-core) printf '%s\n' "${required_keywords_compose_syntax_highlight_core[@]}" ;;
     *) ;;
   esac
 }

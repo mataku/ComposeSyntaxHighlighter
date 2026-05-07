@@ -1,8 +1,8 @@
 plugins {
-  id("compose-highlight-language")
+  id("compose-syntax-highlight-language")
 }
 
-composeHighlightLanguage {
+composeSyntaxHighlightLanguage {
   languageName.set("python")
   grammarSubmodulePath.set("tree-sitter-python")
   parserClassName.set("TreeSitterPython")

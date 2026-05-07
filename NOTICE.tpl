@@ -1,4 +1,4 @@
-Compose Highlight — language module
+Compose Syntax Highlight — language module
 Copyright 2026 Takuma Homma
 
 Licensed under the MIT License. See LICENSE for details.

@@ -1,4 +1,4 @@
-# Compose Highlight
+# Compose Syntax Highlight
 
 Compose Multiplatform syntax highlighter for Android (and any JVM-based Compose target). Built on tree-sitter for accurate, fast incremental highlighting.
 
@@ -9,16 +9,16 @@ This is still an experimental project. Android is supported via the published AA
 ## Installation
 
 Artifacts are published on Maven Central. Add `mavenCentral()` to your repositories and depend on
-`compose-highlight-core` plus whichever language modules you need:
+`compose-syntax-highlight-core` plus whichever language modules you need:
 
 ```kotlin
 // build.gradle.kts (commonMain)
-implementation("io.github.mataku:compose-highlight-core:$latestVersion")
-implementation("io.github.mataku:compose-highlight-kotlin:$latestHighlightKotlinVersion")
-implementation("io.github.mataku:compose-highlight-swift:$latestHighlightSwiftVersion")
+implementation("io.github.mataku:compose-syntax-highlight-core:$latestVersion")
+implementation("io.github.mataku:compose-syntax-highlight-kotlin:$latestHighlightKotlinVersion")
+implementation("io.github.mataku:compose-syntax-highlight-swift:$latestHighlightSwiftVersion")
 ```
 
-`compose-highlight-core` ships the `SyntaxHighlightedText` composable and built-in themes; each `compose-highlight-<lang>` artifact ships its tree-sitter grammar and the `Language` value you pass to the composable. Bumping `compose-highlight-core` to pick up new themes does not require updating the language artifacts.
+`compose-syntax-highlight-core` ships the `SyntaxHighlightedText` composable and built-in themes; each `compose-syntax-highlight-<lang>` artifact ships its tree-sitter grammar and the `Language` value you pass to the composable. Bumping `compose-syntax-highlight-core` to pick up new themes does not require updating the language artifacts.
 
 ## Basic usage
 
@@ -71,13 +71,13 @@ CompositionLocalProvider(LocalSyntaxTheme provides SyntaxTheme.LightDefault) {
 
 | Language | Artifact                   |
 |----------|----------------------------|
-| Kotlin   | `compose-highlight-kotlin` |
-| Swift    | `compose-highlight-swift`  |
-| Ruby     | `compose-highlight-ruby`   |
-| Rust     | `compose-highlight-rust`   |
-| Python   | `compose-highlight-python` |
-| Go       | `compose-highlight-go`     |
-| Java     | `compose-highlight-java`   |
+| Kotlin   | `compose-syntax-highlight-kotlin` |
+| Swift    | `compose-syntax-highlight-swift`  |
+| Ruby     | `compose-syntax-highlight-ruby`   |
+| Rust     | `compose-syntax-highlight-rust`   |
+| Python   | `compose-syntax-highlight-python` |
+| Go       | `compose-syntax-highlight-go`     |
+| Java     | `compose-syntax-highlight-java`   |
 
 ## Custom theme
 

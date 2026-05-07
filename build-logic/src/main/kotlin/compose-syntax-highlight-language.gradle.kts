@@ -1,6 +1,6 @@
 import com.android.build.api.variant.LibraryAndroidComponentsExtension
 import com.android.build.gradle.LibraryExtension
-import io.github.mataku.compose.highlight.buildlogic.ComposeHighlightLanguageExtension
+import io.github.mataku.compose.highlight.buildlogic.ComposeSyntaxHighlightLanguageExtension
 import io.github.mataku.compose.highlight.buildlogic.writeAndroidCMakeLists
 import io.github.mataku.compose.highlight.buildlogic.writeHostCMakeLists
 import io.github.treesitter.ktreesitter.plugin.GrammarExtension
@@ -16,11 +16,11 @@ plugins {
   id("com.android.library")
   id("io.github.tree-sitter.ktreesitter-plugin")
   id("com.vanniktech.maven.publish")
-  id("compose-highlight-kdoc")
-  id("compose-highlight-spotless")
+  id("compose-syntax-highlight-kdoc")
+  id("compose-syntax-highlight-spotless")
 }
 
-val composeHighlightLanguage = extensions.create<ComposeHighlightLanguageExtension>("composeHighlightLanguage")
+val composeSyntaxHighlightLanguage = extensions.create<ComposeSyntaxHighlightLanguageExtension>("composeSyntaxHighlightLanguage")
 
 val versionCatalog = extensions.getByType<VersionCatalogsExtension>().named("libs")
 
@@ -30,21 +30,21 @@ val highlightsQueryDir = layout.buildDirectory.dir("generated/highlights")
 val hostCMakeWorkDir = layout.buildDirectory.dir("host-cmake")
 val noticeOutDir = layout.buildDirectory.dir("notice")
 
-val grammarDirProvider: Provider<File> = composeHighlightLanguage.grammarSubmodulePath.map { projectDir.resolve(it) }
-val packageNameProvider: Provider<String> = composeHighlightLanguage.languageName.map {
+val grammarDirProvider: Provider<File> = composeSyntaxHighlightLanguage.grammarSubmodulePath.map { projectDir.resolve(it) }
+val packageNameProvider: Provider<String> = composeSyntaxHighlightLanguage.languageName.map {
   "io.github.mataku.compose.highlight.$it.internal"
 }
-val highlightsPackageDirProvider: Provider<String> = composeHighlightLanguage.languageName.map {
+val highlightsPackageDirProvider: Provider<String> = composeSyntaxHighlightLanguage.languageName.map {
   "io/github/mataku/compose/highlight/$it"
 }
 
 extensions.configure<GrammarExtension>("grammar") {
   baseDir.set(grammarDirProvider)
-  grammarName.set(composeHighlightLanguage.languageName)
-  className.set(composeHighlightLanguage.parserClassName)
+  grammarName.set(composeSyntaxHighlightLanguage.languageName)
+  className.set(composeSyntaxHighlightLanguage.parserClassName)
   packageName.set(packageNameProvider)
   files.set(
-    composeHighlightLanguage.sources.zip(grammarDirProvider) { sources, grammarDir ->
+    composeSyntaxHighlightLanguage.sources.zip(grammarDirProvider) { sources, grammarDir ->
       sources.map { grammarDir.resolve(it) }.toTypedArray()
     },
   )
@@ -53,9 +53,9 @@ extensions.configure<GrammarExtension>("grammar") {
 val generateNotice = tasks.register("generateNotice") {
   val tplFile = rootProject.file("NOTICE.tpl")
   val outDirProvider = noticeOutDir.map { it.asFile }
-  val nameProvider = composeHighlightLanguage.languageName
-  val licenseSpdxProvider = composeHighlightLanguage.licenseSpdx
-  val licenseSourceProvider = composeHighlightLanguage.licenseSource
+  val nameProvider = composeSyntaxHighlightLanguage.languageName
+  val licenseSpdxProvider = composeSyntaxHighlightLanguage.licenseSpdx
+  val licenseSourceProvider = composeSyntaxHighlightLanguage.licenseSource
   inputs.file(tplFile)
   inputs.property("languageName", nameProvider)
   inputs.property("licenseSpdx", licenseSpdxProvider)
@@ -77,11 +77,11 @@ val generateNotice = tasks.register("generateNotice") {
 }
 
 val generateHighlightsQuery = tasks.register("generateHighlightsQuery") {
-  val srcProvider = composeHighlightLanguage.queries.zip(grammarDirProvider) { queries, grammarDir ->
-    require(queries.isNotEmpty()) { "composeHighlightLanguage.queries must contain at least one entry" }
+  val srcProvider = composeSyntaxHighlightLanguage.queries.zip(grammarDirProvider) { queries, grammarDir ->
+    require(queries.isNotEmpty()) { "composeSyntaxHighlightLanguage.queries must contain at least one entry" }
     grammarDir.resolve(queries.first())
   }
-  val packageProvider = composeHighlightLanguage.languageName
+  val packageProvider = composeSyntaxHighlightLanguage.languageName
   val pkgDirProvider = highlightsPackageDirProvider
   val outDirProvider = highlightsQueryDir.map { it.asFile }
   inputs.file(srcProvider)
@@ -236,23 +236,23 @@ extensions.configure<LibraryExtension>("android") {
 
 extensions.configure<LibraryAndroidComponentsExtension>("androidComponents") {
   finalizeDsl { dsl ->
-    val name = composeHighlightLanguage.languageName.orNull
-      ?: error("composeHighlightLanguage.languageName must be set in the consumer build script")
+    val name = composeSyntaxHighlightLanguage.languageName.orNull
+      ?: error("composeSyntaxHighlightLanguage.languageName must be set in the consumer build script")
     dsl.namespace = "io.github.mataku.compose.highlight.$name"
   }
 }
 
 afterEvaluate {
-  val languageName = composeHighlightLanguage.languageName.orNull
-    ?: error("composeHighlightLanguage.languageName must be set in the consumer build script")
-  val grammarSubmodulePath = composeHighlightLanguage.grammarSubmodulePath.orNull
-    ?: error("composeHighlightLanguage.grammarSubmodulePath must be set")
-  composeHighlightLanguage.parserClassName.orNull
-    ?: error("composeHighlightLanguage.parserClassName must be set")
-  val sources = composeHighlightLanguage.sources.orNull?.takeIf { it.isNotEmpty() }
-    ?: error("composeHighlightLanguage.sources must contain at least one C source path relative to the grammar submodule")
-  composeHighlightLanguage.queries.orNull?.takeIf { it.isNotEmpty() }
-    ?: error("composeHighlightLanguage.queries must contain at least the highlights.scm path")
+  val languageName = composeSyntaxHighlightLanguage.languageName.orNull
+    ?: error("composeSyntaxHighlightLanguage.languageName must be set in the consumer build script")
+  val grammarSubmodulePath = composeSyntaxHighlightLanguage.grammarSubmodulePath.orNull
+    ?: error("composeSyntaxHighlightLanguage.grammarSubmodulePath must be set")
+  composeSyntaxHighlightLanguage.parserClassName.orNull
+    ?: error("composeSyntaxHighlightLanguage.parserClassName must be set")
+  val sources = composeSyntaxHighlightLanguage.sources.orNull?.takeIf { it.isNotEmpty() }
+    ?: error("composeSyntaxHighlightLanguage.sources must contain at least one C source path relative to the grammar submodule")
+  composeSyntaxHighlightLanguage.queries.orNull?.takeIf { it.isNotEmpty() }
+    ?: error("composeSyntaxHighlightLanguage.queries must contain at least the highlights.scm path")
 
   writeAndroidCMakeLists(
     projectDir.resolve("CMakeLists.txt"),
@@ -317,9 +317,9 @@ afterEvaluate {
   }
 
   val mavenPublishing = extensions.getByType(com.vanniktech.maven.publish.MavenPublishBaseExtension::class.java)
-  mavenPublishing.coordinates(artifactId = "compose-highlight-$languageName")
+  mavenPublishing.coordinates(artifactId = "compose-syntax-highlight-$languageName")
   mavenPublishing.pom {
-    name.set("Compose Highlight $languageName")
+    name.set("Compose Syntax Highlight $languageName")
     description.set("$languageName syntax highlighting for Compose Multiplatform powered by tree-sitter")
   }
 }

@@ -3,7 +3,7 @@ package io.github.mataku.compose.highlight.buildlogic
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 
-abstract class ComposeHighlightLanguageExtension {
+abstract class ComposeSyntaxHighlightLanguageExtension {
   abstract val languageName: Property<String>
   abstract val grammarSubmodulePath: Property<String>
   abstract val parserClassName: Property<String>

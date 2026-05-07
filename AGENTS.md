@@ -30,7 +30,7 @@ root
 
 ### `:core`
 
-Maven coordinates: `io.github.mataku:compose-highlight-core:<version>`.
+Maven coordinates: `io.github.mataku:compose-syntax-highlight-core:<version>`.
 
 Public API in `commonMain` (no expect/actual — every target is JVM-based):
 - `SyntaxHighlightedText(code, language, theme, style, modifier)` — main composable.
@@ -44,22 +44,22 @@ Implementation files live under `core/src/commonMain/kotlin/io/github/mataku/com
 
 ### `:languages:<name>`
 
-Maven coordinates: `io.github.mataku:compose-highlight-<name>:<version>`. Each language module:
+Maven coordinates: `io.github.mataku:compose-syntax-highlight-<name>:<version>`. Each language module:
 
-- Applies the custom `compose-highlight-language` convention plugin.
+- Applies the custom `compose-syntax-highlight-language` convention plugin.
 - Vendors a `tree-sitter-<lang>` grammar submodule.
 - Exposes a single `val <Lang>Language: Language` from `commonMain`.
 
 ## Build System
 
-### `build-logic` — `compose-highlight-language` plugin
+### `build-logic` — `compose-syntax-highlight-language` plugin
 
-Located at `build-logic/src/main/kotlin/compose-highlight-language.gradle.kts`.
+Located at `build-logic/src/main/kotlin/compose-syntax-highlight-language.gradle.kts`.
 
-Per-language configuration DSL (`ComposeHighlightLanguageExtension`):
+Per-language configuration DSL (`ComposeSyntaxHighlightLanguageExtension`):
 
 ```kotlin
-composeHighlightLanguage {
+composeSyntaxHighlightLanguage {
     languageName.set("kotlin")
     grammarSubmodulePath.set("tree-sitter-kotlin")
     parserClassName.set("TreeSitterKotlin")
@@ -77,7 +77,7 @@ What the plugin does automatically:
 4. **`generateNotice`**: writes `META-INF/NOTICE` from `NOTICE.tpl` plus a per-grammar entry, wired into both KMP `commonMain.resources` and AGP `main.resources`.
 5. **CMake configuration**: writes `CMakeLists.txt` (Android NDK) and `host-cmake/CMakeLists.txt` (host JVM tests).
 6. **`buildHostCMake`**: builds the parser `.dylib`/`.so`/`.dll` consumed by `jvmTest`.
-7. **vanniktech maven-publish**: sets POM coordinates `compose-highlight-<name>` and POM name/description.
+7. **vanniktech maven-publish**: sets POM coordinates `compose-syntax-highlight-<name>` and POM name/description.
 8. **AGP packaging**: drops `META-INF/NOTICE` from the default excludes and pickFirsts it so the AAR's classes.jar retains the file.
 
 ### Source set hierarchy
@@ -106,7 +106,7 @@ JVM tests depend on `buildHostCMake`, which compiles the parser into a host shar
 
 `./gradlew :core:commonTest` runs the pure-Kotlin tests (theme resolution, UTF-8 indexing).
 
-After running tests, run `./gradlew spotlessApply` to keep the working tree formatted (Spotless ktlint is wired via the `compose-highlight-spotless` build-logic plugin).
+After running tests, run `./gradlew spotlessApply` to keep the working tree formatted (Spotless ktlint is wired via the `compose-syntax-highlight-spotless` build-logic plugin).
 
 ## Publishing
 
@@ -194,4 +194,4 @@ Use these paths instead of any tool/skill default (e.g. `docs/superpowers/specs/
 
 ## License notes
 
-Each language module bundles a `tree-sitter-*` grammar submodule. Ensure `licenseSpdx` and `licenseSource` in `composeHighlightLanguage` reflect the upstream grammar license. Currently all bundled grammars are MIT licensed.
+Each language module bundles a `tree-sitter-*` grammar submodule. Ensure `licenseSpdx` and `licenseSource` in `composeSyntaxHighlightLanguage` reflect the upstream grammar license. Currently all bundled grammars are MIT licensed.

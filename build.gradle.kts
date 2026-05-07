@@ -8,7 +8,7 @@ plugins {
   alias(libs.plugins.kotlinMultiplatform) apply false
   alias(libs.plugins.vanniktechPublish) apply false
   alias(libs.plugins.dokka)
-  id("compose-highlight-spotless")
+  id("compose-syntax-highlight-spotless")
 }
 
 dependencies {

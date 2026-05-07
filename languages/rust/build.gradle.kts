@@ -1,8 +1,8 @@
 plugins {
-  id("compose-highlight-language")
+  id("compose-syntax-highlight-language")
 }
 
-composeHighlightLanguage {
+composeSyntaxHighlightLanguage {
   languageName.set("rust")
   grammarSubmodulePath.set("tree-sitter-rust")
   parserClassName.set("TreeSitterRust")
