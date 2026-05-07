@@ -1,0 +1,10 @@
+public final class io/github/mataku/compose/highlight/kotlin/KotlinLanguageKt {
+	public static final fun getKotlin (Lio/github/mataku/compose/highlight/api/Languages;)Lio/github/mataku/compose/highlight/api/Language;
+	public static final fun getKotlinLanguage ()Lio/github/mataku/compose/highlight/api/Language;
+}
+
+public final class io/github/mataku/compose/highlight/kotlin/internal/TreeSitterKotlin {
+	public static final field INSTANCE Lio/github/mataku/compose/highlight/kotlin/internal/TreeSitterKotlin;
+	public final fun language ()Ljava/lang/Object;
+}
+

@@ -8,7 +8,13 @@ plugins {
   alias(libs.plugins.kotlinMultiplatform) apply false
   alias(libs.plugins.vanniktechPublish) apply false
   alias(libs.plugins.dokka)
+  alias(libs.plugins.binaryCompatibilityValidator)
   id("compose-syntax-highlight-spotless")
+}
+
+apiValidation {
+  ignoredProjects += listOf("composeApp", "benchmark")
+  nonPublicMarkers += "io.github.mataku.compose.highlight.api.InternalSyntaxHighlightApi"
 }
 
 dependencies {
