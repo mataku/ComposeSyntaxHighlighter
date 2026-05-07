@@ -1,4 +1,4 @@
-package io.github.mataku.compose.highlight.core
+package io.github.mataku.compose.highlight.material3
 
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Text
@@ -7,9 +7,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import io.github.mataku.compose.highlight.api.Language
+import io.github.mataku.compose.highlight.core.LocalSyntaxTheme
+import io.github.mataku.compose.highlight.core.SyntaxTheme
+import io.github.mataku.compose.highlight.core.rememberHighlightedString
 
 /**
- * Renders [code] as syntax-highlighted Compose [Text] using the parser and highlight query
+ * Renders [code] as syntax-highlighted Material3 [Text] using the parser and highlight query
  * carried by [language].
  *
  * @param theme Maps tree-sitter capture names to text styles. Defaults to the value provided by
