@@ -7,7 +7,7 @@ import io.github.mataku.compose.highlight.kotlin.internal.TreeSitterKotlin
 import io.github.treesitter.ktreesitter.Language as TsLanguage
 
 val KotlinLanguage: Language by lazy {
-    kTreeSitterLanguage(TsLanguage(TreeSitterKotlin.language()), HIGHLIGHTS_QUERY)
+  kTreeSitterLanguage(TsLanguage(TreeSitterKotlin.language()), HIGHLIGHTS_QUERY)
 }
 
 val Languages.kotlin: Language get() = KotlinLanguage

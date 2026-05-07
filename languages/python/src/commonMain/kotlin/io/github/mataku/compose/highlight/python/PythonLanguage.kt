@@ -7,7 +7,7 @@ import io.github.mataku.compose.highlight.python.internal.TreeSitterPython
 import io.github.treesitter.ktreesitter.Language as TsLanguage
 
 val PythonLanguage: Language by lazy {
-    kTreeSitterLanguage(TsLanguage(TreeSitterPython.language()), HIGHLIGHTS_QUERY)
+  kTreeSitterLanguage(TsLanguage(TreeSitterPython.language()), HIGHLIGHTS_QUERY)
 }
 
 val Languages.python: Language get() = PythonLanguage

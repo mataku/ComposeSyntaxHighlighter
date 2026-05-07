@@ -11,9 +11,9 @@ import io.github.mataku.compose.highlight.api.Language
  */
 @Composable
 fun rememberHighlightedString(
-    code: String,
-    language: Language,
-    theme: SyntaxTheme,
+  code: String,
+  language: Language,
+  theme: SyntaxTheme,
 ): AnnotatedString = remember(code, language, theme) {
-    highlight(code, language, theme)
+  highlight(code, language, theme)
 }
