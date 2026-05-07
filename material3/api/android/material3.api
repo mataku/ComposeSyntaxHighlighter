@@ -1,4 +1,4 @@
 public final class io/github/mataku/compose/highlight/material3/SyntaxHighlightedTextKt {
-	public static final fun SyntaxHighlightedText (Ljava/lang/String;Lio/github/mataku/compose/highlight/api/Language;Landroidx/compose/ui/Modifier;Landroidx/compose/foundation/layout/PaddingValues;Lio/github/mataku/compose/highlight/core/SyntaxTheme;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/runtime/Composer;II)V
+	public static final fun SyntaxHighlightedText (Ljava/lang/String;Lio/github/mataku/compose/highlight/api/Language;Landroidx/compose/ui/Modifier;Landroidx/compose/foundation/layout/PaddingValues;Lio/github/mataku/compose/highlight/core/SyntaxTheme;Landroidx/compose/ui/text/TextStyle;ZLandroidx/compose/runtime/Composer;II)V
 }
 
