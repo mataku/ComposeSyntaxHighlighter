@@ -31,7 +31,7 @@ implementation("io.github.mataku:compose-syntax-highlight-kotlin:$latestHighligh
 
 `compose-syntax-highlight-core` ships `highlight()`, `rememberHighlightedString()`, the `SyntaxTheme` data class, and `LocalSyntaxTheme`. It depends only on `compose.runtime` and `compose.ui`, so it stays usable wherever you build your own UI on top of `AnnotatedString`. `compose-syntax-highlight-material3` adds the `SyntaxHighlightedText` composable backed by `androidx.compose.material3.Text` — drop it in if you render code blocks under a `MaterialTheme`. Each `compose-syntax-highlight-<lang>` artifact ships its tree-sitter grammar and the `Language` value you pass to the composable. Bumping `compose-syntax-highlight-core` to pick up new themes does not require updating the Material binding or the language artifacts.
 
-## Basic usage
+## Usage
 
 ```kotlin
 import io.github.mataku.compose.highlight.api.Languages
@@ -56,7 +56,7 @@ The default theme is `SyntaxTheme.DarkDefault`. To override it for a single call
 ```kotlin
 SyntaxHighlightedText(
   code = code,
-  language = KotlinLanguage,
+  language = Languages.kotlin,
   theme = SyntaxTheme.LightDefault
 )
 ```
@@ -68,8 +68,33 @@ import io.github.mataku.compose.highlight.core.LocalSyntaxTheme
 import io.github.mataku.compose.highlight.core.SyntaxTheme
 
 CompositionLocalProvider(LocalSyntaxTheme provides SyntaxTheme.LightDefault) {
-  SyntaxHighlightedText(code = code, language = KotlinLanguage)
+  SyntaxHighlightedText(code = code, language = Languages.kotlin)
 }
+```
+
+### Background and padding
+
+`SyntaxHighlightedText` paints `theme.background` behind the text when it is set (every built-in theme defines one). Layering, from outside in, is `modifier` → background → `contentPadding` → text, so use `modifier` for outer margin and `contentPadding` for the inset between the background edge and the text:
+
+```kotlin
+SyntaxHighlightedText(
+  code = code,
+  language = Languages.kotlin,
+  modifier = Modifier
+    .fillMaxWidth()
+    .padding(horizontal = 16.dp), // outside the background
+  contentPadding = PaddingValues(16.dp), // inside the background
+)
+```
+
+To suppress the background and paint your own container, override the theme:
+
+```kotlin
+SyntaxHighlightedText(
+  code = code,
+  language = Languages.kotlin,
+  theme = SyntaxTheme.DarkDefault.copy(background = null),
+)
 ```
 
 ## Built-in themes
