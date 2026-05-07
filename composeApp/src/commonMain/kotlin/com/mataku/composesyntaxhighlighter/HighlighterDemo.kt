@@ -27,11 +27,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import io.github.mataku.compose.highlight.api.Languages
-import io.github.mataku.compose.highlight.material3.SyntaxHighlightedText
 import io.github.mataku.compose.highlight.core.SyntaxTheme
 import io.github.mataku.compose.highlight.go.go
 import io.github.mataku.compose.highlight.java.java
 import io.github.mataku.compose.highlight.kotlin.kotlin
+import io.github.mataku.compose.highlight.material3.SyntaxHighlightedText
 import io.github.mataku.compose.highlight.python.python
 import io.github.mataku.compose.highlight.ruby.ruby
 import io.github.mataku.compose.highlight.rust.rust
