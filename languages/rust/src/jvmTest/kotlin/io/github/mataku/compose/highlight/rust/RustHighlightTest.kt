@@ -20,14 +20,12 @@ class RustHighlightTest {
 
     private val theme = SyntaxTheme(
         baseStyle = SpanStyle(color = baseColor),
-        styles = mapOf(
-            "keyword" to SpanStyle(color = keywordColor),
-            "string" to SpanStyle(color = stringColor),
-            "comment" to SpanStyle(color = commentColor),
-            // Upstream Rust highlights.scm tags integer/float/boolean literals
-            // as @constant.builtin, not @number, so we map that capture path here.
-            "constant.builtin" to SpanStyle(color = numberColor),
-        ),
+        keyword = SpanStyle(color = keywordColor),
+        string = SpanStyle(color = stringColor),
+        comment = SpanStyle(color = commentColor),
+        // Upstream Rust highlights.scm tags integer/float/boolean literals
+        // as @constant.builtin, not @number, so we map that capture path here.
+        extras = mapOf("constant.builtin" to SpanStyle(color = numberColor)),
     )
 
     @Test

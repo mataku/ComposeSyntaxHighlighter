@@ -27,16 +27,18 @@ The workflow is rigid — follow the order. Most steps are obvious, but several 
 
 **Acceptable license:** All built-in themes today are MIT. If the upstream palette is **not** MIT (or a permissively-compatible license like Apache-2.0, BSD), stop and ask the user — the NOTICE attribution shape and `:core` license posture both change.
 
-**Capture only the *colors and capture-key mappings*, not source code.** The bundled artifact is a Kotlin `Map<String, SpanStyle>` keyed by tree-sitter capture names (e.g. `keyword`, `string.escape`) plus a `background: Color`. We are not copying any upstream source files into the repo, just hex codes.
+**Capture only the *colors and capture-key mappings*, not source code.** The bundled artifact is a `SyntaxTheme` data class with named `SpanStyle?` fields per tree-sitter capture (e.g. `keyword`, `stringEscape`) plus a `background: Color`. We are not copying any upstream source files into the repo, just hex codes.
 
 **Naming:** Use `<Family><Variant>` PascalCase (e.g. `SolarizedDark`, `GitHubLight`, `OneDark`). Single-variant themes drop the variant suffix (e.g. `Dracula`). Match the upstream project's own canonical capitalization (`GitHub`, not `Github`).
 
-**Required capture keys.** Every built-in theme in `core/src/commonMain/kotlin/io/github/mataku/compose/highlight/core/SyntaxTheme.kt` defines the same 14 keys. Keep this set consistent so language modules don't get holes:
+**Required typed fields.** Every built-in theme in `core/src/commonMain/kotlin/io/github/mataku/compose/highlight/core/SyntaxTheme.kt` sets the same 14 fields. Keep this set consistent so language modules don't get holes:
 
 ```
-keyword, function, type, string, string.escape, number, boolean,
+keyword, function, type, string, stringEscape, number, boolean,
 comment, constant, property, variable, namespace, operator, punctuation
 ```
+
+(`stringEscape` is the field name for the `string.escape` tree-sitter capture; the resolver maps between them.)
 
 `keyword` typically gets `fontWeight = FontWeight.Bold` to match precedent. Pick palette-appropriate hex values for the rest. Read existing entries in `SyntaxTheme.kt` for the exact shape you should mirror.
 
@@ -53,11 +55,10 @@ Required header KDoc — one line, ending with `Attribution in META-INF/NOTICE.`
 val <Name>: SyntaxTheme by lazy {
     SyntaxTheme(
         baseStyle = SpanStyle(color = Color(0x........)),
-        styles = mapOf(
-            "keyword" to SpanStyle(color = Color(0x........), fontWeight = FontWeight.Bold),
-            // ... 13 more entries in the same order as SolarizedDark
-        ),
         background = Color(0x........),
+        keyword = SpanStyle(color = Color(0x........), fontWeight = FontWeight.Bold),
+        function = SpanStyle(color = Color(0x........)),
+        // ... 13 more named fields in the same order as SolarizedDark
     )
 }
 ```
@@ -95,10 +96,10 @@ Edit `core/src/commonTest/kotlin/io/github/mataku/compose/highlight/core/SyntaxT
 @Test
 fun <name>_provides_required_capture_keys_and_background() {
     val theme = SyntaxTheme.<Name>
-    assertEquals(true, theme.styles.containsKey("keyword"))
-    assertEquals(true, theme.styles.containsKey("string"))
-    assertEquals(true, theme.styles.containsKey("comment"))
-    assertEquals(theme.styles["keyword"], theme.resolve("keyword.return"))
+    assertNotNull(theme.keyword)
+    assertNotNull(theme.string)
+    assertNotNull(theme.comment)
+    assertEquals(theme.keyword, theme.resolve("keyword.return"))
     assertEquals(Color(0x........), theme.background)
 }
 ```
@@ -106,7 +107,7 @@ fun <name>_provides_required_capture_keys_and_background() {
 Run `./gradlew :core:jvmTest` and confirm the new tests pass. Failure shapes:
 
 - *Background mismatch*: the `Color(0x...)` in the test does not match the `background = ...` you set in step 2 — fix the test or the theme, whichever is wrong.
-- *Missing capture key*: you skipped one of the 14 required keys in step 2 — go back and add it.
+- *Missing capture field*: you skipped one of the 14 required typed fields in step 2 — go back and add it.
 
 `:core:commonTest` runs through the JVM target, so `:core:jvmTest` is the correct task name (`:core:commonTest` does not exist as a Gradle task).
 

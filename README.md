@@ -81,18 +81,27 @@ CompositionLocalProvider(LocalSyntaxTheme provides SyntaxTheme.LightDefault) {
 
 ## Custom theme
 
+Each capture has its own named field, so the IDE autocompletes them — no string keys to remember:
+
 ```kotlin
 val myTheme = SyntaxTheme(
   baseStyle = SpanStyle(color = Color.White),
-  styles = mapOf(
-    "keyword" to SpanStyle(color = Color.Magenta, fontWeight = FontWeight.Bold),
-    "string" to SpanStyle(color = Color.Yellow),
-    // ...
-  ),
+  keyword = SpanStyle(color = Color.Magenta, fontWeight = FontWeight.Bold),
+  string = SpanStyle(color = Color.Yellow),
+  // ...
 )
 ```
 
-Capture name resolution falls back to parent prefixes — defining `keyword` covers `keyword.return`, `keyword.function`, etc. unless a more specific entry is provided.
+Unset fields fall back to a parent prefix — setting `keyword` covers `keyword.return`, `keyword.function`, etc., and `string.escape` falls back to `string` when `stringEscape` is unset. For grammar-specific captures not covered by a field (e.g. `keyword.return`, `variable.member`), use `extras`:
+
+```kotlin
+val myTheme = SyntaxTheme(
+  keyword = SpanStyle(color = Color.Magenta),
+  extras = mapOf("keyword.return" to SpanStyle(color = Color.Red)),
+)
+```
+
+`extras` wins over typed fields for the same name.
 
 ## Performance
 
