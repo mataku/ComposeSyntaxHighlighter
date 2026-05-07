@@ -11,6 +11,7 @@ repo="${HOME}/.m2/repository"
 modules=(
   compose-syntax-highlight-api
   compose-syntax-highlight-core
+  compose-syntax-highlight-material3
   compose-syntax-highlight-kotlin
   compose-syntax-highlight-swift
   compose-syntax-highlight-ruby
