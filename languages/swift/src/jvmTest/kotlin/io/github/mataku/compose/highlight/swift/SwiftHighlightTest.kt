@@ -19,11 +19,9 @@ class SwiftHighlightTest {
 
     private val theme = SyntaxTheme(
         baseStyle = SpanStyle(color = baseColor),
-        styles = mapOf(
-            "keyword" to SpanStyle(color = keywordColor),
-            "string" to SpanStyle(color = stringColor),
-            "comment" to SpanStyle(color = commentColor),
-        ),
+        keyword = SpanStyle(color = keywordColor),
+        string = SpanStyle(color = stringColor),
+        comment = SpanStyle(color = commentColor),
     )
 
     @Test
