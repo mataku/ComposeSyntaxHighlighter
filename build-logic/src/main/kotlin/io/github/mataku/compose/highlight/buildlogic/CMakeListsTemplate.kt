@@ -2,32 +2,27 @@ package io.github.mataku.compose.highlight.buildlogic
 
 import java.io.File
 
-private fun headerSymbol(languageName: String): String =
-    "TREE_SITTER_${languageName.uppercase()}_H_"
+private fun headerSymbol(languageName: String): String = "TREE_SITTER_${languageName.uppercase()}_H_"
 
-private fun headerFileName(languageName: String): String =
-    "tree-sitter-$languageName.h"
+private fun headerFileName(languageName: String): String = "tree-sitter-$languageName.h"
 
-private fun headerDirVar(languageName: String): String =
-    "${languageName.uppercase()}_HEADER_DIR"
+private fun headerDirVar(languageName: String): String = "${languageName.uppercase()}_HEADER_DIR"
 
-private fun targetName(languageName: String): String =
-    "ktreesitter-$languageName"
+private fun targetName(languageName: String): String = "ktreesitter-$languageName"
 
-private fun renderSourcesBlock(sources: List<String>, prefix: String): String =
-    sources.joinToString(separator = "\n") { "    $prefix/$it" }
+private fun renderSourcesBlock(sources: List<String>, prefix: String): String = sources.joinToString(separator = "\n") { "    $prefix/$it" }
 
 internal fun renderAndroidCMakeLists(
-    languageName: String,
-    grammarSubmodulePath: String,
-    sources: List<String>,
+  languageName: String,
+  grammarSubmodulePath: String,
+  sources: List<String>,
 ): String {
-    val symbol = headerSymbol(languageName)
-    val headerName = headerFileName(languageName)
-    val headerVar = headerDirVar(languageName)
-    val target = targetName(languageName)
-    val sourcesBlock = renderSourcesBlock(sources, "\${GRAMMAR_DIR}")
-    return """cmake_minimum_required(VERSION 3.12.0)
+  val symbol = headerSymbol(languageName)
+  val headerName = headerFileName(languageName)
+  val headerVar = headerDirVar(languageName)
+  val target = targetName(languageName)
+  val sourcesBlock = renderSourcesBlock(sources, "\${GRAMMAR_DIR}")
+  return """cmake_minimum_required(VERSION 3.12.0)
 
 project($target LANGUAGES C)
 
@@ -80,29 +75,29 @@ set_target_properties($target PROPERTIES DEFINE_SYMBOL "")
 }
 
 internal fun renderHostCMakeLists(
-    languageName: String,
-    grammarSubmodulePath: String,
-    sources: List<String>,
+  languageName: String,
+  grammarSubmodulePath: String,
+  sources: List<String>,
 ): String {
-    val symbol = headerSymbol(languageName)
-    val headerName = headerFileName(languageName)
-    val headerVar = headerDirVar(languageName)
-    val target = targetName(languageName)
-    val sourcesBlock = renderSourcesBlock(sources, "\${GRAMMAR_DIR}")
-    val headerOneLine = buildString {
-        append("\"#ifndef ").append(symbol).append("\\n")
-        append("#define ").append(symbol).append("\\n")
-        append("#include <tree_sitter/parser.h>\\n")
-        append("#ifdef __cplusplus\\n")
-        append("extern \\\"C\\\" {\\n")
-        append("#endif\\n")
-        append("extern const TSLanguage *tree_sitter_").append(languageName).append("(void);\\n")
-        append("#ifdef __cplusplus\\n")
-        append("}\\n")
-        append("#endif\\n")
-        append("#endif\\n\"")
-    }
-    return """cmake_minimum_required(VERSION 3.12.0)
+  val symbol = headerSymbol(languageName)
+  val headerName = headerFileName(languageName)
+  val headerVar = headerDirVar(languageName)
+  val target = targetName(languageName)
+  val sourcesBlock = renderSourcesBlock(sources, "\${GRAMMAR_DIR}")
+  val headerOneLine = buildString {
+    append("\"#ifndef ").append(symbol).append("\\n")
+    append("#define ").append(symbol).append("\\n")
+    append("#include <tree_sitter/parser.h>\\n")
+    append("#ifdef __cplusplus\\n")
+    append("extern \\\"C\\\" {\\n")
+    append("#endif\\n")
+    append("extern const TSLanguage *tree_sitter_").append(languageName).append("(void);\\n")
+    append("#ifdef __cplusplus\\n")
+    append("}\\n")
+    append("#endif\\n")
+    append("#endif\\n\"")
+  }
+  return """cmake_minimum_required(VERSION 3.12.0)
 
 project($target-host LANGUAGES C)
 
@@ -135,29 +130,29 @@ $sourcesBlock
 }
 
 fun writeAndroidCMakeLists(
-    file: File,
-    languageName: String,
-    grammarSubmodulePath: String,
-    sources: List<String>,
+  file: File,
+  languageName: String,
+  grammarSubmodulePath: String,
+  sources: List<String>,
 ) {
-    val desired = renderAndroidCMakeLists(languageName, grammarSubmodulePath, sources)
-    writeIfChanged(file, desired)
+  val desired = renderAndroidCMakeLists(languageName, grammarSubmodulePath, sources)
+  writeIfChanged(file, desired)
 }
 
 fun writeHostCMakeLists(
-    file: File,
-    languageName: String,
-    grammarSubmodulePath: String,
-    sources: List<String>,
+  file: File,
+  languageName: String,
+  grammarSubmodulePath: String,
+  sources: List<String>,
 ) {
-    val desired = renderHostCMakeLists(languageName, grammarSubmodulePath, sources)
-    writeIfChanged(file, desired)
+  val desired = renderHostCMakeLists(languageName, grammarSubmodulePath, sources)
+  writeIfChanged(file, desired)
 }
 
 private fun writeIfChanged(file: File, desired: String) {
-    val existing = if (file.exists()) file.readText() else null
-    if (existing != desired) {
-        file.parentFile?.mkdirs()
-        file.writeText(desired)
-    }
+  val existing = if (file.exists()) file.readText() else null
+  if (existing != desired) {
+    file.parentFile?.mkdirs()
+    file.writeText(desired)
+  }
 }

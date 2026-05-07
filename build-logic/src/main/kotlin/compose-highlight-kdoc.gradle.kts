@@ -3,16 +3,25 @@ import com.vanniktech.maven.publish.KotlinMultiplatform
 import com.vanniktech.maven.publish.MavenPublishBaseExtension
 
 plugins {
-    id("org.jetbrains.dokka")
+  id("org.jetbrains.dokka")
 }
 
 pluginManager.withPlugin("com.vanniktech.maven.publish") {
-    extensions.configure<MavenPublishBaseExtension> {
-        configure(
-            KotlinMultiplatform(
-                javadocJar = JavadocJar.Dokka("dokkaGenerateModuleHtml"),
-                sourcesJar = true,
-            ),
-        )
+  extensions.configure<MavenPublishBaseExtension> {
+    configure(
+      KotlinMultiplatform(
+        javadocJar = JavadocJar.Dokka("dokkaGenerateModuleHtml"),
+        sourcesJar = true,
+      ),
+    )
+  }
+}
+
+afterEvaluate {
+  val jvmClasspath = configurations.findByName("jvmCompileClasspath") ?: return@afterEvaluate
+  dokka {
+    dokkaSourceSets.named("commonMain") {
+      classpath.from(jvmClasspath)
     }
+  }
 }
