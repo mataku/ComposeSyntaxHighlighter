@@ -60,6 +60,22 @@ CompositionLocalProvider(LocalSyntaxTheme provides SyntaxTheme.LightDefault) {
 }
 ```
 
+## Built-in themes
+
+All themes are static `SyntaxTheme` values on `SyntaxTheme.Companion`, shipped in `compose-syntax-highlight-core`. Attributions for the third-party themes are bundled in the artifact's `META-INF/NOTICE`.
+
+| Theme                       | Variant     | Inspired by / source                                                                                |
+|-----------------------------|-------------|-----------------------------------------------------------------------------------------------------|
+| `SyntaxTheme.DarkDefault`   | dark        | VSCode-inspired neutral palette (default for `LocalSyntaxTheme`)                                    |
+| `SyntaxTheme.LightDefault`  | light       | VSCode-inspired neutral palette                                                                     |
+| `SyntaxTheme.SolarizedDark` | dark        | [Solarized](https://github.com/altercation/solarized) by Ethan Schoonover                           |
+| `SyntaxTheme.SolarizedLight`| light       | [Solarized](https://github.com/altercation/solarized) by Ethan Schoonover                           |
+| `SyntaxTheme.GitHubDark`    | dark        | [GitHub Primer](https://github.com/primer/primer-primitives) syntax tokens                          |
+| `SyntaxTheme.GitHubLight`   | light       | [GitHub Primer](https://github.com/primer/primer-primitives) syntax tokens                          |
+| `SyntaxTheme.OneDark`       | dark        | [Atom One Dark](https://github.com/atom/atom) (one-dark-syntax)                                     |
+| `SyntaxTheme.OneLight`      | light       | [Atom One Light](https://github.com/atom/atom) (one-light-syntax)                                   |
+| `SyntaxTheme.Dracula`       | dark only   | [Dracula](https://github.com/dracula/dracula-theme) (no canonical light variant)                    |
+
 ## Supported
 
 | Platform     | Status       | Notes                                                 |
@@ -173,4 +189,11 @@ MIT. Bundled grammars are all MIT-licensed:
 - tree-sitter/tree-sitter-go
 - tree-sitter/tree-sitter-java
 
-Full attributions are in the published `META-INF/NOTICE` of each language artifact.
+The built-in `SyntaxTheme` palettes shipped in `compose-syntax-highlight-core` derive their colors from the following third-party themes (all MIT-licensed):
+
+- [Solarized](https://github.com/altercation/solarized) — Copyright (c) 2011 Ethan Schoonover
+- [GitHub Primer Syntax Themes](https://github.com/primer/primer-primitives) — Copyright (c) GitHub, Inc.
+- [Atom One Dark / One Light](https://github.com/atom/atom) — Copyright (c) 2011-present GitHub, Inc.
+- [Dracula](https://github.com/dracula/dracula-theme) — Copyright (c) 2016 Dracula Theme, LLC
+
+Full attributions are in the published `META-INF/NOTICE` of each language artifact and of `compose-syntax-highlight-core`.
