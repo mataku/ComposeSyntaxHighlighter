@@ -171,15 +171,15 @@ When picking a submodule pin for a new (or updated) language module, the bundled
 | Compose Multiplatform| 1.10.3          | UI framework                       |
 | AGP                  | 8.13.2          | Android build                      |
 | ktreesitter          | 0.24.1          | Tree-sitter Kotlin bindings (JNI)  |
-| material3            | 1.10.0-alpha05  | Compose Material3                  |
+| material3            | 1.9.0           | Compose Material3 (used by `:material3` only) |
 | vanniktech publish   | 0.34.0          | Maven Central publishing (CENTRAL_PORTAL host, supports snapshots) |
 
 ## Public API usage example
 
 ```kotlin
-import io.github.mataku.compose.highlight.core.SyntaxHighlightedText
 import io.github.mataku.compose.highlight.core.SyntaxTheme
 import io.github.mataku.compose.highlight.kotlin.KotlinLanguage
+import io.github.mataku.compose.highlight.material3.SyntaxHighlightedText
 
 @Composable
 fun CodeBlock(code: String) {
