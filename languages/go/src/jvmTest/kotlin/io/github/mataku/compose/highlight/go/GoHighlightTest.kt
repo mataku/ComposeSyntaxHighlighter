@@ -20,12 +20,10 @@ class GoHighlightTest {
 
     private val theme = SyntaxTheme(
         baseStyle = SpanStyle(color = baseColor),
-        styles = mapOf(
-            "keyword" to SpanStyle(color = keywordColor),
-            "string" to SpanStyle(color = stringColor),
-            "comment" to SpanStyle(color = commentColor),
-            "number" to SpanStyle(color = numberColor),
-        ),
+        keyword = SpanStyle(color = keywordColor),
+        string = SpanStyle(color = stringColor),
+        comment = SpanStyle(color = commentColor),
+        number = SpanStyle(color = numberColor),
     )
 
     @Test
