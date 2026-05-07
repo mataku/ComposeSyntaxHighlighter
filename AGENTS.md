@@ -16,7 +16,9 @@ ComposeSyntaxHighlighter is a **Kotlin Multiplatform (KMP)** library that provid
 root
 ├── build-logic/                    # Custom Gradle plugin for language modules
 ├── composeApp/                     # Demo app (Android only)
-├── core/                           # Core highlighting engine & public API
+├── core-api/                       # Cross-module SPI (Language, Languages)
+├── core/                           # Highlighter engine, SyntaxTheme, builtin themes
+├── material3/                      # Material3 binding (SyntaxHighlightedText)
 ├── languages/
 │   ├── kotlin/                     # Kotlin language support
 │   ├── swift/                      # Swift language support
@@ -33,14 +35,24 @@ root
 Maven coordinates: `io.github.mataku:compose-syntax-highlight-core:<version>`.
 
 Public API in `commonMain` (no expect/actual — every target is JVM-based):
-- `SyntaxHighlightedText(code, language, theme, style, modifier)` — main composable.
 - `SyntaxTheme(baseStyle, background, keyword, function, ..., extras)` — typed `SpanStyle?` fields per tree-sitter capture (the 14 used by every built-in theme), plus `extras: Map<String, SpanStyle>` for grammar-specific captures. Provides `SyntaxTheme.DarkDefault` / `SyntaxTheme.LightDefault`.
 - `LocalSyntaxTheme` — composition local that defaults to `SyntaxTheme.DarkDefault`.
-- `Language` — concrete class wrapping a KTreeSitter `Language` + a highlights query.
-- `kTreeSitterLanguage(parser, highlightsQuery)` — factory used by language modules.
+- `Language` — concrete class wrapping a KTreeSitter `Language` + a highlights query (re-exported from `:core-api`).
+- `kTreeSitterLanguage(parser, highlightsQuery)` — factory used by language modules (re-exported from `:core-api`).
 - `highlight(code, language, theme)` / `rememberHighlightedString(...)` — the underlying functions.
 
 Implementation files live under `core/src/commonMain/kotlin/io/github/mataku/compose/highlight/core/`.
+
+### `:material3`
+
+Maven coordinates: `io.github.mataku:compose-syntax-highlight-material3:<version>`.
+
+Public API in `commonMain`:
+- `SyntaxHighlightedText(code, language, theme, style, modifier)` — composable that renders the highlighted code via `androidx.compose.material3.Text`, pulling the default `style` from `LocalTextStyle` (Material3) with `FontFamily.Monospace`.
+
+Implementation file: `material3/src/commonMain/kotlin/io/github/mataku/compose/highlight/material3/SyntaxHighlightedText.kt`.
+
+Depends on `:core` for `rememberHighlightedString`, `SyntaxTheme`, and `LocalSyntaxTheme`. Future Material releases (e.g. M4) ship as sibling modules without touching `:core`.
 
 ### `:languages:<name>`
 
