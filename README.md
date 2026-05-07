@@ -97,6 +97,18 @@ SyntaxHighlightedText(
 )
 ```
 
+### Selection
+
+`SyntaxHighlightedText` wraps its output in a `SelectionContainer` by default, so users can highlight the rendered code with the platform's native text-selection UI (which also surfaces a Copy action on Android and Desktop). Pass `selectable = false` to render without a selection scope:
+
+```kotlin
+SyntaxHighlightedText(
+  code = code,
+  language = Languages.Kotlin,
+  selectable = false,
+)
+```
+
 ## Built-in themes
 
 All themes are static `SyntaxTheme` values on `SyntaxTheme.Companion`, shipped in `compose-syntax-highlight-core`. Attributions for the third-party themes are bundled in the artifact's `META-INF/NOTICE`.

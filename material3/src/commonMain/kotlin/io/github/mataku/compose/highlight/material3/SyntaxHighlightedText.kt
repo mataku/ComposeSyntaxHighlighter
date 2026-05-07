@@ -3,6 +3,7 @@ package io.github.mataku.compose.highlight.material3
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -30,6 +31,10 @@ import io.github.mataku.compose.highlight.core.rememberHighlightedString
  *   [LocalSyntaxTheme] (which itself defaults to [SyntaxTheme.DarkDefault]).
  * @param style Base [TextStyle] for the rendered text. Defaults to the ambient
  *   [androidx.compose.material3.LocalTextStyle] forced to [FontFamily.Monospace].
+ * @param selectable When true (the default), the rendered text is wrapped in a
+ *   [SelectionContainer] so users can highlight the code with the platform's native
+ *   text-selection UI (which also surfaces a Copy action). Pass `false` to render without a
+ *   selection scope.
  */
 @Composable
 fun SyntaxHighlightedText(
@@ -39,11 +44,19 @@ fun SyntaxHighlightedText(
   contentPadding: PaddingValues = PaddingValues(0.dp),
   theme: SyntaxTheme = LocalSyntaxTheme.current,
   style: TextStyle = LocalTextStyle.current.copy(fontFamily = FontFamily.Monospace),
+  selectable: Boolean = true,
 ) {
   val backgroundModifier = theme.background?.let { Modifier.background(it) } ?: Modifier
-  Text(
-    text = rememberHighlightedString(code, language, theme),
-    modifier = modifier.then(backgroundModifier).padding(contentPadding),
-    style = style,
-  )
+  val text: @Composable () -> Unit = {
+    Text(
+      text = rememberHighlightedString(code, language, theme),
+      modifier = modifier.then(backgroundModifier).padding(contentPadding),
+      style = style,
+    )
+  }
+  if (selectable) {
+    SelectionContainer { text() }
+  } else {
+    text()
+  }
 }
