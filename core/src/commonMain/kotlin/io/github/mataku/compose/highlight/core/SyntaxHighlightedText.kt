@@ -19,15 +19,15 @@ import io.github.mataku.compose.highlight.api.Language
  */
 @Composable
 fun SyntaxHighlightedText(
-    code: String,
-    language: Language,
-    modifier: Modifier = Modifier,
-    theme: SyntaxTheme = LocalSyntaxTheme.current,
-    style: TextStyle = LocalTextStyle.current.copy(fontFamily = FontFamily.Monospace),
+  code: String,
+  language: Language,
+  modifier: Modifier = Modifier,
+  theme: SyntaxTheme = LocalSyntaxTheme.current,
+  style: TextStyle = LocalTextStyle.current.copy(fontFamily = FontFamily.Monospace),
 ) {
-    Text(
-        text = rememberHighlightedString(code, language, theme),
-        modifier = modifier,
-        style = style,
-    )
+  Text(
+    text = rememberHighlightedString(code, language, theme),
+    modifier = modifier,
+    style = style,
+  )
 }

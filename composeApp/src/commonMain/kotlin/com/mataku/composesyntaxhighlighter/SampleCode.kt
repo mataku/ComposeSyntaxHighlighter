@@ -1,7 +1,7 @@
 package com.mataku.composesyntaxhighlighter
 
 object SampleCode {
-    val kotlin: String = """
+  val kotlin: String = """
         package com.example
 
         import kotlinx.coroutines.flow.Flow
@@ -18,9 +18,9 @@ object SampleCode {
             val n = 42
             println("hello, world: ${'$'}n")
         }
-    """.trimIndent()
+  """.trimIndent()
 
-    val swift: String = """
+  val swift: String = """
         import Foundation
 
         struct User {
@@ -38,9 +38,9 @@ object SampleCode {
                 }
             }
         }
-    """.trimIndent()
+  """.trimIndent()
 
-    val ruby: String = """
+  val ruby: String = """
         # frozen_string_literal: true
 
         require "json"
@@ -61,9 +61,9 @@ object SampleCode {
 
         n = 42
         puts "hello, world: #{n}"
-    """.trimIndent()
+  """.trimIndent()
 
-    val rust: String = """
+  val rust: String = """
         use std::collections::HashMap;
 
         #[derive(Debug, Clone)]
@@ -86,9 +86,9 @@ object SampleCode {
             let u = User { id: 1, name: "world" };
             println!("{}: {}", u.greet(), n);
         }
-    """.trimIndent()
+  """.trimIndent()
 
-    val python: String = """
+  val python: String = """
         import json
 
         class UserRepository:
@@ -104,9 +104,9 @@ object SampleCode {
 
         n = 42
         print(f"hello, world: {n}")
-    """.trimIndent()
+  """.trimIndent()
 
-    val go: String = """
+  val go: String = """
         package main
 
         import "fmt"
@@ -128,9 +128,9 @@ object SampleCode {
             u := User{ID: 1, Name: "world"}
             fmt.Printf("%s: %d\n", u.Greet(), n)
         }
-    """.trimIndent()
+  """.trimIndent()
 
-    val java: String = """
+  val java: String = """
         import java.util.List;
         import java.util.stream.Collectors;
 
@@ -148,5 +148,5 @@ object SampleCode {
                     .collect(Collectors.toList());
             }
         }
-    """.trimIndent()
+  """.trimIndent()
 }

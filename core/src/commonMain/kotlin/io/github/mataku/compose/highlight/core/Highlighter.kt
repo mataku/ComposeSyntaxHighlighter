@@ -16,28 +16,28 @@ import io.github.treesitter.ktreesitter.Parser
  * [rememberHighlightedString] or [SyntaxHighlightedText], both of which memoize the result.
  */
 fun highlight(
-    code: String,
-    language: Language,
-    theme: SyntaxTheme,
+  code: String,
+  language: Language,
+  theme: SyntaxTheme,
 ): AnnotatedString {
-    val parser = Parser(language.parser)
-    val tree = parser.parse(code)
-    val query = language.query
-    val byteToChar = Utf8ByteIndex(code)
-    val emptySpan = SpanStyle()
+  val parser = Parser(language.parser)
+  val tree = parser.parse(code)
+  val query = language.query
+  val byteToChar = Utf8ByteIndex(code)
+  val emptySpan = SpanStyle()
 
-    return buildAnnotatedString {
-        append(code)
-        if (theme.baseStyle != emptySpan) {
-            addStyle(theme.baseStyle, 0, code.length)
-        }
-        query.captures(tree.rootNode).forEach { (_, match) ->
-            match.captures.forEach { capture ->
-                val style = theme.resolve(capture.name) ?: return@forEach
-                val start = byteToChar.charIndexAt(capture.node.startByte.toInt())
-                val end = byteToChar.charIndexAt(capture.node.endByte.toInt())
-                if (start < end) addStyle(style, start, end)
-            }
-        }
+  return buildAnnotatedString {
+    append(code)
+    if (theme.baseStyle != emptySpan) {
+      addStyle(theme.baseStyle, 0, code.length)
     }
+    query.captures(tree.rootNode).forEach { (_, match) ->
+      match.captures.forEach { capture ->
+        val style = theme.resolve(capture.name) ?: return@forEach
+        val start = byteToChar.charIndexAt(capture.node.startByte.toInt())
+        val end = byteToChar.charIndexAt(capture.node.endByte.toInt())
+        if (start < end) addStyle(style, start, end)
+      }
+    }
+  }
 }

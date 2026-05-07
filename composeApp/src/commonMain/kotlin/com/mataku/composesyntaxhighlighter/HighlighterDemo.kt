@@ -130,7 +130,6 @@ fun HighlighterDemo() {
   }
 }
 
-
 @Composable
 private fun <T> DemoDropdown(
   label: String,

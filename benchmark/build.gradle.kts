@@ -4,6 +4,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
   alias(libs.plugins.kotlinMultiplatform)
   alias(libs.plugins.androidLibrary)
+  id("compose-highlight-spotless")
 }
 
 kotlin {
@@ -46,19 +47,24 @@ kotlin {
 }
 
 tasks.named<Test>("jvmTest") {
-  val languageProjects = listOf(
-    project(":languages:kotlin"),
-    project(":languages:swift"),
-    project(":languages:ruby"),
-    project(":languages:rust"),
-    project(":languages:python"),
-    project(":languages:go"),
-    project(":languages:java"),
-  )
+  val languageProjects =
+    listOf(
+      project(":languages:kotlin"),
+      project(":languages:swift"),
+      project(":languages:ruby"),
+      project(":languages:rust"),
+      project(":languages:python"),
+      project(":languages:go"),
+      project(":languages:java"),
+    )
   languageProjects.forEach { dependsOn(it.tasks.named("buildHostCMake")) }
-  val libPaths = languageProjects.joinToString(":") {
-    it.layout.buildDirectory.dir("host-cmake").get().asFile.absolutePath
-  }
+  val libPaths =
+    languageProjects.joinToString(":") {
+      it.layout.buildDirectory
+        .dir("host-cmake")
+        .get()
+        .asFile.absolutePath
+    }
   doFirst {
     systemProperty("java.library.path", libPaths)
   }
@@ -66,10 +72,16 @@ tasks.named<Test>("jvmTest") {
 
 android {
   namespace = "io.github.mataku.compose.highlight.benchmark"
-  compileSdk = libs.versions.android.compileSdk.get().toInt()
+  compileSdk =
+    libs.versions.android.compileSdk
+      .get()
+      .toInt()
 
   defaultConfig {
-    minSdk = libs.versions.android.minSdk.get().toInt()
+    minSdk =
+      libs.versions.android.minSdk
+        .get()
+        .toInt()
     testInstrumentationRunner = "androidx.benchmark.junit4.AndroidBenchmarkRunner"
   }
 
@@ -85,4 +97,3 @@ android {
     targetCompatibility = JavaVersion.VERSION_17
   }
 }
-
