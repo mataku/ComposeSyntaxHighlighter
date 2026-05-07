@@ -46,7 +46,7 @@ fun MyScreen() {
                 println("hello")
             }
         """.trimIndent(),
-    language = Languages.kotlin,
+    language = Languages.Kotlin,
   )
 }
 ```
@@ -56,7 +56,7 @@ The default theme is `SyntaxTheme.DarkDefault`. To override it for a single call
 ```kotlin
 SyntaxHighlightedText(
   code = code,
-  language = Languages.kotlin,
+  language = Languages.Kotlin,
   theme = SyntaxTheme.LightDefault
 )
 ```
@@ -68,7 +68,7 @@ import io.github.mataku.compose.highlight.core.LocalSyntaxTheme
 import io.github.mataku.compose.highlight.core.SyntaxTheme
 
 CompositionLocalProvider(LocalSyntaxTheme provides SyntaxTheme.LightDefault) {
-  SyntaxHighlightedText(code = code, language = Languages.kotlin)
+  SyntaxHighlightedText(code = code, language = Languages.Kotlin)
 }
 ```
 
@@ -79,7 +79,7 @@ CompositionLocalProvider(LocalSyntaxTheme provides SyntaxTheme.LightDefault) {
 ```kotlin
 SyntaxHighlightedText(
   code = code,
-  language = Languages.kotlin,
+  language = Languages.Kotlin,
   modifier = Modifier
     .fillMaxWidth()
     .padding(horizontal = 16.dp), // outside the background
@@ -92,7 +92,7 @@ To suppress the background and paint your own container, override the theme:
 ```kotlin
 SyntaxHighlightedText(
   code = code,
-  language = Languages.kotlin,
+  language = Languages.Kotlin,
   theme = SyntaxTheme.DarkDefault.copy(background = null),
 )
 ```

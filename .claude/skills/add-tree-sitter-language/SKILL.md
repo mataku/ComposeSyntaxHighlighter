@@ -117,24 +117,29 @@ Commit (one atomic commit per the repo's git-commit skill):
 - `languages/<lang>/host-cmake/CMakeLists.txt`
 - `settings.gradle.kts`
 
-## 3. Implement `<Lang>Language` with golden tests (TDD)
+## 3. Implement `Languages.<Lang>` with golden tests (TDD)
 
-Write the failing test first. Use the template in `references/highlight-test-template.md` and substitute language-specific keywords/comment syntax. Run `./gradlew :languages:<lang>:jvmTest` and confirm the failure is `Unresolved reference '<Lang>Language'` (compile failure) — that proves the test exercises the right code path.
+Write the failing test first. Use the template in `references/highlight-test-template.md` and substitute language-specific keywords/comment syntax. Run `./gradlew :languages:<lang>:jvmTest` and confirm the failure is an unresolved reference on `Languages.<Lang>` (compile failure) — that proves the test exercises the right code path.
 
 Then create `languages/<lang>/src/commonMain/kotlin/io/github/mataku/compose/highlight/<lang>/<Lang>Language.kt`:
 
 ```kotlin
 package io.github.mataku.compose.highlight.<lang>
 
-import io.github.mataku.compose.highlight.core.Language
-import io.github.mataku.compose.highlight.core.kTreeSitterLanguage
+import io.github.mataku.compose.highlight.api.Language
+import io.github.mataku.compose.highlight.api.Languages
+import io.github.mataku.compose.highlight.api.kTreeSitterLanguage
 import io.github.mataku.compose.highlight.<lang>.internal.TreeSitter<Lang>
 import io.github.treesitter.ktreesitter.Language as TsLanguage
 
-val <Lang>Language: Language by lazy {
+private val instance: Language by lazy {
     kTreeSitterLanguage(TsLanguage(TreeSitter<Lang>.language()), HIGHLIGHTS_QUERY)
 }
+
+val Languages.<Lang>: Language get() = instance
 ```
+
+The public surface is the `Languages.<Lang>` extension property only. The `private val instance` is just a backing holder for the lazy parser/query construction — extension properties cannot have backing fields, so the lazy delegate has to live in a sibling private val.
 
 Re-run `./gradlew :languages:<lang>:jvmTest`. Expect all 5 tests to pass.
 
@@ -157,9 +162,9 @@ implementation(projects.languages.<lang>)
 
 `composeApp/src/commonMain/kotlin/com/mataku/composesyntaxhighlighter/HighlighterDemo.kt`:
 
-- Add the import: `import io.github.mataku.compose.highlight.<lang>.<Lang>Language`
+- Add the import: `import io.github.mataku.compose.highlight.<lang>.<Lang>` (the `Languages.<Lang>` extension property).
 - Extend the `DemoLanguage` enum with a new entry.
-- Extend the `when (selectedLang)` branch to map the new enum entry to `SampleCode.<lang> to <Lang>Language`.
+- Extend the `when (selectedLang)` branch to map the new enum entry to `SampleCode.<lang> to Languages.<Lang>`.
 
 Run `./gradlew :composeApp:assembleDebug` to verify the build. Commit composeApp changes as one atomic commit.
 

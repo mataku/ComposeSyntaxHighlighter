@@ -1,6 +1,5 @@
 public final class io/github/mataku/compose/highlight/python/PythonLanguageKt {
 	public static final fun getPython (Lio/github/mataku/compose/highlight/api/Languages;)Lio/github/mataku/compose/highlight/api/Language;
-	public static final fun getPythonLanguage ()Lio/github/mataku/compose/highlight/api/Language;
 }
 
 public final class io/github/mataku/compose/highlight/python/internal/TreeSitterPython {

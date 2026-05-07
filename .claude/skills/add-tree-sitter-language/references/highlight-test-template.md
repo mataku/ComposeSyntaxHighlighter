@@ -7,6 +7,7 @@ package io.github.mataku.compose.highlight.<lang>
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
+import io.github.mataku.compose.highlight.api.Languages
 import io.github.mataku.compose.highlight.core.SyntaxTheme
 import io.github.mataku.compose.highlight.core.highlight
 import kotlin.test.Test
@@ -23,17 +24,14 @@ class <Lang>HighlightTest {
 
     private val theme = SyntaxTheme(
         baseStyle = SpanStyle(color = baseColor),
-        styles = mapOf(
-            "keyword" to SpanStyle(color = keywordColor),
-            "string" to SpanStyle(color = stringColor),
-            "comment" to SpanStyle(color = commentColor),
-            "number" to SpanStyle(color = numberColor),
-            // If upstream uses a non-default capture for numeric literals
-            // (e.g. Rust uses "constant.builtin"), add it here mapping to
-            // numberColor. SyntaxTheme.resolve() does dotted-prefix fallback,
-            // so "constant.builtin" falls back to "constant" if you prefer
-            // to map the broader category.
-        ),
+        keyword = SpanStyle(color = keywordColor),
+        string = SpanStyle(color = stringColor),
+        comment = SpanStyle(color = commentColor),
+        number = SpanStyle(color = numberColor),
+        // If upstream uses a non-default capture for numeric literals
+        // (e.g. Rust uses "constant.builtin"), add it via `extras = mapOf(...)`
+        // mapping to numberColor. SyntaxTheme.resolve() does dotted-prefix
+        // fallback, so "constant.builtin" falls back to "constant".
     )
 
     @Test
@@ -41,7 +39,7 @@ class <Lang>HighlightTest {
         // Pick the shortest unambiguous keyword in the language. The end
         // index is the keyword length (e.g. "def" → 3, "fn" → 2, "func" → 4).
         val code = "<keyword> foo"
-        val annotated = highlight(code, <Lang>Language, theme)
+        val annotated = highlight(code, Languages.<Lang>, theme)
         val keywordSpan = annotated.spanStyles.firstOrNull { it.start == 0 && it.end == <keyword-length> }
         assertEquals(keywordColor, keywordSpan?.item?.color, "expected keyword 0..<keyword-length> styled with keywordColor; spans=${annotated.spanStyles}")
     }
@@ -53,7 +51,7 @@ class <Lang>HighlightTest {
         // upstream highlights.scm may emit multiple sub-spans inside the
         // string — fall back to "any span has stringColor".
         val code = """<assignment-prefix>"hi""""
-        val annotated = highlight(code, <Lang>Language, theme)
+        val annotated = highlight(code, Languages.<Lang>, theme)
         assertTrue(
             annotated.spanStyles.any { it.item.color == stringColor },
             "expected at least one string-styled span; spans=${annotated.spanStyles}",
@@ -64,7 +62,7 @@ class <Lang>HighlightTest {
     fun line_comment_is_styled() {
         // Use the language's line-comment marker (# Ruby, // Rust/Swift/Kotlin, -- Lua).
         val code = "<line-comment-marker> hello\n<assignment>"
-        val annotated = highlight(code, <Lang>Language, theme)
+        val annotated = highlight(code, Languages.<Lang>, theme)
         val commentEnd = code.indexOf('\n')
         assertTrue(
             annotated.spanStyles.any { it.start == 0 && it.end == commentEnd && it.item.color == commentColor },
@@ -75,7 +73,7 @@ class <Lang>HighlightTest {
     @Test
     fun integer_literal_is_styled() {
         val code = "<assignment-of> 42"
-        val annotated = highlight(code, <Lang>Language, theme)
+        val annotated = highlight(code, Languages.<Lang>, theme)
         val start = code.indexOf("42")
         val end = start + 2
         assertTrue(
@@ -87,7 +85,7 @@ class <Lang>HighlightTest {
     @Test
     fun base_style_covers_entire_code() {
         val code = "<keyword> foo"
-        val annotated = highlight(code, <Lang>Language, theme)
+        val annotated = highlight(code, Languages.<Lang>, theme)
         val baseSpan = annotated.spanStyles.firstOrNull { it.start == 0 && it.end == code.length && it.item.color == baseColor }
         assertTrue(baseSpan != null, "expected base style covering 0..${code.length}; spans=${annotated.spanStyles}")
     }

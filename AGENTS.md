@@ -106,7 +106,7 @@ commonMain  (all production code)
 
 ## Adding a new language
 
-End-to-end workflow lives in `.claude/skills/add-tree-sitter-language/SKILL.md`. The skill covers grammar selection (with the ABI-14 pin trap), submodule add, Gradle wiring, the `Language` object, the `Languages.<name>` extension forwarder, golden tests, demo wiring, and CI updates. Invoke it explicitly via slash command rather than reproducing the steps here.
+End-to-end workflow lives in `.claude/skills/add-tree-sitter-language/SKILL.md`. The skill covers grammar selection (with the ABI-14 pin trap), submodule add, Gradle wiring, the `Language` object, the `Languages.<Name>` extension forwarder, golden tests, demo wiring, and CI updates. Invoke it explicitly via slash command rather than reproducing the steps here.
 
 ## Running tests
 
@@ -177,8 +177,9 @@ When picking a submodule pin for a new (or updated) language module, the bundled
 ## Public API usage example
 
 ```kotlin
+import io.github.mataku.compose.highlight.api.Languages
 import io.github.mataku.compose.highlight.core.SyntaxTheme
-import io.github.mataku.compose.highlight.kotlin.KotlinLanguage
+import io.github.mataku.compose.highlight.kotlin.Kotlin
 import io.github.mataku.compose.highlight.material3.SyntaxHighlightedText
 
 @Composable
@@ -191,7 +192,7 @@ fun CodeBlock(code: String) {
     )
     SyntaxHighlightedText(
         code = code,
-        language = KotlinLanguage,
+        language = Languages.Kotlin,
         theme = theme,
     )
 }
