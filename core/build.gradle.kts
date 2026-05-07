@@ -25,8 +25,6 @@ kotlin {
       api(project(":core-api"))
       api(libs.ktreesitter)
       api(libs.compose.runtime)
-      api(libs.compose.foundation)
-      api(libs.compose.material3)
       api(libs.compose.ui)
     }
     commonTest.dependencies {
