@@ -23,6 +23,7 @@ material3 = "1.9.0"
 vanniktechPublish = "0.34.0"
 dokka = "2.2.0"
 spotless = "8.4.0"
+binaryCompatibilityValidator = "0.18.1"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -56,3 +57,4 @@ ktreesitter = { id = "io.github.tree-sitter.ktreesitter-plugin", version.ref = "
 vanniktechPublish = { id = "com.vanniktech.maven.publish", version.ref = "vanniktechPublish" }
 dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
 spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
+binaryCompatibilityValidator = { id = "org.jetbrains.kotlinx.binary-compatibility-validator", version.ref = "binaryCompatibilityValidator" }
