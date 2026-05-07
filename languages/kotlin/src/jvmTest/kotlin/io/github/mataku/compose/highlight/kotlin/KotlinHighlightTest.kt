@@ -7,7 +7,6 @@ import io.github.mataku.compose.highlight.core.SyntaxTheme
 import io.github.mataku.compose.highlight.core.highlight
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
 class KotlinHighlightTest {
@@ -29,7 +28,7 @@ class KotlinHighlightTest {
   @Test
   fun keyword_class_is_styled() {
     val code = "class Foo"
-    val annotated = highlight(code, KotlinLanguage, theme)
+    val annotated = highlight(code, Languages.Kotlin, theme)
     val keywordSpan = annotated.spanStyles.firstOrNull { it.start == 0 && it.end == 5 }
     assertEquals(keywordColor, keywordSpan?.item?.color, "expected keyword 0..5 styled with keywordColor; spans=${annotated.spanStyles}")
   }
@@ -37,7 +36,7 @@ class KotlinHighlightTest {
   @Test
   fun string_literal_is_styled() {
     val code = """val s = "hi""""
-    val annotated = highlight(code, KotlinLanguage, theme)
+    val annotated = highlight(code, Languages.Kotlin, theme)
     val openQuote = code.indexOf('"')
     val closeQuote = code.lastIndexOf('"') + 1
     assertTrue(
@@ -49,7 +48,7 @@ class KotlinHighlightTest {
   @Test
   fun line_comment_is_styled() {
     val code = "// hello\nval x = 1"
-    val annotated = highlight(code, KotlinLanguage, theme)
+    val annotated = highlight(code, Languages.Kotlin, theme)
     val commentEnd = code.indexOf('\n')
     assertTrue(
       annotated.spanStyles.any { it.start == 0 && it.end == commentEnd && it.item.color == commentColor },
@@ -60,7 +59,7 @@ class KotlinHighlightTest {
   @Test
   fun integer_literal_is_styled() {
     val code = "val n = 42"
-    val annotated = highlight(code, KotlinLanguage, theme)
+    val annotated = highlight(code, Languages.Kotlin, theme)
     val start = code.indexOf("42")
     val end = start + 2
     assertTrue(
@@ -72,13 +71,8 @@ class KotlinHighlightTest {
   @Test
   fun base_style_covers_entire_code() {
     val code = "class Foo"
-    val annotated = highlight(code, KotlinLanguage, theme)
+    val annotated = highlight(code, Languages.Kotlin, theme)
     val baseSpan = annotated.spanStyles.firstOrNull { it.start == 0 && it.end == code.length && it.item.color == baseColor }
     assertTrue(baseSpan != null, "expected base style covering 0..${code.length}; spans=${annotated.spanStyles}")
-  }
-
-  @Test
-  fun languages_extension_returns_canonical_language() {
-    assertSame(KotlinLanguage, Languages.kotlin)
   }
 }

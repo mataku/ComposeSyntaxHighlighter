@@ -1,13 +1,14 @@
 package io.github.mataku.compose.highlight.benchmark
 
+import io.github.mataku.compose.highlight.api.Languages
 import io.github.mataku.compose.highlight.core.highlight
-import io.github.mataku.compose.highlight.go.GoLanguage
-import io.github.mataku.compose.highlight.java.JavaLanguage
-import io.github.mataku.compose.highlight.kotlin.KotlinLanguage
-import io.github.mataku.compose.highlight.python.PythonLanguage
-import io.github.mataku.compose.highlight.ruby.RubyLanguage
-import io.github.mataku.compose.highlight.rust.RustLanguage
-import io.github.mataku.compose.highlight.swift.SwiftLanguage
+import io.github.mataku.compose.highlight.go.Go
+import io.github.mataku.compose.highlight.java.Java
+import io.github.mataku.compose.highlight.kotlin.Kotlin
+import io.github.mataku.compose.highlight.python.Python
+import io.github.mataku.compose.highlight.ruby.Ruby
+import io.github.mataku.compose.highlight.rust.Rust
+import io.github.mataku.compose.highlight.swift.Swift
 import kotlin.system.measureNanoTime
 import kotlin.test.Test
 
@@ -29,25 +30,25 @@ class BenchmarkSuite {
     }
 
     measureCold("Kotlin") {
-      highlight(BenchmarkSamples.Kotlin, KotlinLanguage, BenchmarkConfig.theme)
+      highlight(BenchmarkSamples.Kotlin, Languages.Kotlin, BenchmarkConfig.theme)
     }
     measureCold("Swift") {
-      highlight(BenchmarkSamples.Swift, SwiftLanguage, BenchmarkConfig.theme)
+      highlight(BenchmarkSamples.Swift, Languages.Swift, BenchmarkConfig.theme)
     }
     measureCold("Ruby") {
-      highlight(BenchmarkSamples.Ruby, RubyLanguage, BenchmarkConfig.theme)
+      highlight(BenchmarkSamples.Ruby, Languages.Ruby, BenchmarkConfig.theme)
     }
     measureCold("Rust") {
-      highlight(BenchmarkSamples.Rust, RustLanguage, BenchmarkConfig.theme)
+      highlight(BenchmarkSamples.Rust, Languages.Rust, BenchmarkConfig.theme)
     }
     measureCold("Python") {
-      highlight(BenchmarkSamples.Python, PythonLanguage, BenchmarkConfig.theme)
+      highlight(BenchmarkSamples.Python, Languages.Python, BenchmarkConfig.theme)
     }
     measureCold("Go") {
-      highlight(BenchmarkSamples.Go, GoLanguage, BenchmarkConfig.theme)
+      highlight(BenchmarkSamples.Go, Languages.Go, BenchmarkConfig.theme)
     }
     measureCold("Java") {
-      highlight(BenchmarkSamples.Java, JavaLanguage, BenchmarkConfig.theme)
+      highlight(BenchmarkSamples.Java, Languages.Java, BenchmarkConfig.theme)
     }
 
     println()
@@ -63,25 +64,25 @@ class BenchmarkSuite {
     }
 
     runAndRecord("Kotlin") {
-      highlight(BenchmarkSamples.Kotlin, KotlinLanguage, BenchmarkConfig.theme)
+      highlight(BenchmarkSamples.Kotlin, Languages.Kotlin, BenchmarkConfig.theme)
     }
     runAndRecord("Swift") {
-      highlight(BenchmarkSamples.Swift, SwiftLanguage, BenchmarkConfig.theme)
+      highlight(BenchmarkSamples.Swift, Languages.Swift, BenchmarkConfig.theme)
     }
     runAndRecord("Ruby") {
-      highlight(BenchmarkSamples.Ruby, RubyLanguage, BenchmarkConfig.theme)
+      highlight(BenchmarkSamples.Ruby, Languages.Ruby, BenchmarkConfig.theme)
     }
     runAndRecord("Rust") {
-      highlight(BenchmarkSamples.Rust, RustLanguage, BenchmarkConfig.theme)
+      highlight(BenchmarkSamples.Rust, Languages.Rust, BenchmarkConfig.theme)
     }
     runAndRecord("Python") {
-      highlight(BenchmarkSamples.Python, PythonLanguage, BenchmarkConfig.theme)
+      highlight(BenchmarkSamples.Python, Languages.Python, BenchmarkConfig.theme)
     }
     runAndRecord("Go") {
-      highlight(BenchmarkSamples.Go, GoLanguage, BenchmarkConfig.theme)
+      highlight(BenchmarkSamples.Go, Languages.Go, BenchmarkConfig.theme)
     }
     runAndRecord("Java") {
-      highlight(BenchmarkSamples.Java, JavaLanguage, BenchmarkConfig.theme)
+      highlight(BenchmarkSamples.Java, Languages.Java, BenchmarkConfig.theme)
     }
 
     println()

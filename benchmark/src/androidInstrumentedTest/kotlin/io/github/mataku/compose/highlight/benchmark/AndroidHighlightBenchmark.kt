@@ -3,14 +3,15 @@ package io.github.mataku.compose.highlight.benchmark
 import androidx.benchmark.junit4.BenchmarkRule
 import androidx.benchmark.junit4.measureRepeated
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import io.github.mataku.compose.highlight.api.Languages
 import io.github.mataku.compose.highlight.core.highlight
-import io.github.mataku.compose.highlight.go.GoLanguage
-import io.github.mataku.compose.highlight.java.JavaLanguage
-import io.github.mataku.compose.highlight.kotlin.KotlinLanguage
-import io.github.mataku.compose.highlight.python.PythonLanguage
-import io.github.mataku.compose.highlight.ruby.RubyLanguage
-import io.github.mataku.compose.highlight.rust.RustLanguage
-import io.github.mataku.compose.highlight.swift.SwiftLanguage
+import io.github.mataku.compose.highlight.go.Go
+import io.github.mataku.compose.highlight.java.Java
+import io.github.mataku.compose.highlight.kotlin.Kotlin
+import io.github.mataku.compose.highlight.python.Python
+import io.github.mataku.compose.highlight.ruby.Ruby
+import io.github.mataku.compose.highlight.rust.Rust
+import io.github.mataku.compose.highlight.swift.Swift
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -24,49 +25,49 @@ class AndroidHighlightBenchmark {
   @Test
   fun kotlinHighlight() {
     benchmarkRule.measureRepeated {
-      highlight(BenchmarkSamples.Kotlin, KotlinLanguage, BenchmarkConfig.theme)
+      highlight(BenchmarkSamples.Kotlin, Languages.Kotlin, BenchmarkConfig.theme)
     }
   }
 
   @Test
   fun swiftHighlight() {
     benchmarkRule.measureRepeated {
-      highlight(BenchmarkSamples.Swift, SwiftLanguage, BenchmarkConfig.theme)
+      highlight(BenchmarkSamples.Swift, Languages.Swift, BenchmarkConfig.theme)
     }
   }
 
   @Test
   fun rubyHighlight() {
     benchmarkRule.measureRepeated {
-      highlight(BenchmarkSamples.Ruby, RubyLanguage, BenchmarkConfig.theme)
+      highlight(BenchmarkSamples.Ruby, Languages.Ruby, BenchmarkConfig.theme)
     }
   }
 
   @Test
   fun rustHighlight() {
     benchmarkRule.measureRepeated {
-      highlight(BenchmarkSamples.Rust, RustLanguage, BenchmarkConfig.theme)
+      highlight(BenchmarkSamples.Rust, Languages.Rust, BenchmarkConfig.theme)
     }
   }
 
   @Test
   fun pythonHighlight() {
     benchmarkRule.measureRepeated {
-      highlight(BenchmarkSamples.Python, PythonLanguage, BenchmarkConfig.theme)
+      highlight(BenchmarkSamples.Python, Languages.Python, BenchmarkConfig.theme)
     }
   }
 
   @Test
   fun goHighlight() {
     benchmarkRule.measureRepeated {
-      highlight(BenchmarkSamples.Go, GoLanguage, BenchmarkConfig.theme)
+      highlight(BenchmarkSamples.Go, Languages.Go, BenchmarkConfig.theme)
     }
   }
 
   @Test
   fun javaHighlight() {
     benchmarkRule.measureRepeated {
-      highlight(BenchmarkSamples.Java, JavaLanguage, BenchmarkConfig.theme)
+      highlight(BenchmarkSamples.Java, Languages.Java, BenchmarkConfig.theme)
     }
   }
 }
