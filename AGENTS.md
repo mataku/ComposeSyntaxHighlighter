@@ -34,7 +34,7 @@ Maven coordinates: `io.github.mataku:compose-highlight-core:<version>`.
 
 Public API in `commonMain` (no expect/actual — every target is JVM-based):
 - `SyntaxHighlightedText(code, language, theme, style, modifier)` — main composable.
-- `SyntaxTheme(baseStyle, styles)` — maps tree-sitter capture names (e.g. `keyword`, `string.escape`) to `SpanStyle`. Provides `SyntaxTheme.DarkDefault` / `SyntaxTheme.LightDefault`.
+- `SyntaxTheme(baseStyle, background, keyword, function, ..., extras)` — typed `SpanStyle?` fields per tree-sitter capture (the 14 used by every built-in theme), plus `extras: Map<String, SpanStyle>` for grammar-specific captures. Provides `SyntaxTheme.DarkDefault` / `SyntaxTheme.LightDefault`.
 - `LocalSyntaxTheme` — composition local that defaults to `SyntaxTheme.DarkDefault`.
 - `Language` — concrete class wrapping a KTreeSitter `Language` + a highlights query.
 - `kTreeSitterLanguage(parser, highlightsQuery)` — factory used by language modules.
@@ -171,11 +171,9 @@ import io.github.mataku.compose.highlight.kotlin.KotlinLanguage
 fun CodeBlock(code: String) {
     val theme = SyntaxTheme(
         baseStyle = SpanStyle(color = Color.White),
-        styles = mapOf(
-            "keyword" to SpanStyle(color = Color.Cyan),
-            "string" to SpanStyle(color = Color.Green),
-            "comment" to SpanStyle(color = Color.Gray),
-        ),
+        keyword = SpanStyle(color = Color.Cyan),
+        string = SpanStyle(color = Color.Green),
+        comment = SpanStyle(color = Color.Gray),
     )
     SyntaxHighlightedText(
         code = code,
