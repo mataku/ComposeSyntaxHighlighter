@@ -30,8 +30,8 @@ implementation("io.github.mataku:compose-syntax-highlight-swift:$latestHighlight
 ## Basic usage
 
 ```kotlin
-import io.github.mataku.compose.highlight.material3.SyntaxHighlightedText
 import io.github.mataku.compose.highlight.kotlin.KotlinLanguage
+import io.github.mataku.compose.highlight.material3.SyntaxHighlightedText
 
 @Composable
 fun MyScreen() {
