@@ -8,23 +8,35 @@ This is still an experimental project. Android is supported via the published AA
 
 ## Installation
 
-Artifacts are published on Maven Central. Add `mavenCentral()` to your repositories and depend on
-`compose-syntax-highlight-core` plus whichever language modules you need:
+Artifacts are published on Maven Central. Add `mavenCentral()` to your repositories and depend on a Material binding plus whichever language modules you need:
 
 ```kotlin
 // build.gradle.kts (commonMain)
-implementation("io.github.mataku:compose-syntax-highlight-core:$latestVersion")
+// Material3 binding — ships SyntaxHighlightedText backed by androidx.compose.material3.Text.
+// Pulls in compose-syntax-highlight-core transitively, so you don't need to declare :core yourself.
+implementation("io.github.mataku:compose-syntax-highlight-material3:$latestVersion")
+
+// Language artifacts — one per language you want to highlight.
 implementation("io.github.mataku:compose-syntax-highlight-kotlin:$latestHighlightKotlinVersion")
 implementation("io.github.mataku:compose-syntax-highlight-swift:$latestHighlightSwiftVersion")
 ```
 
-`compose-syntax-highlight-core` ships the `SyntaxHighlightedText` composable and built-in themes; each `compose-syntax-highlight-<lang>` artifact ships its tree-sitter grammar and the `Language` value you pass to the composable. Bumping `compose-syntax-highlight-core` to pick up new themes does not require updating the language artifacts.
+If you don't render through a Material binding — for example, you build your own `Text` on top of the produced `AnnotatedString`, or you only need `highlight()` to feed an existing UI — depend on `:core` directly instead of the Material binding:
+
+```kotlin
+implementation("io.github.mataku:compose-syntax-highlight-core:$latestVersion")
+// and language dependencies you want to apply syntax highlight
+implementation("io.github.mataku:compose-syntax-highlight-kotlin:$latestHighlightKotlinVersion")
+```
+
+`compose-syntax-highlight-core` ships `highlight()`, `rememberHighlightedString()`, the `SyntaxTheme` data class, and `LocalSyntaxTheme`. It depends only on `compose.runtime` and `compose.ui`, so it stays usable wherever you build your own UI on top of `AnnotatedString`. `compose-syntax-highlight-material3` adds the `SyntaxHighlightedText` composable backed by `androidx.compose.material3.Text` — drop it in if you render code blocks under a `MaterialTheme`. Each `compose-syntax-highlight-<lang>` artifact ships its tree-sitter grammar and the `Language` value you pass to the composable. Bumping `compose-syntax-highlight-core` to pick up new themes does not require updating the Material binding or the language artifacts.
 
 ## Basic usage
 
 ```kotlin
-import io.github.mataku.compose.highlight.core.SyntaxHighlightedText
-import io.github.mataku.compose.highlight.kotlin.KotlinLanguage
+import io.github.mataku.compose.highlight.api.Languages
+import io.github.mataku.compose.highlight.kotlin.kotlin
+import io.github.mataku.compose.highlight.material3.SyntaxHighlightedText
 
 @Composable
 fun MyScreen() {
@@ -34,7 +46,7 @@ fun MyScreen() {
                 println("hello")
             }
         """.trimIndent(),
-    language = KotlinLanguage,
+    language = Languages.kotlin,
   )
 }
 ```
@@ -85,15 +97,20 @@ All themes are static `SyntaxTheme` values on `SyntaxTheme.Companion`, shipped i
 | Web (wasmJs) | not in scope | use highlight.js / Shiki on the JS side               |
 | iOS          | wip          | later release                                         |
 
-| Language | Artifact                   |
-|----------|----------------------------|
-| Kotlin   | `compose-syntax-highlight-kotlin` |
-| Swift    | `compose-syntax-highlight-swift`  |
-| Ruby     | `compose-syntax-highlight-ruby`   |
-| Rust     | `compose-syntax-highlight-rust`   |
-| Python   | `compose-syntax-highlight-python` |
-| Go       | `compose-syntax-highlight-go`     |
-| Java     | `compose-syntax-highlight-java`   |
+| Module                               | Artifact                                       | Purpose                                       |
+|--------------------------------------|------------------------------------------------|-----------------------------------------------|
+| Core highlighter                     | `compose-syntax-highlight-core`                | `highlight()`, `SyntaxTheme`, builtin themes  |
+| Material3 binding                    | `compose-syntax-highlight-material3`           | `SyntaxHighlightedText` for Material3         |
+
+| Language | Artifact                                  |
+|----------|-------------------------------------------|
+| Kotlin   | `compose-syntax-highlight-kotlin`         |
+| Swift    | `compose-syntax-highlight-swift`          |
+| Ruby     | `compose-syntax-highlight-ruby`           |
+| Rust     | `compose-syntax-highlight-rust`           |
+| Python   | `compose-syntax-highlight-python`         |
+| Go       | `compose-syntax-highlight-go`             |
+| Java     | `compose-syntax-highlight-java`           |
 
 ## Custom theme
 

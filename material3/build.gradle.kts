@@ -22,28 +22,19 @@ kotlin {
 
   sourceSets {
     commonMain.dependencies {
-      api(project(":core-api"))
-      api(libs.ktreesitter)
+      api(project(":core"))
       api(libs.compose.runtime)
       api(libs.compose.ui)
+      api(libs.compose.material3)
     }
     commonTest.dependencies {
       implementation(libs.kotlin.test)
     }
-    val jvmTest by getting {
-      dependencies {
-        implementation(libs.kotlin.test)
-      }
-    }
-  }
-
-  sourceSets.all {
-    languageSettings.optIn("io.github.mataku.compose.highlight.api.InternalSyntaxHighlightApi")
   }
 }
 
 android {
-  namespace = "io.github.mataku.compose.highlight.core"
+  namespace = "io.github.mataku.compose.highlight.material3"
   compileSdk = libs.versions.android.compileSdk.get().toInt()
 
   defaultConfig {
@@ -65,9 +56,9 @@ android {
 }
 
 mavenPublishing {
-  coordinates(artifactId = "compose-syntax-highlight-core")
+  coordinates(artifactId = "compose-syntax-highlight-material3")
   pom {
-    name.set("Compose Syntax Highlight Core")
-    description.set("Compose Multiplatform syntax highlighter (core API)")
+    name.set("Compose Syntax Highlight Material3")
+    description.set("Material3 binding for Compose Syntax Highlight: provides SyntaxHighlightedText")
   }
 }

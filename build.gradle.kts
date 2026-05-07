@@ -20,6 +20,7 @@ apiValidation {
 dependencies {
   dokka(project(":core"))
   dokka(project(":core-api"))
+  dokka(project(":material3"))
   dokka(project(":languages:kotlin"))
   dokka(project(":languages:swift"))
   dokka(project(":languages:ruby"))
