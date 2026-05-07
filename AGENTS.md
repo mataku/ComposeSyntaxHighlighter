@@ -106,6 +106,8 @@ JVM tests depend on `buildHostCMake`, which compiles the parser into a host shar
 
 `./gradlew :core:commonTest` runs the pure-Kotlin tests (theme resolution, UTF-8 indexing).
 
+After running tests, run `./gradlew spotlessApply` to keep the working tree formatted (Spotless ktlint is wired via the `compose-highlight-spotless` build-logic plugin).
+
 ## Publishing
 
 ```bash
