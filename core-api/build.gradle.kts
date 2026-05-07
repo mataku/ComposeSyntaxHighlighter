@@ -21,6 +21,7 @@ kotlin {
   sourceSets {
     commonMain.dependencies {
       api(libs.ktreesitter)
+      compileOnly(libs.compose.runtime)
     }
   }
 }
