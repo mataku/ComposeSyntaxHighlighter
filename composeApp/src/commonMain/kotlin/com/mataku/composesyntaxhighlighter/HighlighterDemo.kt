@@ -4,6 +4,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,7 +16,6 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -120,11 +120,15 @@ fun HighlighterDemo() {
             modifier = Modifier.weight(1f),
           )
         }
-        Surface(color = theme.background ?: MaterialTheme.colorScheme.surface, modifier = Modifier.fillMaxSize()) {
-          Column(modifier = Modifier.padding(16.dp)) {
-            SyntaxHighlightedText(code = code, language = language, theme = theme)
-          }
-        }
+        SyntaxHighlightedText(
+          code = code,
+          language = language,
+          theme = theme,
+          modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp),
+          contentPadding = PaddingValues(16.dp),
+        )
       }
     }
   }

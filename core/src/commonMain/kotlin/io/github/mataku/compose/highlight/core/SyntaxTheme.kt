@@ -15,7 +15,10 @@ import androidx.compose.ui.text.font.FontWeight
 data class SyntaxTheme(
   /** Applied to the entire string before any capture-specific style. Set the default text color here. */
   val baseStyle: SpanStyle = SpanStyle(),
-  /** Optional background color hint for the surrounding container. Not applied by [SyntaxHighlightedText]. */
+  /**
+   * Background painted behind the highlighted text. The Material3 `SyntaxHighlightedText` applies
+   * it automatically; pass `theme.copy(background = null)` to disable.
+   */
   val background: Color? = null,
   /** Style for `keyword` captures. */
   val keyword: SpanStyle? = null,
