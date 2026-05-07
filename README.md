@@ -8,21 +8,25 @@ This is still an experimental project. Android is supported via the published AA
 
 ## Installation
 
-Artifacts are published on Maven Central. Add `mavenCentral()` to your repositories and depend on
-`compose-syntax-highlight-core` plus whichever language modules you need:
+Artifacts are published on Maven Central. Add `mavenCentral()` to your repositories and depend on a Material binding plus whichever language modules you need:
 
 ```kotlin
 // build.gradle.kts (commonMain)
-// :core ships highlight() / SyntaxTheme / LocalSyntaxTheme — no Material dependency.
-implementation("io.github.mataku:compose-syntax-highlight-core:$latestVersion")
-
-// Pick a Material binding depending on which Compose Material you use.
-// Material3 ships SyntaxHighlightedText backed by androidx.compose.material3.Text.
+// Material3 binding — ships SyntaxHighlightedText backed by androidx.compose.material3.Text.
+// Pulls in compose-syntax-highlight-core transitively, so you don't need to declare :core yourself.
 implementation("io.github.mataku:compose-syntax-highlight-material3:$latestVersion")
 
-// Plus whichever language artifacts you need:
+// Language artifacts — one per language you want to highlight.
 implementation("io.github.mataku:compose-syntax-highlight-kotlin:$latestHighlightKotlinVersion")
 implementation("io.github.mataku:compose-syntax-highlight-swift:$latestHighlightSwiftVersion")
+```
+
+If you don't render through a Material binding — for example, you build your own `Text` on top of the produced `AnnotatedString`, or you only need `highlight()` to feed an existing UI — depend on `:core` directly instead of the Material binding:
+
+```kotlin
+implementation("io.github.mataku:compose-syntax-highlight-core:$latestVersion")
+// and language dependencies you want to apply syntax highlight
+implementation("io.github.mataku:compose-syntax-highlight-kotlin:$latestHighlightKotlinVersion")
 ```
 
 `compose-syntax-highlight-core` ships `highlight()`, `rememberHighlightedString()`, the `SyntaxTheme` data class, and `LocalSyntaxTheme`. It depends only on `compose.runtime` and `compose.ui`, so it stays usable wherever you build your own UI on top of `AnnotatedString`. `compose-syntax-highlight-material3` adds the `SyntaxHighlightedText` composable backed by `androidx.compose.material3.Text` — drop it in if you render code blocks under a `MaterialTheme`. Each `compose-syntax-highlight-<lang>` artifact ships its tree-sitter grammar and the `Language` value you pass to the composable. Bumping `compose-syntax-highlight-core` to pick up new themes does not require updating the Material binding or the language artifacts.
