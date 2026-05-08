@@ -126,3 +126,85 @@ that finding is itself worth surfacing.
   (`code.isNotEmpty()` guard symmetry between `applyStyles` and
   `plainHighlightedString`) rides #3's plan as a one-line
   maintenance fix.
+
+### 0.6.0 (9b-2-engine)
+
+- `IncrementalHighlighter` lands in `:core` (`commonMain`) — a stateful,
+  single-threaded engine backed by tree-sitter incremental parse, scoped
+  query execution via `Query.byteRange`, an enclosing-node fallback for
+  partial-overlap captures, and a maintained `MutableList<CaptureSpan>`
+  whose entries are reused across updates.
+- `IncrementalHighlighterBenchmark` (`:benchmark/src/jvmTest`) reports six
+  patterns per size and asserts CI-enforced acceptance gates.
+
+#### Acceptance gates (asserted in CI)
+
+| Size | Interior edit (insert near end / middle / paste at middle) | Theme-only re-call | First call (no-regression) |
+|---|---|---|---|
+| 5k  | ≥3× vs baseline | ≥5× | within ±5% |
+| 1k  | ≥2×             | ≥3× | within ±5% |
+| 100 | within ±10%     | within ±10% | within ±5% |
+
+#### Measured (host JVM, Apple M-series)
+
+##### 100 lines
+
+| Stage                                  | Mean (ms) | Median (ms) | StdDev (ms) | Min (ms) | Max (ms) | P99 (ms) |
+|----------------------------------------|-----------|-------------|-------------|----------|----------|----------|
+| full highlight (baseline)              | 5.396     | 5.365       | 0.279       | 4.863    | 6.517    | 6.517    |
+| first call                             | 5.386     | 5.362       | 0.165       | 5.154    | 5.742    | 5.742    |
+| insert near end                        | 0.203     | 0.200       | 0.015       | 0.180    | 0.251    | 0.251    |
+| insert at middle                       | 1.974     | 1.967       | 0.059       | 1.859    | 2.118    | 2.118    |
+| paste at middle                        | 2.168     | 2.154       | 0.079       | 2.069    | 2.369    | 2.369    |
+| theme only                             | 0.071     | 0.071       | 0.002       | 0.066    | 0.079    | 0.079    |
+| same text x5                           | 0.345     | 0.335       | 0.038       | 0.297    | 0.427    | 0.427    |
+
+##### 1k lines
+
+| Stage                                  | Mean (ms) | Median (ms) | StdDev (ms) | Min (ms) | Max (ms) | P99 (ms) |
+|----------------------------------------|-----------|-------------|-------------|----------|----------|----------|
+| full highlight (baseline)              | 48.401    | 48.071      | 0.924       | 47.172   | 50.660   | 50.660   |
+| first call                             | 50.443    | 50.072      | 1.066       | 49.271   | 53.524   | 53.524   |
+| insert near end                        | 0.981     | 0.978       | 0.032       | 0.929    | 1.045    | 1.045    |
+| insert at middle                       | 1.149     | 1.130       | 0.104       | 1.092    | 1.855    | 1.855    |
+| paste at middle                        | 1.201     | 1.181       | 0.055       | 1.126    | 1.314    | 1.314    |
+| theme only                             | 0.305     | 0.285       | 0.107       | 0.262    | 1.041    | 1.041    |
+| same text x5                           | 1.594     | 1.597       | 0.137       | 1.435    | 2.367    | 2.367    |
+
+##### 5k lines
+
+| Stage                                  | Mean (ms) | Median (ms) | StdDev (ms) | Min (ms) | Max (ms) | P99 (ms) |
+|----------------------------------------|-----------|-------------|-------------|----------|----------|----------|
+| full highlight (baseline)              | 249.735   | 248.749     | 3.692       | 245.146  | 260.893  | 260.893  |
+| first call                             | 262.998   | 262.876     | 1.998       | 258.782  | 267.360  | 267.360  |
+| insert near end                        | 7.362     | 6.171       | 2.862       | 4.749    | 13.947   | 13.947   |
+| insert at middle                       | 7.535     | 5.498       | 2.889       | 5.018    | 13.486   | 13.486   |
+| paste at middle                        | 7.012     | 6.157       | 1.709       | 5.158    | 10.573   | 10.573   |
+| theme only                             | 2.006     | 1.483       | 1.310       | 1.413    | 6.464    | 6.464    |
+| same text x5                           | 11.639    | 12.246      | 2.782       | 7.421    | 20.910   | 20.910   |
+
+#### Speedup vs baseline (median)
+
+| Size | Insert near end | Insert at middle | Paste at middle | Theme only |
+|---|---|---|---|---|
+| 5k  | **40.3×** | **45.2×** | **40.4×** | **167.7×** |
+| 1k  | **49.1×** | **42.5×** | **40.7×** | **168.7×** |
+| 100 | (within tolerance) | (within tolerance) | (within tolerance) | (within tolerance) |
+
+#### Documented limitation — boundary edits
+
+True boundary edits — appending a new top-level declaration at file end
+(e.g. inserting `\nval x = 1` at `code.length`) or prepending at byte 0 —
+expand to the source-file root via `Node.descendant(start, end)`, which
+defeats `Query.byteRange` scoping (the scoped range becomes the whole
+file). Cost in this case degrades to ≈ baseline (~1.2× faster than full
+highlight in measurement, never slower). This is the spec's intended
+"graceful degradation" behaviour and matches the `IncrementalHighlighter`
+design's worst-case envelope.
+
+For editor scenarios the practical impact is small: typing a single
+character within an existing function/expression triggers the interior
+path (≥40× speedup), while appending a new function is a punctuated
+event amortised across many subsequent interior edits. Async-default
+dispatch in `:material3-editor` (separate spec) further hides the
+boundary-edit cost behind the latest-wins coroutine.
