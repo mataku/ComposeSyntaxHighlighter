@@ -32,37 +32,37 @@ on-device performance.
 
 | Stage                          | Mean (ms) | Median (ms) | StdDev (ms) | Min (ms) | Max (ms) | P99 (ms) |
 |--------------------------------|-----------|-------------|-------------|----------|----------|----------|
-| parse                          | TBD       | TBD         | TBD         | TBD      | TBD      | TBD      |
-| Utf8ByteIndex                  | TBD       | TBD         | TBD         | TBD      | TBD      | TBD      |
-| captures iterator only         | TBD       | TBD         | TBD         | TBD      | TBD      | TBD      |
-| captures drain (count)         | TBD       | TBD         | TBD         | TBD      | TBD      | TBD      |
-| captures only                  | TBD       | TBD         | TBD         | TBD      | TBD      | TBD      |
-| + theme.resolve                | TBD       | TBD         | TBD         | TBD      | TBD      | TBD      |
-| full highlight (+ addStyle)    | TBD       | TBD         | TBD         | TBD      | TBD      | TBD      |
+| parse                          | 1.100     | 1.089       | 0.039       | 1.062    | 1.268    | 1.268    |
+| Utf8ByteIndex                  | 0.068     | 0.059       | 0.036       | 0.056    | 0.308    | 0.308    |
+| captures iterator only         | 0.003     | 0.003       | 0.001       | 0.003    | 0.007    | 0.007    |
+| captures drain (count)         | 3.440     | 3.383       | 0.174       | 3.293    | 4.071    | 4.071    |
+| captures only                  | 3.373     | 3.383       | 0.065       | 3.278    | 3.544    | 3.544    |
+| + theme.resolve                | 3.451     | 3.426       | 0.086       | 3.348    | 3.779    | 3.779    |
+| full highlight (+ addStyle)    | 5.081     | 5.076       | 0.131       | 4.870    | 5.378    | 5.378    |
 
 ### 1k lines
 
 | Stage                          | Mean (ms) | Median (ms) | StdDev (ms) | Min (ms) | Max (ms) | P99 (ms) |
 |--------------------------------|-----------|-------------|-------------|----------|----------|----------|
-| parse                          | TBD       | TBD         | TBD         | TBD      | TBD      | TBD      |
-| Utf8ByteIndex                  | TBD       | TBD         | TBD         | TBD      | TBD      | TBD      |
-| captures iterator only         | TBD       | TBD         | TBD         | TBD      | TBD      | TBD      |
-| captures drain (count)         | TBD       | TBD         | TBD         | TBD      | TBD      | TBD      |
-| captures only                  | TBD       | TBD         | TBD         | TBD      | TBD      | TBD      |
-| + theme.resolve                | TBD       | TBD         | TBD         | TBD      | TBD      | TBD      |
-| full highlight (+ addStyle)    | TBD       | TBD         | TBD         | TBD      | TBD      | TBD      |
+| parse                          | 10.515    | 10.389      | 0.280       | 10.308   | 11.433   | 11.433   |
+| Utf8ByteIndex                  | 0.106     | 0.105       | 0.008       | 0.096    | 0.139    | 0.139    |
+| captures iterator only         | 0.002     | 0.002       | 0.001       | 0.002    | 0.007    | 0.007    |
+| captures drain (count)         | 32.713    | 32.444      | 0.650       | 31.892   | 35.348   | 35.348   |
+| captures only                  | 32.510    | 32.358      | 0.538       | 31.844   | 34.872   | 34.872   |
+| + theme.resolve                | 32.721    | 32.676      | 0.522       | 32.113   | 35.363   | 35.363   |
+| full highlight (+ addStyle)    | 46.341    | 46.286      | 0.627       | 45.557   | 49.842   | 49.842   |
 
 ### 5k lines
 
 | Stage                          | Mean (ms) | Median (ms) | StdDev (ms) | Min (ms) | Max (ms) | P99 (ms) |
 |--------------------------------|-----------|-------------|-------------|----------|----------|----------|
-| parse                          | TBD       | TBD         | TBD         | TBD      | TBD      | TBD      |
-| Utf8ByteIndex                  | TBD       | TBD         | TBD         | TBD      | TBD      | TBD      |
-| captures iterator only         | TBD       | TBD         | TBD         | TBD      | TBD      | TBD      |
-| captures drain (count)         | TBD       | TBD         | TBD         | TBD      | TBD      | TBD      |
-| captures only                  | TBD       | TBD         | TBD         | TBD      | TBD      | TBD      |
-| + theme.resolve                | TBD       | TBD         | TBD         | TBD      | TBD      | TBD      |
-| full highlight (+ addStyle)    | TBD       | TBD         | TBD         | TBD      | TBD      | TBD      |
+| parse                          | 52.465    | 52.136      | 0.942       | 51.492   | 55.223   | 55.223   |
+| Utf8ByteIndex                  | 0.794     | 0.441       | 2.466       | 0.398    | 18.057   | 18.057   |
+| captures iterator only         | 0.003     | 0.002       | 0.002       | 0.002    | 0.012    | 0.012    |
+| captures drain (count)         | 161.418   | 161.008     | 1.524       | 159.488  | 167.255  | 167.255  |
+| captures only                  | 163.581   | 163.929     | 2.939       | 159.359  | 169.757  | 169.757  |
+| + theme.resolve                | 163.946   | 162.910     | 2.802       | 160.344  | 169.686  | 169.686  |
+| full highlight (+ addStyle)    | 241.511   | 240.558     | 13.788      | 229.528  | 309.970  | 309.970  |
 
 ## Row definitions
 
