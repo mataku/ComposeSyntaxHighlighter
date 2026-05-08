@@ -118,6 +118,53 @@ class IncrementalHighlighterGoldenTest {
       }
     }
   }
+
+  @Test
+  fun typing_one_char_at_a_time_each_call_matches_full_highlight() {
+    val target = "fun greet() { println(\"hi\") }"
+    IncrementalHighlighter(Languages.Kotlin).use { engine ->
+      for (i in 0..target.length) {
+        val current = target.substring(0, i)
+        val actual = engine.update(current, theme)
+        val expected = highlight(current, Languages.Kotlin, theme)
+        assertEqualAnnotated(expected, actual)
+      }
+    }
+  }
+
+  @Test
+  fun edit_inside_multiline_string_re_emits_string_capture() {
+    val codeA = """
+      val msg = ""${'"'}
+        hello
+        world
+      ""${'"'}
+    """.trimIndent()
+    val codeB = codeA.replace("hello", "HELLO")
+    IncrementalHighlighter(Languages.Kotlin).use { engine ->
+      engine.update(codeA, theme)
+      val actual = engine.update(codeB, theme)
+      val expected = highlight(codeB, Languages.Kotlin, theme)
+      assertEqualAnnotated(expected, actual)
+    }
+  }
+
+  @Test
+  fun edit_inside_block_comment_re_emits_comment_capture() {
+    val codeA = """
+      /*
+       * old line
+       */
+      class Foo
+    """.trimIndent()
+    val codeB = codeA.replace("old line", "new line")
+    IncrementalHighlighter(Languages.Kotlin).use { engine ->
+      engine.update(codeA, theme)
+      val actual = engine.update(codeB, theme)
+      val expected = highlight(codeB, Languages.Kotlin, theme)
+      assertEqualAnnotated(expected, actual)
+    }
+  }
 }
 
 private fun assertEqualAnnotated(

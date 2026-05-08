@@ -66,18 +66,35 @@ class IncrementalHighlighter(
     val edit = synthesiseInputEdit(oldCode, oldIndex, newCode, newIndex)
     previousTree.edit(edit)
     val newTree = parser.parse(newCode, previousTree)
-    // Full byteRange — scope narrowing lands in Task 7.
-    query.byteRange = UInt.MIN_VALUE..UInt.MAX_VALUE
-    captureSpans.clear()
+
+    val editedRange = ByteRange(
+      start = edit.startByte.toInt(),
+      endExclusive = maxOf(edit.oldEndByte.toInt(), edit.newEndByte.toInt()),
+    )
+    val changedRanges = previousTree.changedRanges(newTree).map {
+      it.startByte.toInt()..(it.endByte.toInt() - 1).coerceAtLeast(it.startByte.toInt())
+    }
+    val unionedRange = unionRange(editedRange, changedRanges)
+    val affectedRange = expandToEnclosingNode(newTree, unionedRange)
+
+    val delta = edit.newEndByte.toInt() - edit.oldEndByte.toInt()
+    shiftCaptureSpansSuffix(captureSpans, after = edit.oldEndByte.toInt(), delta = delta)
+    removeCaptureSpansOverlapping(captureSpans, affectedRange)
+
+    query.byteRange = affectedRange.start.toUInt()..affectedRange.endExclusive.toUInt()
     query.captures(newTree.rootNode).forEach { (_, match) ->
       match.captures.forEach { capture ->
-        captureSpans += CaptureSpan(
-          startByte = capture.node.startByte.toInt(),
-          endByte = capture.node.endByte.toInt(),
-          captureName = capture.name,
+        insertSorted(
+          captureSpans,
+          CaptureSpan(
+            startByte = capture.node.startByte.toInt(),
+            endByte = capture.node.endByte.toInt(),
+            captureName = capture.name,
+          ),
         )
       }
     }
+
     oldCode = newCode
     oldTree = newTree
   }
@@ -97,6 +114,18 @@ class IncrementalHighlighter(
     }
     oldCode = newCode
     oldTree = tree
+  }
+
+  private fun expandToEnclosingNode(tree: Tree, range: ByteRange): ByteRange {
+    if (range.start >= range.endExclusive) return range
+    val descendant = tree.rootNode.descendant(
+      start = range.start.toUInt(),
+      end = range.endExclusive.toUInt(),
+    ) ?: return range
+    return ByteRange(
+      start = minOf(range.start, descendant.startByte.toInt()),
+      endExclusive = maxOf(range.endExclusive, descendant.endByte.toInt()),
+    )
   }
 
   private fun assembleAnnotatedString(text: String, theme: SyntaxTheme): AnnotatedString {
