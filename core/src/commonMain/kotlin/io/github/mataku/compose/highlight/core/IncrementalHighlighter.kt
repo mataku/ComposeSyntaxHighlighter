@@ -51,13 +51,12 @@ class IncrementalHighlighter(
    *   through [theme] without re-parsing.
    * - Otherwise: tree-sitter incremental parse + scoped query over the affected byte range.
    *
-   * The incremental branch maintains `captureSpans` in place. Native parse and query
-   * calls are atomic from the caller's perspective: the engine's internal state
-   * (`oldCode`, `oldTree`, `captureSpans`) is only swapped after both complete. Today
-   * those native calls cannot be cancelled — `Parser.timeoutMicros` is not exposed by
-   * the engine. If a future change exposes it and a parse is interrupted, the
-   * documented behaviour is that the engine is left in its pre-call state and the
-   * exception propagates to the caller.
+   * The incremental branch mutates `captureSpans`, `oldTree`, and the underlying
+   * tree-sitter `Tree` in several stages. Today those mutations cannot be interrupted
+   * mid-call — `Parser.timeoutMicros` is not exposed by the engine, so a partially
+   * updated state is unreachable in practice. If a future change exposes cancellation,
+   * the engine must be extended to roll back to its pre-call state on interrupt; that
+   * rollback contract is aspirational, not satisfied by the current implementation.
    *
    * @throws IllegalStateException if [close] has already been called.
    */
