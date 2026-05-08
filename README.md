@@ -147,6 +147,26 @@ This is the same primitive `rememberHighlightedStringAsync` uses internally, exp
 
 Per-stage profiling and optimisation history live in [docs/large_input_profiling.md](docs/large_input_profiling.md).
 
+For editor-style scenarios where the same source string changes incrementally
+(typing, paste, undo), use `IncrementalHighlighter` from `:core` instead of
+calling `highlight` / `rememberHighlightedString` per keystroke:
+
+```kotlin
+val engine = remember(language) { IncrementalHighlighter(language) }
+DisposableEffect(engine) { onDispose { engine.close() } }
+val annotated by produceState(initialValue = AnnotatedString(code)) {
+  value = withContext(Dispatchers.Default) { engine.update(code, theme) }
+}
+```
+
+`IncrementalHighlighter` is single-threaded; route every `update` call through
+one background dispatcher. A future `:material3-editor` module will package
+this pattern; until then, wire it manually as above. Boundary edits (appending
+a new top-level declaration, prepending at byte 0) degrade to ≈ baseline cost
+by design — interior edits and theme-only re-calls are 40×+ faster than a
+full re-highlight at 5k lines on the host JVM. See
+`docs/large_input_profiling.md` for the per-size acceptance numbers.
+
 ## Built-in themes
 
 All themes are static `SyntaxTheme` values on `SyntaxTheme.Companion`, shipped in `compose-syntax-highlight-core`. Attributions for the third-party themes are bundled in the artifact's `META-INF/NOTICE`.
