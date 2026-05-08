@@ -44,6 +44,10 @@ kotlin {
 
     val jvmTest by getting
   }
+
+  sourceSets.all {
+    languageSettings.optIn("io.github.mataku.compose.highlight.api.InternalSyntaxHighlightApi")
+  }
 }
 
 tasks.named<Test>("jvmTest") {

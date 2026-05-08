@@ -1,6 +1,7 @@
 package io.github.mataku.compose.highlight.core
 
-internal class Utf8ByteIndex(text: String) {
+@io.github.mataku.compose.highlight.api.InternalSyntaxHighlightApi
+class Utf8ByteIndex(text: String) {
   private val byteToChar: IntArray
   private val totalBytes: Int
 
