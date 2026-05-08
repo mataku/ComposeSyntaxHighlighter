@@ -85,19 +85,19 @@ that finding is itself worth surfacing.
 
 ## Optimisation history
 
-### 0.4.0 (large-input static path)
+### 0.4.0 — Async highlight path + segmented benchmark (#9)
 
 - Baseline 5-row decomposition introduced (`parse`, `Utf8ByteIndex`,
   `captures only`, `+ theme.resolve`, `full highlight`).
 
-### 0.5.0 (9b-1)
+### 0.5.0 — Tree cache for theme-only recomposition (#10)
 
 - Tree cache across theme-only recompositions (`rememberHighlightedString`
   split into 2-stage `remember`); saves ~22% at 5k on Light↔Dark
   toggles.
 - `applyStyles` extracted as internal helper; no public API change.
 
-### 0.5.0 (9b-1.5 #2)
+### 0.5.0 — Capture-iteration bucket investigation (#11, DROPPED)
 
 - Bucket decomposed to 7 rows (this document).
 - Verdict: drop. The capture-iteration bucket is effectively a
@@ -115,19 +115,19 @@ that finding is itself worth surfacing.
   of effort. `captures iterator only` measured at sub-microsecond
   median across all sizes, ruling out `Sequence` builder construction
   as a target.
-- Note: the original 9b-1.5 #2 premise — "`query.captures(rootNode)`
-  allocates a fresh cursor each call" — was already incorrect.
-  ktreesitter 0.24.1 stores a single native cursor inside `Query`
-  for its lifetime, and our `Language` retains that `Query`. The
-  data above additionally rules out `Sequence` / `Pair` /
-  `QueryMatch` allocation as a worthwhile Kotlin-side target at
-  current scale.
-- Routing: proceed to 9b-1.5 #3 (`addStyle` batching). 9b-1.5 #1
-  (`code.isNotEmpty()` guard symmetry between `applyStyles` and
-  `plainHighlightedString`) rides #3's plan as a one-line
-  maintenance fix.
+- Note: the original premise — "`query.captures(rootNode)` allocates
+  a fresh cursor each call" — was already incorrect. ktreesitter
+  0.24.1 stores a single native cursor inside `Query` for its
+  lifetime, and our `Language` retains that `Query`. The data above
+  additionally rules out `Sequence` / `Pair` / `QueryMatch`
+  allocation as a worthwhile Kotlin-side target at current scale.
+- Routing: subsequent `addStyle` batching investigation also
+  DROPPED on a discarded branch (Δ +2.3% / coalesce regressed; not
+  recorded here — see closed PR for the writeup). Empty-code guard
+  symmetry between `applyStyles` and `plainHighlightedString`
+  landed separately as a one-line maintenance commit.
 
-### 0.6.0 (9b-2-engine)
+### Incremental highlighter engine (#12, unreleased — feature/editor)
 
 - `IncrementalHighlighter` lands in `:core` (`commonMain`) — a stateful,
   single-threaded engine backed by tree-sitter incremental parse, scoped
