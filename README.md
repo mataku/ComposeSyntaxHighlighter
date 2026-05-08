@@ -109,6 +109,44 @@ SyntaxHighlightedText(
 )
 ```
 
+### Large inputs
+
+`SyntaxHighlightedText` is synchronous by default: when the composition recomputes, `highlight()` runs on the calling thread. For typical inline code (a few dozen lines) that is the right choice — the work is sub-millisecond and adding a coroutine round-trip would only introduce a one-frame plain-text flicker.
+
+For larger blocks, opt in to the async path:
+
+```kotlin
+SyntaxHighlightedText(
+  code = code,
+  language = Languages.Kotlin,
+  async = true,
+)
+```
+
+When `async = true`, the rendered text starts as plain `code` styled with `theme.baseStyle` and updates to the highlighted form once `highlight()` completes on `Dispatchers.Default` (override via `asyncContext` if you have your own pool). On `code` change, the state immediately resets to the new plain text so the displayed code never lags behind the request.
+
+The async path is targeted at static code blocks. Each `code` change cancels the previous coroutine, but the in-flight native parse (JNI-side, via tree-sitter) cannot be cancelled mid-flight — it runs to completion before the next parse starts. Live-editor usage where `code` changes on every keystroke is **not** the intended scenario for this library.
+
+As a guideline, the synchronous path is fine up to a few hundred lines. On a host JVM (Apple M-series, Compose Multiplatform 1.10.3 + ktreesitter 0.24.1), `highlight()` measured roughly:
+
+| Size       | Warm median | Warm p99 |
+|------------|-------------|----------|
+| 100 lines  | 5.35 ms     | 5.51 ms  |
+| 1k lines   | 51.05 ms    | 71.32 ms |
+| 5k lines   | 251.62 ms   | 258.17 ms |
+
+Mobile devices are slower than the host JVM by a 3–5× factor in our measurements; treat the table as a lower bound. Numbers were captured by `LargeInputBenchmark` in this repository (`./gradlew :benchmark:jvmTest --tests *LargeInputBenchmark`).
+
+For non-Composable contexts (e.g. precomputing in a `ViewModel` and exposing the `AnnotatedString` as state), call `highlight()` directly off the main thread:
+
+```kotlin
+val annotated = withContext(Dispatchers.Default) {
+  highlight(code, Languages.Kotlin, theme)
+}
+```
+
+This is the same primitive `rememberHighlightedStringAsync` uses internally, exposed for callers that own their own state machine.
+
 ## Built-in themes
 
 All themes are static `SyntaxTheme` values on `SyntaxTheme.Companion`, shipped in `compose-syntax-highlight-core`. Attributions for the third-party themes are bundled in the artifact's `META-INF/NOTICE`.
