@@ -73,8 +73,9 @@ vendor/
 .envrc
 
 .kotlin/
-docs/
+docs/*
 !docs/superpowers/
+!docs/large_input_profiling.md
 development.md
 
 **/.cmake

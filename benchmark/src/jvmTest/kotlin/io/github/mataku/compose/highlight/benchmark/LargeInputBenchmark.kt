@@ -38,6 +38,14 @@ class LargeInputBenchmark {
       val tree = parser.parse(code)
       val query = Languages.Kotlin.query
 
+      results += run("$label / captures iterator only") {
+        query.captures(tree.rootNode).iterator()
+      }
+
+      results += run("$label / captures drain (count)") {
+        query.captures(tree.rootNode).count()
+      }
+
       results += run("$label / captures only") {
         query.captures(tree.rootNode).forEach { (_, match) ->
           match.captures.forEach { _ -> }
