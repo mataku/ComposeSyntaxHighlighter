@@ -100,4 +100,29 @@ that finding is itself worth surfacing.
 ### 0.5.0 (9b-1.5 #2)
 
 - Bucket decomposed to 7 rows (this document).
-- Verdict: TBD (filled in by the maintainer after reading the numbers).
+- Verdict: drop. The capture-iteration bucket is effectively a
+  ktreesitter native + JNI floor; no meaningful Kotlin-side headroom
+  remains for `:core` without modifying the upstream binding (out of
+  scope for 1.0).
+- Reasoning: at 5k median, `drain(count) / captures only` =
+  161.008 / 163.929 = 0.982. 98.2% of the bucket is irreducible
+  native + JNI + `Pair` / `QueryMatch` return-object cost; the
+  remaining Kotlin-side wrapper overhead (outer `forEach` + Pair
+  destructure + inner `match.captures` loop) is 2.921 ms — 1.2%
+  of the 240.558 ms full-highlight bucket. The `addStyle` bucket
+  (`full highlight − + theme.resolve` = 77.648 ms, 32.3% of full
+  highlight) carries ~26× the absolute headroom for the same level
+  of effort. `captures iterator only` measured at sub-microsecond
+  median across all sizes, ruling out `Sequence` builder construction
+  as a target.
+- Note: the original 9b-1.5 #2 premise — "`query.captures(rootNode)`
+  allocates a fresh cursor each call" — was already incorrect.
+  ktreesitter 0.24.1 stores a single native cursor inside `Query`
+  for its lifetime, and our `Language` retains that `Query`. The
+  data above additionally rules out `Sequence` / `Pair` /
+  `QueryMatch` allocation as a worthwhile Kotlin-side target at
+  current scale.
+- Routing: proceed to 9b-1.5 #3 (`addStyle` batching). 9b-1.5 #1
+  (`code.isNotEmpty()` guard symmetry between `applyStyles` and
+  `plainHighlightedString`) rides #3's plan as a one-line
+  maintenance fix.
