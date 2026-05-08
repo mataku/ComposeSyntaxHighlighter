@@ -8,6 +8,7 @@ import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
@@ -15,6 +16,9 @@ import io.github.mataku.compose.highlight.api.Language
 import io.github.mataku.compose.highlight.core.LocalSyntaxTheme
 import io.github.mataku.compose.highlight.core.SyntaxTheme
 import io.github.mataku.compose.highlight.core.rememberHighlightedString
+import io.github.mataku.compose.highlight.core.rememberHighlightedStringAsync
+import kotlinx.coroutines.Dispatchers
+import kotlin.coroutines.CoroutineContext
 
 /**
  * Renders [code] as syntax-highlighted Material3 [Text] using the parser and highlight query
@@ -35,6 +39,14 @@ import io.github.mataku.compose.highlight.core.rememberHighlightedString
  *   [SelectionContainer] so users can highlight the code with the platform's native
  *   text-selection UI (which also surfaces a Copy action). Pass `false` to render without a
  *   selection scope.
+ * @param async When false (the default), `code` is highlighted synchronously on the calling
+ *   thread inside the composition. When true, the highlight runs on [asyncContext] and the
+ *   rendered text starts as plain `code` styled with `theme.baseStyle`, switching to the
+ *   highlighted form once the computation finishes. Use for code blocks larger than a few
+ *   hundred lines (see README "Large inputs"); the default is right for typical inline code.
+ * @param asyncContext Coroutine context used when [async] is true. Defaults to
+ *   [Dispatchers.Default] (CPU-bound work). Override for tests or to share a thread pool.
+ *   Ignored when [async] is false.
  */
 @Composable
 fun SyntaxHighlightedText(
@@ -45,11 +57,18 @@ fun SyntaxHighlightedText(
   theme: SyntaxTheme = LocalSyntaxTheme.current,
   style: TextStyle = LocalTextStyle.current.copy(fontFamily = FontFamily.Monospace),
   selectable: Boolean = true,
+  async: Boolean = false,
+  asyncContext: CoroutineContext = Dispatchers.Default,
 ) {
+  val highlighted: AnnotatedString = if (async) {
+    rememberHighlightedStringAsync(code, language, theme, asyncContext).value
+  } else {
+    rememberHighlightedString(code, language, theme)
+  }
   val backgroundModifier = theme.background?.let { Modifier.background(it) } ?: Modifier
   val text: @Composable () -> Unit = {
     Text(
-      text = rememberHighlightedString(code, language, theme),
+      text = highlighted,
       modifier = modifier.then(backgroundModifier).padding(contentPadding),
       style = style,
     )
