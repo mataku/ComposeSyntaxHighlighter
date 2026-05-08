@@ -111,14 +111,14 @@ End-to-end workflow lives in `.claude/skills/add-tree-sitter-language/SKILL.md`.
 ## Running tests
 
 ```bash
-./gradlew :core:jvmTest :languages:kotlin:jvmTest :languages:swift:jvmTest
+./gradlew jvmTest -x :benchmark:jvmTest
 ```
 
 JVM tests depend on `buildHostCMake`, which compiles the parser into a host shared library and is automatically wired into `tasks.named<Test>("jvmTest")`.
 
 `./gradlew :core:commonTest` runs the pure-Kotlin tests (theme resolution, UTF-8 indexing).
 
-After running tests, run `./gradlew spotlessApply` to keep the working tree formatted (Spotless ktlint is wired via the `compose-syntax-highlight-spotless` build-logic plugin).
+After running tests, run `./gradlew spotlessApply` to keep the working tree formatted (Spotless ktlint is wired via the `compose-syntax-highlight-spotless` build-logic plugin) and `./gradlew apiCheck` for Binary compatibility validation.
 
 ## Publishing
 
