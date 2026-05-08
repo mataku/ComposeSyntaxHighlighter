@@ -9,6 +9,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import io.github.mataku.compose.highlight.api.Language
 import io.github.treesitter.ktreesitter.Parser
+import io.github.treesitter.ktreesitter.Tree
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.CoroutineContext
