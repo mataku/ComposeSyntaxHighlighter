@@ -26,6 +26,7 @@ kotlin {
       api(libs.ktreesitter)
       api(libs.compose.runtime)
       api(libs.compose.ui)
+      api(libs.kotlinx.coroutines.core)
     }
     commonTest.dependencies {
       implementation(libs.kotlin.test)

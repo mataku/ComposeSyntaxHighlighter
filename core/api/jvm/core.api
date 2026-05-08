@@ -8,6 +8,7 @@ public final class io/github/mataku/compose/highlight/core/LocalSyntaxThemeKt {
 
 public final class io/github/mataku/compose/highlight/core/RememberHighlightedStringKt {
 	public static final fun rememberHighlightedString (Ljava/lang/String;Lio/github/mataku/compose/highlight/api/Language;Lio/github/mataku/compose/highlight/core/SyntaxTheme;Landroidx/compose/runtime/Composer;I)Landroidx/compose/ui/text/AnnotatedString;
+	public static final fun rememberHighlightedStringAsync (Ljava/lang/String;Lio/github/mataku/compose/highlight/api/Language;Lio/github/mataku/compose/highlight/core/SyntaxTheme;Lkotlin/coroutines/CoroutineContext;Landroidx/compose/runtime/Composer;II)Landroidx/compose/runtime/State;
 }
 
 public final class io/github/mataku/compose/highlight/core/SyntaxTheme {
