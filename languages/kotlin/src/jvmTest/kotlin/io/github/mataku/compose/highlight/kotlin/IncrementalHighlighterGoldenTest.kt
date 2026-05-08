@@ -45,6 +45,25 @@ class IncrementalHighlighterGoldenTest {
     engine.close()
     engine.close()
   }
+
+  @Test
+  fun theme_only_update_matches_full_highlight_with_new_theme() {
+    val code = "class Foo { val n = 42 }"
+    val themeA = theme
+    val themeB = SyntaxTheme(
+      baseStyle = SpanStyle(color = Color.Black),
+      keyword = SpanStyle(color = Color.Cyan),
+      string = SpanStyle(color = Color.Magenta),
+      comment = SpanStyle(color = Color.Gray),
+      number = SpanStyle(color = Color(0xFF888888)),
+    )
+    IncrementalHighlighter(Languages.Kotlin).use { engine ->
+      engine.update(code, themeA)
+      val actual = engine.update(code, themeB)
+      val expected = highlight(code, Languages.Kotlin, themeB)
+      assertEqualAnnotated(expected, actual)
+    }
+  }
 }
 
 private fun assertEqualAnnotated(

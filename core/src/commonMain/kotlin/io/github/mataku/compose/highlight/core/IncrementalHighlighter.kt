@@ -44,10 +44,11 @@ class IncrementalHighlighter(
 
   fun update(newCode: String, theme: SyntaxTheme): AnnotatedString {
     check(!closed) { "IncrementalHighlighter has been closed" }
-    if (oldTree == null) {
-      runFirstCall(newCode)
+    when {
+      oldTree == null -> runFirstCall(newCode)
+      newCode == oldCode -> Unit // theme-only short-circuit: state already current
+      // Incremental path lands in Task 6.
     }
-    // Theme-only short-circuit and incremental path land in later tasks.
     return assembleAnnotatedString(newCode, theme)
   }
 
