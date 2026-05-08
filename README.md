@@ -127,15 +127,19 @@ When `async = true`, the rendered text starts as plain `code` styled with `theme
 
 The async path is targeted at static code blocks. Each `code` change cancels the previous coroutine, but the in-flight native parse (JNI-side, via tree-sitter) cannot be cancelled mid-flight — it runs to completion before the next parse starts. Live-editor usage where `code` changes on every keystroke is **not** the intended scenario for this library.
 
-As a guideline, the synchronous path is fine up to a few hundred lines. On a host JVM (Apple M-series, Compose Multiplatform 1.10.3 + ktreesitter 0.24.1), `highlight()` measured roughly:
+As a guideline, the synchronous path is fine up to a few hundred lines. On a host JVM (Apple M-series, Compose Multiplatform 1.10.3 + ktreesitter 0.24.1), `LargeInputBenchmark` decomposes `highlight()` into the stages below. The dominant cost is `query.captures(rootNode)` traversal — it accounts for roughly 66% of `full highlight` at all sizes. `theme.resolve` is in measurement noise (rows 3 and 4 differ by less than 1%). `addStyle` + builder accounts for the remaining ~34%.
 
-| Size       | Warm median | Warm p99 |
-|------------|-------------|----------|
-| 100 lines  | 5.35 ms     | 5.51 ms  |
-| 1k lines   | 51.05 ms    | 71.32 ms |
-| 5k lines   | 251.62 ms   | 258.17 ms |
+| Stage                          | 100 lines | 1k lines | 5k lines |
+|--------------------------------|-----------|----------|----------|
+| parse                          | 1.1 ms    | 10.4 ms  | 52.8 ms  |
+| Utf8ByteIndex                  | 0.007 ms  | 0.067 ms | 0.44 ms  |
+| captures only                  | 3.4 ms    | 32.5 ms  | 162.2 ms |
+| + theme.resolve                | 3.4 ms    | 33.5 ms  | 163.7 ms |
+| full highlight (+ addStyle)    | 4.7 ms    | 52.3 ms  | 246.8 ms |
 
 Mobile devices are slower than the host JVM by a 3–5× factor in our measurements; treat the table as a lower bound. Numbers were captured by `LargeInputBenchmark` in this repository (`./gradlew :benchmark:jvmTest --tests *LargeInputBenchmark`).
+
+`rememberHighlightedString` caches the parsed tree per `(code, language)`, so toggling between Light and Dark themes on the same code re-applies styles without re-parsing — Light↔Dark on a 5k-line file skips the `parse` cost above. The async wrapper (`rememberHighlightedStringAsync`) does not cache the tree, so theme changes there re-trigger a full async parse.
 
 For non-Composable contexts (e.g. precomputing in a `ViewModel` and exposing the `AnnotatedString` as state), call `highlight()` directly off the main thread:
 

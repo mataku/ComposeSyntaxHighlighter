@@ -37,7 +37,14 @@ class LargeInputBenchmark {
       val parser = Parser(Languages.Kotlin.parser)
       val tree = parser.parse(code)
       val query = Languages.Kotlin.query
-      results += run("$label / capture iteration") {
+
+      results += run("$label / captures only") {
+        query.captures(tree.rootNode).forEach { (_, match) ->
+          match.captures.forEach { _ -> }
+        }
+      }
+
+      results += run("$label / + theme.resolve") {
         query.captures(tree.rootNode).forEach { (_, match) ->
           match.captures.forEach { capture ->
             BenchmarkConfig.theme.resolve(capture.name)
@@ -45,7 +52,7 @@ class LargeInputBenchmark {
         }
       }
 
-      results += run("$label / full highlight") {
+      results += run("$label / full highlight (+ addStyle)") {
         highlight(code, Languages.Kotlin, BenchmarkConfig.theme)
       }
 

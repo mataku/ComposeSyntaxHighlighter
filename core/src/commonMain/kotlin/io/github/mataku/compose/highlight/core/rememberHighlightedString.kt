@@ -8,21 +8,31 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import io.github.mataku.compose.highlight.api.Language
+import io.github.treesitter.ktreesitter.Parser
+import io.github.treesitter.ktreesitter.Tree
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.CoroutineContext
 
 /**
- * Composable wrapper around [highlight] that memoizes the produced [AnnotatedString], keyed on
- * `(code, language, theme)`.
+ * Composable wrapper around [highlight] that caches the parsed tree-sitter [Tree] across
+ * theme-only changes. The first stage is keyed on `(code, language)` and re-parses only when
+ * one of those changes; the second stage applies [theme] to the cached tree. Native memory of
+ * the dropped tree is reclaimed by the JVM `Cleaner` registered in ktreesitter's `Parser`/`Tree`
+ * `init` blocks (no explicit disposal API exists).
  */
 @Composable
 fun rememberHighlightedString(
   code: String,
   language: Language,
   theme: SyntaxTheme,
-): AnnotatedString = remember(code, language, theme) {
-  highlight(code, language, theme)
+): AnnotatedString {
+  val tree = remember(code, language) {
+    Parser(language.parser).parse(code)
+  }
+  return remember(tree, theme) {
+    applyStyles(code, tree, language, theme)
+  }
 }
 
 /**
@@ -38,6 +48,11 @@ fun rememberHighlightedString(
  * and a fresh highlight computation is scheduled on [context]. An in-flight native `parse()`
  * call cannot be cancelled mid-flight (it is a JNI call); only the Kotlin coroutine is
  * cancelled, so its result is discarded but the native parse runs to completion.
+ *
+ * Unlike [rememberHighlightedString], the async variant does not cache the parsed tree across
+ * theme-only changes — sharing a Tree across coroutines would require [io.github.treesitter.ktreesitter.Tree.copy]
+ * for thread safety, which is not worth the complexity for the rare large-file + theme-toggle
+ * combination. Theme changes therefore re-trigger a full async parse.
  *
  * @param context Coroutine context the highlight runs on. Defaults to [Dispatchers.Default]
  *   (the right choice for CPU-bound work). Override for tests or to share a thread pool.
