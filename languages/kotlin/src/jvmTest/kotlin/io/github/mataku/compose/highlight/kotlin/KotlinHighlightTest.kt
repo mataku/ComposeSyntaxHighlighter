@@ -75,4 +75,11 @@ class KotlinHighlightTest {
     val baseSpan = annotated.spanStyles.firstOrNull { it.start == 0 && it.end == code.length && it.item.color == baseColor }
     assertTrue(baseSpan != null, "expected base style covering 0..${code.length}; spans=${annotated.spanStyles}")
   }
+
+  @Test
+  fun empty_code_with_non_default_base_style_produces_no_span() {
+    val result = highlight("", Languages.Kotlin, theme)
+    assertEquals("", result.text)
+    assertEquals(0, result.spanStyles.size)
+  }
 }

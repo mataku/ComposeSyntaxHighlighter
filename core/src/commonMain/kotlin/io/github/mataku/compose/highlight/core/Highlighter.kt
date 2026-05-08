@@ -43,7 +43,7 @@ internal fun applyStyles(
 
   return buildAnnotatedString {
     append(code)
-    if (theme.baseStyle != emptySpan) {
+    if (theme.baseStyle != emptySpan && code.isNotEmpty()) {
       addStyle(theme.baseStyle, 0, code.length)
     }
     query.captures(tree.rootNode).forEach { (_, match) ->
