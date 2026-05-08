@@ -5,6 +5,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import io.github.mataku.compose.highlight.api.Language
 import io.github.treesitter.ktreesitter.Parser
+import io.github.treesitter.ktreesitter.Tree
 
 /**
  * Returns an [AnnotatedString] of [code] with [theme] styles applied to tree-sitter capture
@@ -22,6 +23,20 @@ fun highlight(
 ): AnnotatedString {
   val parser = Parser(language.parser)
   val tree = parser.parse(code)
+  return applyStyles(code, tree, language, theme)
+}
+
+/**
+ * Builds the styled [AnnotatedString] for [code] given a pre-parsed [tree]. Internal entry
+ * point shared by [highlight] (one-shot) and the Composable wrappers (which cache the tree
+ * across theme-only changes).
+ */
+internal fun applyStyles(
+  code: String,
+  tree: Tree,
+  language: Language,
+  theme: SyntaxTheme,
+): AnnotatedString {
   val query = language.query
   val byteToChar = Utf8ByteIndex(code)
   val emptySpan = SpanStyle()
