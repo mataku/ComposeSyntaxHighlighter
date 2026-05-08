@@ -154,7 +154,7 @@ calling `highlight` / `rememberHighlightedString` per keystroke:
 ```kotlin
 val engine = remember(language) { IncrementalHighlighter(language) }
 DisposableEffect(engine) { onDispose { engine.close() } }
-val annotated by produceState(initialValue = AnnotatedString(code)) {
+val annotated by produceState(initialValue = AnnotatedString(code), code, theme) {
   value = withContext(Dispatchers.Default) { engine.update(code, theme) }
 }
 ```
