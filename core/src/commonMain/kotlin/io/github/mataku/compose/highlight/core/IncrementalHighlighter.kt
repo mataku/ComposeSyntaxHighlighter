@@ -44,16 +44,42 @@ class IncrementalHighlighter(
 
   fun update(newCode: String, theme: SyntaxTheme): AnnotatedString {
     check(!closed) { "IncrementalHighlighter has been closed" }
+    val previousTree = oldTree
     when {
-      oldTree == null -> runFirstCall(newCode)
-      newCode == oldCode -> Unit // theme-only short-circuit: state already current
-      // Incremental path lands in Task 6.
+      previousTree == null -> runFirstCall(newCode)
+
+      newCode == oldCode -> Unit
+
+      // theme-only short-circuit: state already current
+      else -> runIncremental(previousTree, newCode)
     }
     return assembleAnnotatedString(newCode, theme)
   }
 
   override fun close() {
     closed = true
+  }
+
+  private fun runIncremental(previousTree: Tree, newCode: String) {
+    val oldIndex = Utf8ByteIndex(oldCode)
+    val newIndex = Utf8ByteIndex(newCode)
+    val edit = synthesiseInputEdit(oldCode, oldIndex, newCode, newIndex)
+    previousTree.edit(edit)
+    val newTree = parser.parse(newCode, previousTree)
+    // Full byteRange — scope narrowing lands in Task 7.
+    query.byteRange = UInt.MIN_VALUE..UInt.MAX_VALUE
+    captureSpans.clear()
+    query.captures(newTree.rootNode).forEach { (_, match) ->
+      match.captures.forEach { capture ->
+        captureSpans += CaptureSpan(
+          startByte = capture.node.startByte.toInt(),
+          endByte = capture.node.endByte.toInt(),
+          captureName = capture.name,
+        )
+      }
+    }
+    oldCode = newCode
+    oldTree = newTree
   }
 
   private fun runFirstCall(newCode: String) {

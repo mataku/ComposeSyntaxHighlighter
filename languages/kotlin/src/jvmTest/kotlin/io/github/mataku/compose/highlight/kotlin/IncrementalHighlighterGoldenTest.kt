@@ -64,6 +64,60 @@ class IncrementalHighlighterGoldenTest {
       assertEqualAnnotated(expected, actual)
     }
   }
+
+  @Test
+  fun edit_at_end_matches_full_highlight() {
+    val codeA = "class Foo { val n = 42 }"
+    val codeB = "class Foo { val n = 42 }\nval m = 7"
+    IncrementalHighlighter(Languages.Kotlin).use { engine ->
+      engine.update(codeA, theme)
+      val actual = engine.update(codeB, theme)
+      val expected = highlight(codeB, Languages.Kotlin, theme)
+      assertEqualAnnotated(expected, actual)
+    }
+  }
+
+  @Test
+  fun edit_in_middle_matches_full_highlight() {
+    val codeA = "fun a() { val x = 1 }\nfun b() { val y = 2 }"
+    val codeB = "fun a() { val x = 100 }\nfun b() { val y = 2 }"
+    IncrementalHighlighter(Languages.Kotlin).use { engine ->
+      engine.update(codeA, theme)
+      val actual = engine.update(codeB, theme)
+      val expected = highlight(codeB, Languages.Kotlin, theme)
+      assertEqualAnnotated(expected, actual)
+    }
+  }
+
+  @Test
+  fun deletion_at_start_matches_full_highlight() {
+    val codeA = "// comment\nclass Foo"
+    val codeB = "class Foo"
+    IncrementalHighlighter(Languages.Kotlin).use { engine ->
+      engine.update(codeA, theme)
+      val actual = engine.update(codeB, theme)
+      val expected = highlight(codeB, Languages.Kotlin, theme)
+      assertEqualAnnotated(expected, actual)
+    }
+  }
+
+  @Test
+  fun five_successive_edits_each_match_full_highlight() {
+    val edits = listOf(
+      "class A",
+      "class A {",
+      "class A { val n",
+      "class A { val n = 1",
+      "class A { val n = 1 }",
+    )
+    IncrementalHighlighter(Languages.Kotlin).use { engine ->
+      for (code in edits) {
+        val actual = engine.update(code, theme)
+        val expected = highlight(code, Languages.Kotlin, theme)
+        assertEqualAnnotated(expected, actual)
+      }
+    }
+  }
 }
 
 private fun assertEqualAnnotated(
