@@ -41,7 +41,7 @@ class IncrementalHighlighterBenchmark {
       results += baseline
 
       results += measureFirstCall(label, code)
-      results += measureInsertAtEnd(label, code)
+      results += measureInsertNearEnd(label, code)
       results += measureInsertAtMiddle(label, code)
       results += measurePasteAtMiddle(label, code)
       results += measureThemeOnly(label, code)
@@ -77,9 +77,10 @@ class IncrementalHighlighterBenchmark {
     }
   }
 
-  private fun measureInsertAtEnd(label: String, code: String): BenchmarkConfig.BenchmarkResult {
-    val edited = code + "\nval _benchTail = 1"
-    return measureSecondUpdate("$label / insert at end", code, edited)
+  private fun measureInsertNearEnd(label: String, code: String): BenchmarkConfig.BenchmarkResult {
+    val cut = (code.length - 5).coerceAtLeast(code.length / 2)
+    val edited = code.substring(0, cut) + " " + code.substring(cut)
+    return measureSecondUpdate("$label / insert near end", code, edited)
   }
 
   private fun measureInsertAtMiddle(label: String, code: String): BenchmarkConfig.BenchmarkResult {
@@ -95,9 +96,7 @@ class IncrementalHighlighterBenchmark {
     return measureSecondUpdate("$label / paste at middle", code, edited)
   }
 
-  private fun measureThemeOnly(label: String, code: String): BenchmarkConfig.BenchmarkResult {
-    return measureSecondUpdate("$label / theme only", code, code, themeA, themeB)
-  }
+  private fun measureThemeOnly(label: String, code: String): BenchmarkConfig.BenchmarkResult = measureSecondUpdate("$label / theme only", code, code, themeA, themeB)
 
   private fun measureSameTextRepeated(label: String, code: String): BenchmarkConfig.BenchmarkResult {
     val engine = IncrementalHighlighter(Languages.Kotlin)
@@ -158,7 +157,7 @@ class IncrementalHighlighterBenchmark {
   ) {
     val byName = results.associateBy { it.name }
     val firstCall = byName.getValue("$label / first call")
-    val insertAtEnd = byName.getValue("$label / insert at end")
+    val insertNearEnd = byName.getValue("$label / insert near end")
     val insertAtMid = byName.getValue("$label / insert at middle")
     val pasteAtMid = byName.getValue("$label / paste at middle")
     val themeOnly = byName.getValue("$label / theme only")
@@ -173,10 +172,10 @@ class IncrementalHighlighterBenchmark {
     fun ratio(b: Long, a: Long) = b.toDouble() / a.toDouble()
 
     if (incrementalGate > 0.0) {
-      val r1 = ratio(baseline.medianNs, insertAtEnd.medianNs)
+      val r1 = ratio(baseline.medianNs, insertNearEnd.medianNs)
       val r2 = ratio(baseline.medianNs, insertAtMid.medianNs)
       val r3 = ratio(baseline.medianNs, pasteAtMid.medianNs)
-      assertTrue(r1 >= incrementalGate, "$label / insert at end: $r1× < gate $incrementalGate×")
+      assertTrue(r1 >= incrementalGate, "$label / insert near end: $r1× < gate $incrementalGate×")
       assertTrue(r2 >= incrementalGate, "$label / insert at middle: $r2× < gate $incrementalGate×")
       assertTrue(r3 >= incrementalGate, "$label / paste at middle: $r3× < gate $incrementalGate×")
       val rt = ratio(baseline.medianNs, themeOnly.medianNs)
@@ -184,7 +183,7 @@ class IncrementalHighlighterBenchmark {
     } else {
       val tolerance = smallTolerance
       val maxAllowed = (baseline.medianNs * (1.0 + tolerance)).toLong()
-      assertTrue(insertAtEnd.medianNs <= maxAllowed, "$label / insert at end regressed: ${insertAtEnd.medianNs}ns > $maxAllowed")
+      assertTrue(insertNearEnd.medianNs <= maxAllowed, "$label / insert near end regressed: ${insertNearEnd.medianNs}ns > $maxAllowed")
       assertTrue(insertAtMid.medianNs <= maxAllowed, "$label / insert at middle regressed")
       assertTrue(pasteAtMid.medianNs <= maxAllowed, "$label / paste at middle regressed")
       assertTrue(themeOnly.medianNs <= maxAllowed, "$label / theme only regressed")
