@@ -42,6 +42,25 @@ class IncrementalHighlighter(
   private val captureSpans: MutableList<CaptureSpan> = mutableListOf()
   private var closed: Boolean = false
 
+  /**
+   * Recompute the styled [AnnotatedString] for [newCode] using [theme].
+   *
+   * Branches on engine state:
+   * - First call: equivalent to [highlight] — full parse + full query iteration.
+   * - `newCode == oldCode`: theme-only short-circuit — re-resolves the cached captures
+   *   through [theme] without re-parsing.
+   * - Otherwise: tree-sitter incremental parse + scoped query over the affected byte range.
+   *
+   * The incremental branch maintains `captureSpans` in place. Native parse and query
+   * calls are atomic from the caller's perspective: the engine's internal state
+   * (`oldCode`, `oldTree`, `captureSpans`) is only swapped after both complete. Today
+   * those native calls cannot be cancelled — `Parser.timeoutMicros` is not exposed by
+   * the engine. If a future change exposes it and a parse is interrupted, the
+   * documented behaviour is that the engine is left in its pre-call state and the
+   * exception propagates to the caller.
+   *
+   * @throws IllegalStateException if [close] has already been called.
+   */
   fun update(newCode: String, theme: SyntaxTheme): AnnotatedString {
     check(!closed) { "IncrementalHighlighter has been closed" }
     val previousTree = oldTree
@@ -56,6 +75,12 @@ class IncrementalHighlighter(
     return assembleAnnotatedString(newCode, theme)
   }
 
+  /**
+   * Mark this engine closed. Idempotent. After closing, subsequent calls to [update]
+   * throw [IllegalStateException]. Native memory associated with the parse tree, parser,
+   * and query is reclaimed by the underlying ktreesitter `Cleaner` once the instance
+   * becomes garbage-collectible — `close` itself does not free native resources.
+   */
   override fun close() {
     closed = true
   }
