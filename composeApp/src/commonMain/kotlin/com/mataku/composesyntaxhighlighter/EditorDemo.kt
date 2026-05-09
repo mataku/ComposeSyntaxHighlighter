@@ -4,7 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -42,7 +41,7 @@ fun EditorDemo() {
           language = Languages.Kotlin,
           theme = SyntaxTheme.DarkDefault,
           modifier = Modifier
-            .fillMaxWidth()
+            .fillMaxSize()
             .background(SyntaxTheme.DarkDefault.background ?: MaterialTheme.colorScheme.surface)
             .padding(12.dp),
         )
