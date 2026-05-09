@@ -70,6 +70,14 @@ Build internals (plugin DSL, generated tasks, KMP source-set layout, NDK/CMake s
 - **Separate state from logic** — keep pure logic free of state; isolate state in its owning boundary.
 - **Readability and maintainability first** — pick the simplest design that satisfies the requirement; resist abstractions added for hypothetical reuse.
 
+## When unclear, ask
+
+If a task's requirements, scope, dependencies, or approach are ambiguous — or the plan as written cannot be followed without modification (a missing dependency, an API that doesn't behave as the plan assumed, an out-of-scope file that needs touching) — **stop and ask before proceeding.**
+
+Surface what you observed, propose 1–2 options with trade-offs, and wait for direction. Silent assumptions are the most expensive failure mode: they pass review because they look like decisions, but the underlying judgement was never validated.
+
+This applies equally to direct work, to subagents executing plan tasks, and to reports back to the controller — be honest about anything that drifted from original instructions.
+
 ## Adding a new language
 
 End-to-end workflow lives in `.claude/skills/add-tree-sitter-language/SKILL.md`. The skill covers grammar selection (with the ABI-14 pin trap), submodule add, Gradle wiring, the `Language` object, the `Languages.<Name>` extension forwarder, golden tests, demo wiring, and CI updates. Invoke it explicitly via slash command rather than reproducing the steps here.
@@ -80,9 +88,7 @@ End-to-end workflow lives in `.claude/skills/add-tree-sitter-language/SKILL.md`.
 ./gradlew jvmTest -x :benchmark:jvmTest
 ```
 
-JVM tests depend on `buildHostCMake`, which compiles the parser into a host shared library and is automatically wired into `tasks.named<Test>("jvmTest")`.
-
-`./gradlew :core:commonTest` runs the pure-Kotlin tests (theme resolution, UTF-8 indexing).
+JVM tests depend on `buildHostCMake`, which compiles the parser into a host shared library and is automatically wired into `tasks.named<Test>("jvmTest")`. Benchmarks (`:benchmark`) are intentionally excluded from this default and should be run separately when needed.
 
 After running tests, run `./gradlew spotlessApply` to keep the working tree formatted (Spotless ktlint is wired via the `compose-syntax-highlight-spotless` build-logic plugin) and `./gradlew apiCheck` for Binary compatibility validation.
 

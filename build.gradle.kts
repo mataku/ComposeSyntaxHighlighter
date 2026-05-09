@@ -21,6 +21,7 @@ dependencies {
   dokka(project(":core"))
   dokka(project(":core-api"))
   dokka(project(":material3"))
+  dokka(project(":material3-text-field"))
   dokka(project(":languages:kotlin"))
   dokka(project(":languages:swift"))
   dokka(project(":languages:ruby"))

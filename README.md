@@ -6,6 +6,12 @@ This is still an experimental project. Android is supported via the published AA
 
 **API documentation:** https://mataku.github.io/ComposeSyntaxHighlighter/ (latest release)
 
+## Preview
+
+| Read-only viewer (`:material3`) | Text field (`:material3-text-field`) |
+|:---:|:---:|
+| <image src="misc/swift_viewer_demo.png" width=360 /> | <video src="misc/editor_demo.mp4" width=360 /> |
+
 ## Installation
 
 Artifacts are published on Maven Central. Add `mavenCentral()` to your repositories and depend on a Material binding plus whichever language modules you need:
@@ -148,8 +154,10 @@ This is the same primitive `rememberHighlightedStringAsync` uses internally, exp
 Per-stage profiling and optimisation history live in [docs/large_input_profiling.md](docs/large_input_profiling.md).
 
 For editor-style scenarios where the same source string changes incrementally
-(typing, paste, undo), use `IncrementalHighlighter` from `:core` instead of
-calling `highlight` / `rememberHighlightedString` per keystroke:
+(typing, paste, undo), prefer the `:material3-text-field` module — it packages
+this pattern as `SyntaxHighlightedTextField` and `rememberSyntaxHighlightedString`
+(see "Editing code" below). If you need to wire `IncrementalHighlighter` from
+`:core` manually (custom dispatcher, non-Compose state machine, etc.):
 
 ```kotlin
 val engine = remember(language) { IncrementalHighlighter(language) }
@@ -160,12 +168,40 @@ val annotated by produceState(initialValue = AnnotatedString(code), code, theme)
 ```
 
 `IncrementalHighlighter` is single-threaded; route every `update` call through
-one background dispatcher. A future `:material3-editor` module will package
-this pattern; until then, wire it manually as above. Boundary edits (appending
-a new top-level declaration, prepending at byte 0) degrade to ≈ baseline cost
-by design — interior edits and theme-only re-calls are 40×+ faster than a
-full re-highlight at 5k lines on the host JVM. See
-`docs/large_input_profiling.md` for the per-size acceptance numbers.
+one background dispatcher. Boundary edits (appending a new top-level declaration,
+prepending at byte 0) degrade to ≈ baseline cost by design — interior edits and
+theme-only re-calls are 40×+ faster than a full re-highlight at 5k lines on the
+host JVM. See `docs/large_input_profiling.md` for the per-size acceptance numbers.
+
+## Editing code
+
+For an **editable** syntax-highlighted text surface, depend on the `:material3-text-field` module:
+
+```kotlin
+implementation("io.github.mataku:compose-syntax-highlight-material3-text-field:<version>")
+```
+
+Then:
+
+```kotlin
+val state = remember { TextFieldState(initialText = "val greeting = \"Hello\"") }
+SyntaxHighlightedTextField(
+  state = state,
+  language = Languages.Kotlin,
+  theme = SyntaxTheme.DarkDefault,
+  modifier = Modifier.fillMaxSize(),
+)
+```
+
+The Composable is backed by `IncrementalHighlighter` from `:core`: typing
+recomputes only the edited byte range, so highlighting stays interactive on
+multi-thousand-line files. For non-Material3 chrome or custom layouts, use
+`rememberSyntaxHighlightedString` directly:
+
+```kotlin
+val highlighted = rememberSyntaxHighlightedString(state, Languages.Kotlin)
+// drop `highlighted.value` into your own overlay / Text composition.
+```
 
 ## Built-in themes
 

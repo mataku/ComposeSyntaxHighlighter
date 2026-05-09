@@ -31,6 +31,7 @@ kotlin {
       implementation(libs.androidx.lifecycle.runtimeCompose)
       implementation(projects.core)
       implementation(projects.material3)
+      implementation(projects.material3TextField)
       implementation(projects.languages.kotlin)
       implementation(projects.languages.swift)
       implementation(projects.languages.ruby)
