@@ -22,7 +22,8 @@ if ! command -v gcloud >/dev/null 2>&1; then
   exit 1
 fi
 
-if ! gcloud config get-value project >/dev/null 2>&1; then
+project=$(gcloud config get-value project 2>/dev/null || true)
+if [ -z "$project" ] || [ "$project" = "(unset)" ]; then
   echo "No gcloud project configured. Run: gcloud config set project <id>" >&2
   exit 1
 fi
