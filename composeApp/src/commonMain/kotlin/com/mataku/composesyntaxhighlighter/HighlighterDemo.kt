@@ -64,6 +64,11 @@ private enum class DemoTheme(val label: String) {
 fun HighlighterDemo() {
   var selectedLang by remember { mutableStateOf(DemoLanguage.Kotlin) }
   var selectedTheme by remember { mutableStateOf(DemoTheme.DefaultDark) }
+  var showEditor by remember { mutableStateOf(false) }
+  if (showEditor) {
+    EditorDemo()
+    return
+  }
 
   val (code, language) = when (selectedLang) {
     DemoLanguage.Kotlin -> SampleCode.kotlin to Languages.Kotlin
@@ -89,7 +94,14 @@ fun HighlighterDemo() {
   MaterialTheme {
     Scaffold(
       topBar = {
-        TopAppBar(title = { Text("Compose Syntax Highlight Demo") })
+        TopAppBar(
+          title = { Text("Compose Syntax Highlight Demo") },
+          actions = {
+            androidx.compose.material3.TextButton(onClick = { showEditor = true }) {
+              Text("Editor")
+            }
+          },
+        )
       },
     ) { padding ->
       Column(
