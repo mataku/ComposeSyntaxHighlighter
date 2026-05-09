@@ -91,6 +91,11 @@ jobs:
             echo ""
           } >> "$GITHUB_STEP_SUMMARY"
 
+          if [ ! -d ftl-results ] || [ -z "$(ls -A ftl-results/ 2>/dev/null)" ]; then
+            echo "_Benchmark results were not downloaded (FTL step may have failed)._" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
           for device_dir in ftl-results/*/; do
             device_label=$(basename "$device_dir")
             jsons=$(find "$device_dir" -name '*-benchmarkData.json' 2>/dev/null | sort || true)
@@ -121,8 +126,6 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: android-ftl-benchmark-results
-          path: |
-            ftl-results/**/*-benchmarkData.json
-            ftl-results/**/*.perfetto-trace
+          path: ftl-results/**/*-benchmarkData.json
           retention-days: 90
           if-no-files-found: warn
