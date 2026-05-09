@@ -5,6 +5,10 @@ on:
   push:
     branches: [ main, develop ]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || 'dev' }}
+  cancel-in-progress: true
+
 jobs:
   jvm-tests:
     name: JVM tests
