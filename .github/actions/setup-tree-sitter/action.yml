@@ -1,8 +1,12 @@
 name: Setup tree-sitter CLI
 description: Install Node, enable corepack, install pnpm deps (with cache), and expose tree-sitter on PATH.
 
-# The convention plugin invokes `tree-sitter generate` to materialize parser.c
-# when grammar.js is newer than the committed parser.c (gated via `onlyIf`).
+# The convention plugin invokes `tree-sitter generate` to materialize parser.c only when the
+# grammar submodule does not ship one.
+# Notably tree-sitter-swift gitignores src/parser.c upstream, so any task that touches the swift
+# module's CMake/JNI build (jvmTest's host CMake, Android assemble, publishToMavenLocal,
+# apiCheck via Kotlin metadata) triggers generateParserSource on a fresh checkout.
+# The other vendored grammars commit parser.c and skip the task.
 # Security posture:
 #   - pnpm version is pinned via the `packageManager` field in package.json
 #     and fetched by corepack, so the toolchain version is reproducible and

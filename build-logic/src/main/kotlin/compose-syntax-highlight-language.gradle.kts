@@ -139,11 +139,14 @@ val generateParserSource = tasks.register<Exec>("generateParserSource") {
     }
   }
   onlyIf {
-    val parserC = parserCProvider.get()
-    val grammarJs = grammarJsProvider.get()
-    if (!parserC.exists()) return@onlyIf true
-    if (!grammarJs.exists()) return@onlyIf false
-    grammarJs.lastModified() > parserC.lastModified()
+    // Skip when parser.c is already present. Most grammar submodules commit
+    // parser.c and the build trusts the checked-in artifact; tree-sitter-swift
+    // is a notable exception (its upstream gitignores src/parser.c, so this
+    // task fires on every fresh checkout). To force regeneration after editing
+    // grammar.js, run `./gradlew :languages:<name>:generateParserSource --rerun`
+    // — mtime-based comparison was unreliable in CI fresh checkouts and has
+    // been removed.
+    !parserCProvider.get().exists()
   }
 }
 
