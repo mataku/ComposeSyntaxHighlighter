@@ -50,21 +50,11 @@ class LargeInputAndroidBenchmark {
 
   @Test fun fullHighlight_1kLines() = fullHighlight(BenchmarkSamples.KotlinLarge1k)
 
-  // --- 5k lines ---
-
-  @Test fun parse_5kLines() = parse(BenchmarkSamples.KotlinLarge5k)
-
-  @Test fun utf8ByteIndex_5kLines() = utf8ByteIndex(BenchmarkSamples.KotlinLarge5k)
-
-  @Test fun capturesIteratorOnly_5kLines() = capturesIteratorOnly(BenchmarkSamples.KotlinLarge5k)
-
-  @Test fun capturesDrainCount_5kLines() = capturesDrainCount(BenchmarkSamples.KotlinLarge5k)
-
-  @Test fun capturesOnly_5kLines() = capturesOnly(BenchmarkSamples.KotlinLarge5k)
-
-  @Test fun capturesPlusThemeResolve_5kLines() = capturesPlusThemeResolve(BenchmarkSamples.KotlinLarge5k)
-
-  @Test fun fullHighlight_5kLines() = fullHighlight(BenchmarkSamples.KotlinLarge5k)
+  // 5k-line variants are intentionally omitted on Android. In a tight measureRepeated loop
+  // the per-iteration Parser/Tree wrappers stay below JVM heap-pressure thresholds, so
+  // ktreesitter's Cleaner-based native cleanup never fires and Scudo eventually rejects
+  // malloc on physical devices. 5k is treated as an outlier for mobile and stays
+  // host-JVM only (see :benchmark jvmTest LargeInputBenchmark).
 
   // --- stage helpers ---
 

@@ -60,21 +60,9 @@ class IncrementalHighlighterAndroidBenchmark {
 
   @Test fun sameTextX5_1kLines() = sameTextX5(BenchmarkSamples.KotlinLarge1k)
 
-  // --- 5k lines ---
-
-  @Test fun fullHighlightBaseline_5kLines() = fullHighlightBaseline(BenchmarkSamples.KotlinLarge5k)
-
-  @Test fun firstCall_5kLines() = firstCall(BenchmarkSamples.KotlinLarge5k)
-
-  @Test fun insertNearEnd_5kLines() = insertNearEnd(BenchmarkSamples.KotlinLarge5k)
-
-  @Test fun insertAtMiddle_5kLines() = insertAtMiddle(BenchmarkSamples.KotlinLarge5k)
-
-  @Test fun pasteAtMiddle_5kLines() = pasteAtMiddle(BenchmarkSamples.KotlinLarge5k)
-
-  @Test fun themeOnly_5kLines() = themeOnly(BenchmarkSamples.KotlinLarge5k)
-
-  @Test fun sameTextX5_5kLines() = sameTextX5(BenchmarkSamples.KotlinLarge5k)
+  // 5k-line variants are intentionally omitted on Android — see LargeInputAndroidBenchmark
+  // for the rationale. 5k stays host-JVM only (see :benchmark jvmTest
+  // IncrementalHighlighterBenchmark).
 
   // --- pattern helpers ---
 
