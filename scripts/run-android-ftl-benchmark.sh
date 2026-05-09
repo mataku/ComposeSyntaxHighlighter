@@ -79,3 +79,32 @@ gsutil -m cp -r "${gcs_path}*" ftl-results/
 
 echo "==> Done. JSON files:"
 find ftl-results -name '*-benchmarkData.json' | sort
+
+if ! command -v jq >/dev/null 2>&1; then
+  echo
+  echo "(Install jq to print a markdown summary table. Skipping summary.)"
+  exit 0
+fi
+
+echo
+echo "==> Summary (paste into docs/large_input_profiling.md after judging representativeness)"
+for device_dir in ftl-results/*/; do
+  device_label=$(basename "$device_dir")
+  jsons=$(find "$device_dir" -name '*-benchmarkData.json' 2>/dev/null | sort || true)
+  echo
+  echo "### Device: $device_label"
+  if [ -z "$jsons" ]; then
+    echo "_No benchmark JSON output was found for this device._"
+    continue
+  fi
+  echo
+  echo "| Test | Min (ms) | Median (ms) | Max (ms) |"
+  echo "| --- | ---: | ---: | ---: |"
+  for j in $jsons; do
+    jq -r '
+      def round3: . * 1000 | round / 1000;
+      .benchmarks[]
+      | "| \(.className | split(".") | last).\(.name) | \((.metrics.timeNs.minimum / 1000000) | round3) | \((.metrics.timeNs.median / 1000000) | round3) | \((.metrics.timeNs.maximum / 1000000) | round3) |"
+    ' "$j"
+  done
+done
