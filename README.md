@@ -183,7 +183,7 @@ SyntaxHighlightedTextField(
   state = state,
   language = Languages.Kotlin,
   theme = SyntaxTheme.DarkDefault,
-  modifier = Modifier.fillMaxWidth(),
+  modifier = Modifier.fillMaxSize(),
 )
 ```
 
