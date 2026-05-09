@@ -34,8 +34,19 @@ kotlin {
     }
 
     val androidInstrumentedTest by getting {
-      dependsOn(commonTest.get())
+      // KMP forbids dependsOn between source sets in different test trees (commonTest is in
+      // the unit-test tree, androidInstrumentedTest is its own tree). Share BenchmarkSamples /
+      // BenchmarkConfig by physically including commonTest's Kotlin srcDir instead.
+      kotlin.srcDir("src/commonTest/kotlin")
       dependencies {
+        implementation(projects.core)
+        implementation(projects.languages.kotlin)
+        implementation(projects.languages.swift)
+        implementation(projects.languages.ruby)
+        implementation(projects.languages.rust)
+        implementation(projects.languages.python)
+        implementation(projects.languages.go)
+        implementation(projects.languages.java)
         implementation(libs.androidx.benchmark.junit4)
         implementation(libs.androidx.test.runner)
         implementation(libs.androidx.testExt.junit)
