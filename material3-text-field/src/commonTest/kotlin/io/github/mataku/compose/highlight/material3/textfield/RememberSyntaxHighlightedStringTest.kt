@@ -12,6 +12,7 @@ import io.github.mataku.compose.highlight.api.Languages
 import io.github.mataku.compose.highlight.core.IncrementalHighlighter
 import io.github.mataku.compose.highlight.core.SyntaxTheme
 import io.github.mataku.compose.highlight.kotlin.Kotlin
+import io.github.mataku.compose.highlight.python.Python
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -71,5 +72,60 @@ class RememberSyntaxHighlightedStringTest {
     }
 
     assertEquals(constructionsAfterFirst, constructionCount, "theme change must not rebuild engine")
+  }
+
+  @Test
+  fun stateSwapRebuildsEngine() = runComposeUiTest {
+    var constructionCount = 0
+    val factory: (Language) -> IncrementalHighlighter = { language ->
+      constructionCount++
+      IncrementalHighlighter(language)
+    }
+
+    var state by mutableStateOf(TextFieldState(initialText = "val a = 1"))
+    var captured: AnnotatedString? = null
+    setContent {
+      val highlighted by rememberSyntaxHighlightedString(
+        state = state,
+        language = Languages.Kotlin,
+        theme = SyntaxTheme.DarkDefault,
+        engineFactory = factory,
+      )
+      captured = highlighted
+    }
+    waitUntil(timeoutMillis = 2_000) { captured?.text == "val a = 1" }
+    assertEquals(1, constructionCount)
+
+    state = TextFieldState(initialText = "fun f() {}")
+    waitUntil(timeoutMillis = 2_000) { captured?.text == "fun f() {}" }
+    assertEquals(2, constructionCount, "state swap must rebuild engine")
+  }
+
+  @Test
+  fun languageSwapRebuildsEngine() = runComposeUiTest {
+    var constructionCount = 0
+    val factory: (Language) -> IncrementalHighlighter = { language ->
+      constructionCount++
+      IncrementalHighlighter(language)
+    }
+
+    val state = TextFieldState(initialText = "x = 1")
+    var language by mutableStateOf<Language>(Languages.Kotlin)
+    var captured: AnnotatedString? = null
+    setContent {
+      val highlighted by rememberSyntaxHighlightedString(
+        state = state,
+        language = language,
+        theme = SyntaxTheme.DarkDefault,
+        engineFactory = factory,
+      )
+      captured = highlighted
+    }
+    waitUntil(timeoutMillis = 2_000) { captured?.text == "x = 1" }
+    assertEquals(1, constructionCount)
+
+    language = Languages.Python
+    waitUntil(timeoutMillis = 2_000) { constructionCount == 2 }
+    assertEquals(2, constructionCount, "language swap must rebuild engine")
   }
 }
