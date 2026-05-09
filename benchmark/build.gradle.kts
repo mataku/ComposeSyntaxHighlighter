@@ -34,6 +34,7 @@ kotlin {
     }
 
     val androidInstrumentedTest by getting {
+      dependsOn(commonTest.get())
       dependencies {
         implementation(libs.androidx.benchmark.junit4)
         implementation(libs.androidx.test.runner)
@@ -88,6 +89,8 @@ android {
         .toInt()
     testInstrumentationRunner = "androidx.benchmark.junit4.AndroidBenchmarkRunner"
   }
+
+  testBuildType = "benchmark"
 
   buildTypes {
     create("benchmark") {
