@@ -1,0 +1,20 @@
+name: Setup toolchain
+description: Install JDK, Android SDK + NDK + CMake, and Gradle. Use setup-tree-sitter alongside this action when a job needs the tree-sitter CLI (e.g. jobs whose output depends on parser.c freshness).
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5.2.0
+      with:
+        distribution: temurin
+        java-version: 17
+
+    - uses: android-actions/setup-android@40fd30fb8d7440372e1316f5d1809ec01dcd3699 # v4.0.1
+      with:
+        packages: >-
+          platforms;android-36
+          build-tools;36.0.0
+          cmake;3.22.1
+          ndk;26.3.11579264
+
+    - uses: gradle/actions/setup-gradle@50e97c2cd7a37755bbfafc9c5b7cafaece252f6e # v6.1.0

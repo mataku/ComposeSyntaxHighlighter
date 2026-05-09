@@ -23,7 +23,8 @@ jobs:
         with:
           submodules: recursive
 
-      - uses: ./.github/actions/setup
+      - uses: ./.github/actions/setup-android-deps
+      - uses: ./.github/actions/setup-tree-sitter
 
       - name: Assemble host APK and androidTest APK
         run: |

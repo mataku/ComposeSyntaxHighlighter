@@ -1,0 +1,50 @@
+name: Setup tree-sitter CLI
+description: Install Node, enable corepack, install pnpm deps (with cache), and expose tree-sitter on PATH.
+
+# The convention plugin invokes `tree-sitter generate` to materialize parser.c
+# when grammar.js is newer than the committed parser.c (gated via `onlyIf`).
+# Security posture:
+#   - pnpm version is pinned via the `packageManager` field in package.json
+#     and fetched by corepack, so the toolchain version is reproducible and
+#     auditable from the manifest.
+#   - `pnpm.onlyBuiltDependencies` in package.json is a strict allow-list:
+#     only `tree-sitter-cli` may run lifecycle scripts. Any new transitive
+#     dependency that ships an install/postinstall script will be blocked
+#     until explicitly added to this list.
+#   - `pnpm.minimumReleaseAge` (10080 minutes / 7 days) holds back versions
+#     published less than a week ago, mitigating "fresh malicious publish"
+#     supply-chain attacks.
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+      with:
+        node-version: 24
+
+    - name: Enable corepack (resolves pnpm pinned in packageManager field)
+      shell: bash
+      run: corepack enable
+
+    - name: Resolve pnpm store path
+      id: pnpm-store
+      shell: bash
+      run: echo "path=$(pnpm store path --silent)" >> "$GITHUB_OUTPUT"
+
+    - name: Cache pnpm store and node_modules
+      uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+      with:
+        path: |
+          ${{ steps.pnpm-store.outputs.path }}
+          node_modules
+        key: pnpm-${{ runner.os }}-node24-${{ hashFiles('pnpm-lock.yaml') }}
+        restore-keys: |
+          pnpm-${{ runner.os }}-node24-
+
+    - name: Install npm deps via pnpm
+      shell: bash
+      run: pnpm install --frozen-lockfile
+
+    - name: Expose tree-sitter on PATH
+      shell: bash
+      run: echo "${GITHUB_WORKSPACE}/node_modules/.bin" >> "$GITHUB_PATH"
