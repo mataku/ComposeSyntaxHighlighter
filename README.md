@@ -10,7 +10,7 @@ This is still an experimental project. Android is supported via the published AA
 
 | Read-only viewer (`:material3`) | Text field (`:material3-text-field`) |
 |:---:|:---:|
-| <image src="misc/swift_viewer_demo.png" width=360 /> | <video src="misc/editor_demo.mp4" width=360 /> |
+| <image src="./misc/swift_viewer_demo.png" width=360 /> | <video src="./misc/editor_demo.mp4" width=360 /> |
 
 ## Installation
 
