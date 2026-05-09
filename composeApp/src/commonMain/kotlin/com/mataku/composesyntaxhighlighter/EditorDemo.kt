@@ -12,6 +12,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -25,13 +26,18 @@ import io.github.mataku.compose.highlight.material3.textfield.SyntaxHighlightedT
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EditorDemo() {
+fun EditorDemo(onBack: () -> Unit = {}) {
   val state = remember { TextFieldState(initialText = SampleCode.kotlin) }
   MaterialTheme {
     Scaffold(
       topBar = {
         TopAppBar(
           title = { Text("Editor Demo (Kotlin)") },
+          actions = {
+            TextButton(onClick = onBack) {
+              Text("Viewer")
+            }
+          },
           modifier = Modifier.shadow(4.dp),
         )
       },

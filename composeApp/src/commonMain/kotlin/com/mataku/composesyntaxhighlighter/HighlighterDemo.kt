@@ -69,7 +69,7 @@ fun HighlighterDemo() {
   var selectedTheme by remember { mutableStateOf(DemoTheme.DefaultDark) }
   var showEditor by remember { mutableStateOf(false) }
   if (showEditor) {
-    EditorDemo()
+    EditorDemo(onBack = { showEditor = false })
     return
   }
 
