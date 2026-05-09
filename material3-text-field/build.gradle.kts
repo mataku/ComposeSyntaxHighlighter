@@ -35,6 +35,10 @@ kotlin {
       implementation(projects.languages.kotlin)
       implementation(projects.languages.python)
     }
+    // Skiko awt-runtime is a runtime-only dependency for jvmTest: nothing in commonTest references org.jetbrains.skiko.* directly.
+    // runComposeUiTest renders Compose via Skiko on the JVM, and the awt-runtime ships per OS/arch via classifier.
+    // Without it, runComposeUiTest fails at startup with "Skiko library not found".
+    // Android uses the platform view system, so this dep is JVM-only.
     val jvmTest by getting {
       dependencies {
         val skikoClassifier = run {
