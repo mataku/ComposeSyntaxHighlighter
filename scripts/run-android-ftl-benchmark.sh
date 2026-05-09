@@ -57,7 +57,7 @@ gcloud firebase test android run \
   --device=model=frankel,version=36,locale=en,orientation=portrait \
   --directories-to-pull=/sdcard/Android/media/io.github.mataku.compose.highlight.benchmark.test/additional_test_output \
   --environment-variables=additionalTestOutputDir=/sdcard/Android/media/io.github.mataku.compose.highlight.benchmark.test/additional_test_output,no-isolated-storage=true \
-  --test-targets="class io.github.mataku.compose.highlight.benchmark.LargeInputAndroidBenchmark,class io.github.mataku.compose.highlight.benchmark.IncrementalHighlighterAndroidBenchmark" \
+  --test-targets="class io.github.mataku.compose.highlight.benchmark.LargeInputAndroidBenchmark,class io.github.mataku.compose.highlight.benchmark.IncrementalHighlighterAndroidBenchmark,class io.github.mataku.compose.highlight.benchmark.LargeInput5kSmokeTest" \
   --timeout=30m \
   --no-record-video \
   --no-performance-metrics \
