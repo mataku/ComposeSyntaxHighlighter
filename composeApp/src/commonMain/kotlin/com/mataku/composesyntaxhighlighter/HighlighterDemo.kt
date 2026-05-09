@@ -8,7 +8,9 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.DropdownMenu
@@ -113,18 +115,19 @@ fun HighlighterDemo() {
           .fillMaxSize()
           .padding(padding)
           .verticalScroll(rememberScrollState()),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
       ) {
         Surface(
           color = MaterialTheme.colorScheme.surfaceContainer,
           modifier = Modifier.fillMaxWidth(),
         ) {
           Row(
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+            modifier = Modifier
+              .padding(horizontal = 16.dp)
+              .height(48.dp)
+              .wrapContentHeight(),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
           ) {
             DemoDropdown(
-              label = "Language",
               options = DemoLanguage.entries,
               selected = selectedLang,
               optionLabel = { it.label },
@@ -132,7 +135,6 @@ fun HighlighterDemo() {
               modifier = Modifier.weight(1f),
             )
             DemoDropdown(
-              label = "Theme",
               options = DemoTheme.entries,
               selected = selectedTheme,
               optionLabel = { it.label },
@@ -155,7 +157,6 @@ fun HighlighterDemo() {
 
 @Composable
 private fun <T> DemoDropdown(
-  label: String,
   options: List<T>,
   selected: T,
   optionLabel: (T) -> String,
@@ -172,7 +173,7 @@ private fun <T> DemoDropdown(
       verticalAlignment = Alignment.CenterVertically,
     ) {
       Text(
-        text = "$label: ${optionLabel(selected)} ▾",
+        text = "${optionLabel(selected)} ▾",
         style = MaterialTheme.typography.bodyLarge,
       )
     }
