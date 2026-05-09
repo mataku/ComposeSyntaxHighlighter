@@ -6,6 +6,12 @@ This is still an experimental project. Android is supported via the published AA
 
 **API documentation:** https://mataku.github.io/ComposeSyntaxHighlighter/ (latest release)
 
+## Preview
+
+| Read-only viewer (`:material3`) | Text field (`:material3-text-field`) |
+|:---:|:---:|
+| <image src="misc/swift_viewer_demo.png" width=360 /> | <video src="misc/editor_demo.mp4" width=360 /> |
+
 ## Installation
 
 Artifacts are published on Maven Central. Add `mavenCentral()` to your repositories and depend on a Material binding plus whichever language modules you need:
