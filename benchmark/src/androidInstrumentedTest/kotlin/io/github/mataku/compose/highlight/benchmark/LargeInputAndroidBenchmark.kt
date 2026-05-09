@@ -20,8 +20,6 @@ class LargeInputAndroidBenchmark {
 
   // --- 100 lines ---
 
-  @Test fun parse_100lines() = parse(BenchmarkSamples.Kotlin)
-
   @Test fun utf8ByteIndex_100lines() = utf8ByteIndex(BenchmarkSamples.Kotlin)
 
   @Test fun capturesIteratorOnly_100lines() = capturesIteratorOnly(BenchmarkSamples.Kotlin)
@@ -35,8 +33,6 @@ class LargeInputAndroidBenchmark {
   @Test fun fullHighlight_100lines() = fullHighlight(BenchmarkSamples.Kotlin)
 
   // --- 1k lines ---
-
-  @Test fun parse_1kLines() = parse(BenchmarkSamples.KotlinLarge1k)
 
   @Test fun utf8ByteIndex_1kLines() = utf8ByteIndex(BenchmarkSamples.KotlinLarge1k)
 
@@ -55,15 +51,14 @@ class LargeInputAndroidBenchmark {
   // ktreesitter's Cleaner-based native cleanup never fires and Scudo eventually rejects
   // malloc on physical devices. 5k is treated as an outlier for mobile and stays
   // host-JVM only (see :benchmark jvmTest LargeInputBenchmark).
+  //
+  // The `parse` decomposition stage is split out into LargeInputAndroidParseBenchmark
+  // (excluded from FTL --test-targets) because its tight loop allocates Parser/Tree per
+  // iteration with zero JVM-heap pressure, hitting the same Cleaner / Scudo limit even at
+  // 100 lines once enough iterations accumulate. Kept in code for future Android tuning
+  // (e.g. once ktreesitter exposes Parser.close() / Tree.close()).
 
   // --- stage helpers ---
-
-  private fun parse(code: String) {
-    benchmarkRule.measureRepeated {
-      val parser = Parser(Languages.Kotlin.parser)
-      parser.parse(code)
-    }
-  }
 
   private fun utf8ByteIndex(code: String) {
     benchmarkRule.measureRepeated {

@@ -15,9 +15,18 @@ import org.junit.runner.RunWith
 // not keep up with per-iteration allocations under low JVM heap pressure).
 //
 // One-shot consumer usage (load a 5k file, call highlight() once) does not exhibit
-// that problem. This test is the on-device guarantee that real-world 5k file
-// loading still works; absolute parse time for 5k is not published — extrapolate
-// linearly from the 1k numbers in docs/large_input_profiling.md.
+// that problem. This test is intended as the on-device guarantee that real-world
+// 5k file loading still works.
+//
+// **Excluded from FTL `--test-targets`** in both the workflow and the local script.
+// Run manually on an emulator or connected device:
+//
+//     ./gradlew :benchmark:connectedBenchmarkAndroidTest \
+//         -Pandroid.testInstrumentationRunnerArguments.class=\
+//         io.github.mataku.compose.highlight.benchmark.LargeInput5kSmokeTest
+//
+// Absolute parse time for 5k is not published — extrapolate linearly from the 1k
+// numbers in docs/large_input_profiling.md.
 @RunWith(AndroidJUnit4::class)
 class LargeInput5kSmokeTest {
 
