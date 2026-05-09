@@ -105,4 +105,7 @@ android {
   }
 
   sourceSets["androidTest"].resources.srcDirs("src/commonTest/resources")
+  // AGP's source-set filter excludes `**/*.kt` / `**/*.java` by default (treated as sources).
+  // Clear that filter so BenchmarkSamples can load Kotlin.kt and Java.java at runtime.
+  sourceSets["androidTest"].resources.filter.setExcludes(emptySet<String>())
 }
