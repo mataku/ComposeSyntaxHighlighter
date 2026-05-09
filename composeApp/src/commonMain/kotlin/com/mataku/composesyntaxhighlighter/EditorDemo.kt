@@ -4,16 +4,19 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.unit.dp
 import io.github.mataku.compose.highlight.api.Languages
 import io.github.mataku.compose.highlight.core.SyntaxTheme
@@ -26,16 +29,28 @@ fun EditorDemo() {
   val state = remember { TextFieldState(initialText = SampleCode.kotlin) }
   MaterialTheme {
     Scaffold(
-      topBar = { TopAppBar(title = { Text("Editor Demo (Kotlin)") }) },
+      topBar = {
+        TopAppBar(
+          title = { Text("Editor Demo (Kotlin)") },
+          modifier = Modifier.shadow(4.dp),
+        )
+      },
     ) { padding ->
       Column(
         modifier = Modifier
           .fillMaxSize()
-          .padding(padding)
-          .padding(16.dp),
+          .padding(padding),
         verticalArrangement = Arrangement.spacedBy(8.dp),
       ) {
-        Text("Type to edit. Highlighting updates incrementally.")
+        Surface(
+          color = MaterialTheme.colorScheme.surfaceContainer,
+          modifier = Modifier.fillMaxWidth(),
+        ) {
+          Text(
+            text = "Type to edit. Highlighting updates incrementally.",
+            modifier = Modifier.padding(16.dp),
+          )
+        }
         SyntaxHighlightedTextField(
           state = state,
           language = Languages.Kotlin,

@@ -16,7 +16,9 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -25,6 +27,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.unit.dp
 import io.github.mataku.compose.highlight.api.Languages
 import io.github.mataku.compose.highlight.core.SyntaxTheme
@@ -97,10 +100,11 @@ fun HighlighterDemo() {
         TopAppBar(
           title = { Text("Compose Syntax Highlight Demo") },
           actions = {
-            androidx.compose.material3.TextButton(onClick = { showEditor = true }) {
+            TextButton(onClick = { showEditor = true }) {
               Text("Editor")
             }
           },
+          modifier = Modifier.shadow(4.dp),
         )
       },
     ) { padding ->
@@ -111,34 +115,37 @@ fun HighlighterDemo() {
           .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(16.dp),
       ) {
-        Row(
-          modifier = Modifier.padding(horizontal = 16.dp),
-          horizontalArrangement = Arrangement.spacedBy(12.dp),
+        Surface(
+          color = MaterialTheme.colorScheme.surfaceContainer,
+          modifier = Modifier.fillMaxWidth(),
         ) {
-          DemoDropdown(
-            label = "Language",
-            options = DemoLanguage.entries,
-            selected = selectedLang,
-            optionLabel = { it.label },
-            onSelect = { selectedLang = it },
-            modifier = Modifier.weight(1f),
-          )
-          DemoDropdown(
-            label = "Theme",
-            options = DemoTheme.entries,
-            selected = selectedTheme,
-            optionLabel = { it.label },
-            onSelect = { selectedTheme = it },
-            modifier = Modifier.weight(1f),
-          )
+          Row(
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+          ) {
+            DemoDropdown(
+              label = "Language",
+              options = DemoLanguage.entries,
+              selected = selectedLang,
+              optionLabel = { it.label },
+              onSelect = { selectedLang = it },
+              modifier = Modifier.weight(1f),
+            )
+            DemoDropdown(
+              label = "Theme",
+              options = DemoTheme.entries,
+              selected = selectedTheme,
+              optionLabel = { it.label },
+              onSelect = { selectedTheme = it },
+              modifier = Modifier.weight(1f),
+            )
+          }
         }
         SyntaxHighlightedText(
           code = code,
           language = language,
           theme = theme,
-          modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp),
+          modifier = Modifier.fillMaxWidth(),
           contentPadding = PaddingValues(16.dp),
         )
       }
