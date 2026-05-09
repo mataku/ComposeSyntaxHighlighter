@@ -34,7 +34,19 @@ kotlin {
     }
 
     val androidInstrumentedTest by getting {
+      // KMP forbids dependsOn between source sets in different test trees (commonTest is in
+      // the unit-test tree, androidInstrumentedTest is its own tree). Share BenchmarkSamples /
+      // BenchmarkConfig by physically including commonTest's Kotlin srcDir instead.
+      kotlin.srcDir("src/commonTest/kotlin")
       dependencies {
+        implementation(projects.core)
+        implementation(projects.languages.kotlin)
+        implementation(projects.languages.swift)
+        implementation(projects.languages.ruby)
+        implementation(projects.languages.rust)
+        implementation(projects.languages.python)
+        implementation(projects.languages.go)
+        implementation(projects.languages.java)
         implementation(libs.androidx.benchmark.junit4)
         implementation(libs.androidx.test.runner)
         implementation(libs.androidx.testExt.junit)
@@ -89,6 +101,8 @@ android {
     testInstrumentationRunner = "androidx.benchmark.junit4.AndroidBenchmarkRunner"
   }
 
+  testBuildType = "benchmark"
+
   buildTypes {
     create("benchmark") {
       signingConfig = signingConfigs.getByName("debug")
@@ -100,4 +114,9 @@ android {
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
   }
+
+  sourceSets["androidTest"].resources.srcDirs("src/commonTest/resources")
+  // AGP's source-set filter excludes `**/*.kt` / `**/*.java` by default (treated as sources).
+  // Clear that filter so BenchmarkSamples can load Kotlin.kt and Java.java at runtime.
+  sourceSets["androidTest"].resources.filter.setExcludes(emptySet<String>())
 }

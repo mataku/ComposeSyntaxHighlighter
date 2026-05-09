@@ -1,0 +1,131 @@
+name: Android FTL benchmark
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: android-ftl-benchmark
+  cancel-in-progress: true
+
+env:
+  GRADLE_OPTS: -Dorg.gradle.jvmargs="-Xmx6g -XX:+UseParallelGC -XX:MaxMetaspaceSize=1g" -Dorg.gradle.daemon=false
+
+jobs:
+  android_ftl_benchmark:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          submodules: recursive
+
+      - uses: ./.github/actions/setup
+
+      - name: Assemble host APK and androidTest APK
+        run: |
+          ./gradlew \
+            :composeApp:assembleBenchmark \
+            :benchmark:assembleBenchmarkAndroidTest
+
+      - id: auth
+        uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
+        with:
+          create_credentials_file: true
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+
+      - uses: google-github-actions/setup-gcloud@aa5489c8933f4cc7a4f7d45035b3b1440c9c10db # v3.0.1
+
+      - name: Run benchmarks on Firebase Test Lab
+        id: ftl
+        run: |
+          set -euo pipefail
+          app_apk=$(find composeApp/build/outputs/apk/benchmark -name '*.apk' | head -1)
+          test_apk=$(find benchmark/build/outputs/apk/androidTest/benchmark -name '*.apk' | head -1)
+          echo "app_apk=$app_apk"
+          echo "test_apk=$test_apk"
+          test -n "$app_apk" && test -n "$test_apk"
+
+          gcloud firebase test android run \
+            --type=instrumentation \
+            --app="$app_apk" \
+            --test="$test_apk" \
+            --device=model=bluejay,version=32,locale=en,orientation=portrait \
+            --device=model=frankel,version=36,locale=en,orientation=portrait \
+            --directories-to-pull=/sdcard/Android/media/io.github.mataku.compose.highlight.benchmark.test/additional_test_output \
+            --environment-variables=additionalTestOutputDir=/sdcard/Android/media/io.github.mataku.compose.highlight.benchmark.test/additional_test_output,no-isolated-storage=true \
+            --test-targets="class io.github.mataku.compose.highlight.benchmark.LargeInputAndroidBenchmark,class io.github.mataku.compose.highlight.benchmark.IncrementalHighlighterAndroidBenchmark" \
+            --timeout=30m \
+            --no-record-video \
+            --no-performance-metrics \
+            2>&1 | tee ftl-output.log
+
+          gcs_path=$(grep -oE 'storage/browser/test-lab-[a-z0-9-]+/[^/]+/' ftl-output.log \
+            | head -1 \
+            | sed 's|storage/browser/|gs://|')
+          if [ -z "$gcs_path" ]; then
+            echo "Could not extract GCS results path from gcloud output" >&2
+            exit 1
+          fi
+          echo "gcs_path=$gcs_path"
+          echo "gcs_path=$gcs_path" >> "$GITHUB_OUTPUT"
+
+      - name: Download benchmark results from GCS
+        run: |
+          mkdir -p ftl-results
+          gsutil -m cp -r "${{ steps.ftl.outputs.gcs_path }}*" ftl-results/
+
+      - name: Write benchmark step summary
+        if: always()
+        run: |
+          set -euo pipefail
+          {
+            echo "## Android benchmark"
+            echo ""
+            echo "Source commit: \`${{ github.sha }}\`"
+            echo ""
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          if [ ! -d ftl-results ] || [ -z "$(ls -A ftl-results/ 2>/dev/null)" ]; then
+            echo "_Benchmark results were not downloaded (FTL step may have failed)._" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          for device_dir in ftl-results/*/; do
+            device_label=$(basename "$device_dir")
+            jsons=$(find "$device_dir" -name '*-benchmarkData.json' 2>/dev/null | sort || true)
+            {
+              echo "### Device: \`$device_label\`"
+              echo ""
+            } >> "$GITHUB_STEP_SUMMARY"
+            if [ -z "$jsons" ]; then
+              echo "_No benchmark JSON output was found for this device._" >> "$GITHUB_STEP_SUMMARY"
+              continue
+            fi
+            {
+              echo "| Test | Min (ms) | Median (ms) | Max (ms) |"
+              echo "| --- | ---: | ---: | ---: |"
+              for j in $jsons; do
+                jq -r '
+                  def round3: . * 1000 | round / 1000;
+                  .benchmarks[]
+                  | "| \(.className | split(".") | last).\(.name) | \((.metrics.timeNs.minimum / 1000000) | round3) | \((.metrics.timeNs.median / 1000000) | round3) | \((.metrics.timeNs.maximum / 1000000) | round3) |"
+                ' "$j"
+              done
+            } >> "$GITHUB_STEP_SUMMARY"
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+          done
+
+      - name: Upload benchmark results
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: android-ftl-benchmark-results
+          path: ftl-results/**/*-benchmarkData.json
+          retention-days: 90
+          if-no-files-found: warn
