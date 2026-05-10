@@ -239,10 +239,15 @@ The async path is targeted at static code blocks. Each `code` change cancels the
 
 As a guideline, the synchronous path is fine up to a few hundred lines. Indicative `full highlight` medians (warm):
 
-| Device                                | 100 lines | 1k lines | 5k lines |
-|---------------------------------------|-----------|----------|----------|
-| Apple M-series (host JVM)             | 5.0 ms    | 48.8 ms  | 239.8 ms |
-| Pixel 10 (Tensor G5, Android 16, FTL) | 3.1 ms    | 30.3 ms  | not measured¹ |
+| Runtime                      | 100 lines | 1k lines | 5k lines      |
+|------------------------------|-----------|----------|---------------|
+| Host JVM (heap 2g)           | 5.0 ms    | 48.8 ms  | 239.8 ms      |
+| Android (BenchmarkRule, FTL) | 3.1 ms    | 30.3 ms  | not measured¹ |
+
+Hardware:
+
+- Host JVM: Apple M3 Pro, OpenJDK 21
+- Android: Pixel 10 (Tensor G5, Android 16)
 
 ¹ Flagship-class only — see [docs/large_input_profiling.md](docs/large_input_profiling.md#android-device-measurements-firebase-test-lab) for the on-device measurement caveat (BenchmarkRule's tight allocation loop crashes Scudo on lower-spec devices until ktreesitter exposes explicit native cleanup; `LargeInput5kSmokeTest` covers on-device functional verification).
 
