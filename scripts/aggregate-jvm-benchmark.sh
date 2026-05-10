@@ -28,6 +28,7 @@ GRADLE_ARGS=(
   "--tests" "*BenchmarkSuite"
   "--tests" "*HighlightBenchmark"
   "--rerun-tasks"
+  "-i"
 )
 
 if [ "$SKIP_RUNS" = "true" ]; then
