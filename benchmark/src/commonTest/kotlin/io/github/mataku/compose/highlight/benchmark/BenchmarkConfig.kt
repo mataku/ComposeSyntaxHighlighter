@@ -9,11 +9,8 @@ object BenchmarkConfig {
 
   data class BenchmarkResult(
     val name: String,
-    val meanNs: Long,
-    val medianNs: Long,
-    val p99Ns: Long,
-    val stdDevNs: Long,
     val minNs: Long,
+    val medianNs: Long,
     val maxNs: Long,
   )
 
@@ -26,6 +23,8 @@ object BenchmarkConfig {
     println("JVM: ${System.getProperty("java.vm.name")} ${System.getProperty("java.version")}")
     println("Processors: ${rt.availableProcessors()}")
     println("Max heap: ${rt.maxMemory() / 1024 / 1024} MB")
+    println("Total heap: ${rt.totalMemory() / 1024 / 1024} MB")
+    println("JVM args: ${java.lang.management.ManagementFactory.getRuntimeMXBean().inputArguments}")
     println("Warmup iterations: $JVM_WARMUP_ITERATIONS")
     println("Measure iterations: $JVM_MEASURE_ITERATIONS")
     println("-".repeat(40))
@@ -50,25 +49,21 @@ object BenchmarkConfig {
 
   fun reportStatistics(name: String, times: List<Long>): BenchmarkResult {
     val sorted = times.sorted()
-    val mean = times.average()
     val median = sorted[sorted.size / 2]
-    val p99 = sorted[(sorted.size * 0.99).toInt().coerceAtMost(sorted.lastIndex)]
     val min = sorted.first()
     val max = sorted.last()
-    val variance = times.map { (it - mean).let { d -> d * d } }.average()
-    val stdDev = kotlin.math.sqrt(variance).toLong()
-    println("[Benchmark] $name: mean=${mean.toLong()}ns, median=${median}ns, stddev=${stdDev}ns, min=${min}ns, max=${max}ns, p99=${p99}ns")
-    return BenchmarkResult(name, mean.toLong(), median, p99, stdDev, min, max)
+    println("[Benchmark] $name: min=${min}ns, median=${median}ns, max=${max}ns")
+    return BenchmarkResult(name, min, median, max)
   }
 
   fun printMarkdown(results: List<BenchmarkResult>) {
     println()
     println("### Markdown table")
-    println("| Language | Mean (ms) | Median (ms) | StdDev (ms) | Min (ms) | Max (ms) | P99 (ms) |")
-    println("|----------|-----------|-------------|-------------|----------|----------|----------|")
+    println("| Stage | Min (ms) | Median (ms) | Max (ms) |")
+    println("|-------|---------:|------------:|---------:|")
     results.forEach { r ->
       fun ms(ns: Long) = "%.3f".format(ns / 1_000_000.0)
-      println("| ${r.name} | ${ms(r.meanNs)} | ${ms(r.medianNs)} | ${ms(r.stdDevNs)} | ${ms(r.minNs)} | ${ms(r.maxNs)} | ${ms(r.p99Ns)} |")
+      println("| ${r.name} | ${ms(r.minNs)} | ${ms(r.medianNs)} | ${ms(r.maxNs)} |")
     }
     println()
   }
