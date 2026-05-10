@@ -237,11 +237,14 @@ When `async = true`, the rendered text starts as plain `code` styled with `theme
 
 The async path is targeted at static code blocks. Each `code` change cancels the previous coroutine, but the in-flight native parse (JNI-side, via tree-sitter) cannot be cancelled mid-flight — it runs to completion before the next parse starts. Live-editor usage where `code` changes on every keystroke is **not** the intended scenario for this library.
 
-As a guideline, the synchronous path is fine up to a few hundred lines. Indicative host-JVM numbers (Apple M-series, warm JVM, median):
+As a guideline, the synchronous path is fine up to a few hundred lines. Indicative `full highlight` medians (warm):
 
-| Stage          | 100 lines | 1k lines | 5k lines |
-|----------------|-----------|----------|----------|
-| full highlight | 5.1 ms    | 46.3 ms  | 240.6 ms |
+| Device                                | 100 lines | 1k lines | 5k lines |
+|---------------------------------------|-----------|----------|----------|
+| Apple M-series (host JVM)             | 5.1 ms    | 46.3 ms  | 240.6 ms |
+| Pixel 10 (Tensor G5, Android 16, FTL) | 3.1 ms    | 30.3 ms  | not measured¹ |
+
+¹ Flagship-class only — see [docs/large_input_profiling.md](docs/large_input_profiling.md#android-device-measurements-firebase-test-lab) for the on-device measurement caveat (BenchmarkRule's tight allocation loop crashes Scudo on lower-spec devices until ktreesitter exposes explicit native cleanup; `LargeInput5kSmokeTest` covers on-device functional verification).
 
 `rememberHighlightedString` caches the parsed tree per `(code, language)`, so toggling between Light and Dark themes on the same code re-applies styles without re-parsing — Light↔Dark on a 5k-line file skips the parse cost. The async wrapper (`rememberHighlightedStringAsync`) does not cache the tree, so theme changes there re-trigger a full async parse.
 

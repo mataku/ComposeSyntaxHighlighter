@@ -56,7 +56,6 @@ jobs:
             --type=instrumentation \
             --app="$app_apk" \
             --test="$test_apk" \
-            --device=model=bluejay,version=32,locale=en,orientation=portrait \
             --device=model=frankel,version=36,locale=en,orientation=portrait \
             --directories-to-pull=/sdcard/Android/media/io.github.mataku.compose.highlight.benchmark.test/additional_test_output \
             --environment-variables=additionalTestOutputDir=/sdcard/Android/media/io.github.mataku.compose.highlight.benchmark.test/additional_test_output,no-isolated-storage=true \

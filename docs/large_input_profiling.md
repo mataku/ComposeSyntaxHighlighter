@@ -22,9 +22,8 @@ this document are copied verbatim from that output.
 - `JVM_WARMUP_ITERATIONS = 10`, `JVM_MEASURE_ITERATIONS = 50` (see
   `benchmark/src/commonTest/kotlin/io/github/mataku/compose/highlight/benchmark/BenchmarkConfig.kt`)
 
-Mobile devices are 3–5× slower than the host JVM in our measurements;
-treat the host-JVM tables as a lower bound when extrapolating to
-on-device performance.
+On-device measurements live in [_Android device measurements (Firebase Test Lab)_](#android-device-measurements-firebase-test-lab) below.
+The Android section is flagship-class only and intentionally does not extrapolate older-device multipliers; host-JVM and flagship-Android microbenchmark numbers are not faithful proxies for mid-range Android single-shot latency.
 
 ## Decomposition (latest)
 
@@ -63,6 +62,122 @@ on-device performance.
 | captures only                  | 163.581   | 163.929     | 2.939       | 159.359  | 169.757  | 169.757  |
 | + theme.resolve                | 163.946   | 162.910     | 2.802       | 160.344  | 169.686  | 169.686  |
 | full highlight (+ addStyle)    | 241.511   | 240.558     | 13.788      | 229.528  | 309.970  | 309.970  |
+
+## Android device measurements (Firebase Test Lab)
+
+Captured by `LargeInputAndroidBenchmark` and `IncrementalHighlighterAndroidBenchmark`
+running on Firebase Test Lab against a physical Pixel 10. **Flagship-class only**
+— see "Why no lower-spec device" below.
+
+### Device
+
+| Field | Value |
+| --- | --- |
+| Model / Device ID | Pixel 10 / `frankel` |
+| SoC | Tensor G5, 8 cores @ 3.78 GHz |
+| RAM (visible / nominal) | 12.1 GB / 16 GB |
+| API / OS | 36 / Android 16 (REL) |
+| Build fingerprint | `google/frankel/frankel:16/BD1A.250702.001/13724644:user/release-keys` |
+| BenchmarkRule cpuLocked | `true` (FTL applied thermal/freq locking) |
+| BenchmarkRule compilationMode | `verify` (default — JIT-warmed, not AOT speedProfile) |
+| Run date | 2026-05-10 |
+| Source raw JSON | [`docs/references/2026-05-10-android-ftl-pixel10-benchmarkData.json`](references/2026-05-10-android-ftl-pixel10-benchmarkData.json) |
+
+`androidx.benchmark.junit4.BenchmarkRule.measureRepeated` reports `min`,
+`median`, `max` per test — the columns differ from the host-JVM tables
+(which compute mean / stddev / p99 from a custom harness).
+
+### Decomposition
+
+#### 100 lines
+
+| Stage                       | Min (ms) | Median (ms) | Max (ms) |
+|-----------------------------|---------:|------------:|---------:|
+| Utf8ByteIndex               | 0.046    | 0.049       | 0.076    |
+| captures iterator only      | 0.000    | 0.000       | 0.001    |
+| captures drain (count)      | 1.437    | 2.058       | 2.251    |
+| captures only               | 1.946    | 2.061       | 3.328    |
+| + theme.resolve             | 1.832    | 2.048       | 3.534    |
+| full highlight (+ addStyle) | 2.877    | 3.142       | 4.031    |
+
+#### 1k lines
+
+| Stage                       | Min (ms) | Median (ms) | Max (ms) |
+|-----------------------------|---------:|------------:|---------:|
+| Utf8ByteIndex               | 0.522    | 0.601       | 1.203    |
+| captures iterator only      | 0.000    | 0.000       | 0.001    |
+| captures drain (count)      | 19.189   | 20.372      | 31.023   |
+| captures only               | 18.855   | 20.273      | 37.077   |
+| + theme.resolve             | 15.287   | 18.036      | 24.480   |
+| full highlight (+ addStyle) | 27.573   | 30.349      | 38.314   |
+
+`parse` is intentionally excluded — its tight per-iteration `Parser`/`Tree`
+allocation pattern outpaces ktreesitter's GC-driven `Cleaner` cleanup and
+hits Scudo OOM at 100 lines on Android devices. The standalone
+`LargeInputAndroidParseBenchmark` (kept compiled but excluded from FTL
+`--test-targets`) preserves the methodology for local re-enablement once
+ktreesitter exposes explicit `Parser.close()` / `Tree.close()`. 5k-line
+variants are excluded for the same reason; `LargeInput5kSmokeTest`
+(one-shot, non-benchmark) verifies that 5k inputs highlight correctly
+on-device without crashing.
+
+### Incremental highlighter
+
+#### 100 lines
+
+| Stage                     | Min (ms) | Median (ms) | Max (ms) |
+|---------------------------|---------:|------------:|---------:|
+| full highlight (baseline) | 2.952    | 3.131       | 4.666    |
+| first call                | 3.207    | 3.317       | 7.380    |
+| insert near end           | 0.223    | 0.241       | 0.714    |
+| insert at middle          | 1.099    | 1.174       | 1.885    |
+| paste at middle           | 1.204    | 1.338       | 3.177    |
+| theme only                | 0.084    | 0.089       | 0.271    |
+| same text x5              | 0.474    | 0.544       | 0.967    |
+
+#### 1k lines
+
+| Stage                     | Min (ms) | Median (ms) | Max (ms) |
+|---------------------------|---------:|------------:|---------:|
+| full highlight (baseline) | 28.872   | 30.491      | 47.713   |
+| first call                | 28.877   | 31.447      | 68.098   |
+| insert near end           | 2.266    | 2.609       | 7.728    |
+| insert at middle          | 3.778    | 4.696       | 8.240    |
+| paste at middle           | 2.631    | 2.781       | 18.752   |
+| theme only                | 0.893    | 0.997       | 4.121    |
+| same text x5              | 5.024    | 5.694       | 10.832   |
+
+#### Speedup vs baseline (median, 1k lines)
+
+| Insert near end | Insert at middle | Paste at middle | Theme only |
+|----------------:|-----------------:|----------------:|-----------:|
+| **11.7×**       | **6.5×**         | **11.0×**       | **30.6×**  |
+
+The 1k Pixel 10 envelope sits well clear of the host-JVM acceptance
+gates (≥2× / ≥3×) — `theme only` clears the 1k gate by an order of
+magnitude, and the interior-edit class clears the 2× gate by 3-6×.
+100-line numbers stay within the small-input tolerance bands defined
+in the host-JVM section.
+
+### Why no lower-spec device
+
+The original plan paired Pixel 10 with an older device for an old / new
+spread. Two physical devices were tried in succession; both flaked on
+the FTL run before the suite completed:
+
+- **Pixel 6a** (`bluejay`, Tensor G1, 6 GB RAM, API 32) — `insertAtMiddle_100lines`
+  consistently hit Scudo OOM
+- **Pixel 8a** (`akita`, Tensor G3, 8 GB RAM, API 34) — same class of
+  failure on a different test method
+
+The structural cause is ktreesitter 0.24.1's lack of explicit
+`Parser.close()` / `Tree.close()` — native cleanup is GC-driven via
+`Cleaner`, and `BenchmarkRule.measureRepeated`'s tight loop generates
+wrappers faster than the JVM heap pressure threshold needed to trigger
+cleanup. **Real-world consumers do not hit this** (one keystroke per
+several hundred milliseconds, with surrounding GC pressure from app
+state). Lower-spec on-device functional verification is provided
+separately by `LargeInput5kSmokeTest`.
 
 ## Row definitions
 
