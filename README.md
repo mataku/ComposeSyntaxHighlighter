@@ -14,12 +14,33 @@ This is still an experimental project. Android is supported via the published AA
 
 ## Installation
 
-Artifacts are published on Maven Central. Add `mavenCentral()` to your repositories and depend on a Material binding plus whichever language modules you need:
+| Platform     | Status       | Notes                                                 |
+|--------------|--------------|-------------------------------------------------------|
+| Android      | yes          | minSdk 26                                             |
+| Desktop JVM  | yes          | KTreeSitter native lib must be on `java.library.path` |
+| iOS          | wip          | later release                                         |
+| Web (wasmJs) | not in scope | use highlight.js / Shiki on the JS side               |
+
+| Module                  | Artifact                                        | Latest                                                                                                                                                                                                                       |
+|-------------------------|-------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `:core`                 | `compose-syntax-highlight-core`                 | [![](https://img.shields.io/maven-central/v/io.github.mataku/compose-syntax-highlight-core.svg?label=)](https://central.sonatype.com/artifact/io.github.mataku/compose-syntax-highlight-core)                                |
+| `:material3`            | `compose-syntax-highlight-material3`            | [![](https://img.shields.io/maven-central/v/io.github.mataku/compose-syntax-highlight-material3.svg?label=)](https://central.sonatype.com/artifact/io.github.mataku/compose-syntax-highlight-material3)                      |
+| `:material3-text-field` | `compose-syntax-highlight-material3-text-field` | [![](https://img.shields.io/maven-central/v/io.github.mataku/compose-syntax-highlight-material3-text-field.svg?label=)](https://central.sonatype.com/artifact/io.github.mataku/compose-syntax-highlight-material3-text-field) |
+
+```kotlin
+// settings.gradle.kts
+dependencyResolutionManagement {
+  repositories {
+    mavenCentral()
+  }
+}
+```
+
+Add a Material binding plus whichever language modules you need:
 
 ```kotlin
 // build.gradle.kts (commonMain)
-// Material3 binding — ships SyntaxHighlightedText backed by androidx.compose.material3.Text.
-// Pulls in compose-syntax-highlight-core transitively, so you don't need to declare :core yourself.
+// Material3 binding — ships SyntaxHighlightedText. Pulls in :core transitively.
 implementation("io.github.mataku:compose-syntax-highlight-material3:$latestVersion")
 
 // Language artifacts — one per language you want to highlight.
@@ -27,15 +48,32 @@ implementation("io.github.mataku:compose-syntax-highlight-kotlin:$latestHighligh
 implementation("io.github.mataku:compose-syntax-highlight-swift:$latestHighlightSwiftVersion")
 ```
 
-If you don't render through a Material binding — for example, you build your own `Text` on top of the produced `AnnotatedString`, or you only need `highlight()` to feed an existing UI — depend on `:core` directly instead of the Material binding:
+| Language | Artifact                          | Latest                                                                                                                                                                                            |
+|----------|-----------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Kotlin   | `compose-syntax-highlight-kotlin` | [![](https://img.shields.io/maven-central/v/io.github.mataku/compose-syntax-highlight-kotlin.svg?label=)](https://central.sonatype.com/artifact/io.github.mataku/compose-syntax-highlight-kotlin) |
+| Swift    | `compose-syntax-highlight-swift`  | [![](https://img.shields.io/maven-central/v/io.github.mataku/compose-syntax-highlight-swift.svg?label=)](https://central.sonatype.com/artifact/io.github.mataku/compose-syntax-highlight-swift)   |
+| Ruby     | `compose-syntax-highlight-ruby`   | [![](https://img.shields.io/maven-central/v/io.github.mataku/compose-syntax-highlight-ruby.svg?label=)](https://central.sonatype.com/artifact/io.github.mataku/compose-syntax-highlight-ruby)     |
+| Rust     | `compose-syntax-highlight-rust`   | [![](https://img.shields.io/maven-central/v/io.github.mataku/compose-syntax-highlight-rust.svg?label=)](https://central.sonatype.com/artifact/io.github.mataku/compose-syntax-highlight-rust)     |
+| Python   | `compose-syntax-highlight-python` | [![](https://img.shields.io/maven-central/v/io.github.mataku/compose-syntax-highlight-python.svg?label=)](https://central.sonatype.com/artifact/io.github.mataku/compose-syntax-highlight-python) |
+| Go       | `compose-syntax-highlight-go`     | [![](https://img.shields.io/maven-central/v/io.github.mataku/compose-syntax-highlight-go.svg?label=)](https://central.sonatype.com/artifact/io.github.mataku/compose-syntax-highlight-go)         |
+| Java     | `compose-syntax-highlight-java`   | [![](https://img.shields.io/maven-central/v/io.github.mataku/compose-syntax-highlight-java.svg?label=)](https://central.sonatype.com/artifact/io.github.mataku/compose-syntax-highlight-java)     |
+
+For an **editable** code surface, depend on `:material3-text-field` instead of (or alongside) `:material3` — it ships `SyntaxHighlightedTextField`:
+
+```kotlin
+implementation("io.github.mataku:compose-syntax-highlight-material3-text-field:$latestVersion")
+```
+
+### Without a Material binding
+
+If you build your own `Text` on top of the produced `AnnotatedString`, or you only need `highlight()` to feed an existing UI, depend on `:core` directly:
 
 ```kotlin
 implementation("io.github.mataku:compose-syntax-highlight-core:$latestVersion")
-// and language dependencies you want to apply syntax highlight
 implementation("io.github.mataku:compose-syntax-highlight-kotlin:$latestHighlightKotlinVersion")
 ```
 
-`compose-syntax-highlight-core` ships `highlight()`, `rememberHighlightedString()`, the `SyntaxTheme` data class, and `LocalSyntaxTheme`. It depends only on `compose.runtime` and `compose.ui`, so it stays usable wherever you build your own UI on top of `AnnotatedString`. `compose-syntax-highlight-material3` adds the `SyntaxHighlightedText` composable backed by `androidx.compose.material3.Text` — drop it in if you render code blocks under a `MaterialTheme`. Each `compose-syntax-highlight-<lang>` artifact ships its tree-sitter grammar and the `Language` value you pass to the composable. Bumping `compose-syntax-highlight-core` to pick up new themes does not require updating the Material binding or the language artifacts.
+`:core` ships `highlight()`, `rememberHighlightedString()`, the `SyntaxTheme` data class, and `LocalSyntaxTheme`, with only `compose.runtime` and `compose.ui` as dependencies.
 
 ## Usage
 
@@ -115,6 +153,72 @@ SyntaxHighlightedText(
 )
 ```
 
+### Editing code
+
+For an **editable** syntax-highlighted text surface, use `SyntaxHighlightedTextField` from `:material3-text-field`:
+
+```kotlin
+val state = remember { TextFieldState(initialText = "val greeting = \"Hello\"") }
+SyntaxHighlightedTextField(
+  state = state,
+  language = Languages.Kotlin,
+  theme = SyntaxTheme.DarkDefault,
+  modifier = Modifier.fillMaxSize(),
+)
+```
+
+The Composable is backed by `IncrementalHighlighter` from `:core`: typing
+recomputes only the edited byte range, so highlighting stays interactive on
+multi-thousand-line files. For non-Material3 chrome or custom layouts, use
+`rememberSyntaxHighlightedString` directly:
+
+```kotlin
+val highlighted = rememberSyntaxHighlightedString(state, Languages.Kotlin)
+// drop `highlighted.value` into your own overlay / Text composition.
+```
+
+## Built-in themes
+
+All themes are static `SyntaxTheme` values on `SyntaxTheme.Companion`, shipped in `compose-syntax-highlight-core`. Attributions for the third-party themes are bundled in the artifact's `META-INF/NOTICE`.
+
+| Theme                       | Variant     | Inspired by / source                                                                                |
+|-----------------------------|-------------|-----------------------------------------------------------------------------------------------------|
+| `SyntaxTheme.DarkDefault`   | dark        | VSCode-inspired neutral palette (default for `LocalSyntaxTheme`)                                    |
+| `SyntaxTheme.LightDefault`  | light       | VSCode-inspired neutral palette                                                                     |
+| `SyntaxTheme.SolarizedDark` | dark        | [Solarized](https://github.com/altercation/solarized) by Ethan Schoonover                           |
+| `SyntaxTheme.SolarizedLight`| light       | [Solarized](https://github.com/altercation/solarized) by Ethan Schoonover                           |
+| `SyntaxTheme.GitHubDark`    | dark        | [GitHub Primer](https://github.com/primer/primer-primitives) syntax tokens                          |
+| `SyntaxTheme.GitHubLight`   | light       | [GitHub Primer](https://github.com/primer/primer-primitives) syntax tokens                          |
+| `SyntaxTheme.OneDark`       | dark        | [Atom One Dark](https://github.com/atom/atom) (one-dark-syntax)                                     |
+| `SyntaxTheme.OneLight`      | light       | [Atom One Light](https://github.com/atom/atom) (one-light-syntax)                                   |
+| `SyntaxTheme.Dracula`       | dark only   | [Dracula](https://github.com/dracula/dracula-theme) (no canonical light variant)                    |
+
+## Custom theme
+
+Each capture has its own named field, so the IDE autocompletes them — no string keys to remember:
+
+```kotlin
+val myTheme = SyntaxTheme(
+  baseStyle = SpanStyle(color = Color.White),
+  keyword = SpanStyle(color = Color.Magenta, fontWeight = FontWeight.Bold),
+  string = SpanStyle(color = Color.Yellow),
+  // ...
+)
+```
+
+Unset fields fall back to a parent prefix — setting `keyword` covers `keyword.return`, `keyword.function`, etc., and `string.escape` falls back to `string` when `stringEscape` is unset. For grammar-specific captures not covered by a field (e.g. `keyword.return`, `variable.member`), use `extras`:
+
+```kotlin
+val myTheme = SyntaxTheme(
+  keyword = SpanStyle(color = Color.Magenta),
+  extras = mapOf("keyword.return" to SpanStyle(color = Color.Red)),
+)
+```
+
+`extras` wins over typed fields for the same name.
+
+## Performance
+
 ### Large inputs
 
 `SyntaxHighlightedText` is synchronous by default: when the composition recomputes, `highlight()` runs on the calling thread. For typical inline code (a few dozen lines) that is the right choice — the work is sub-millisecond and adding a coroutine round-trip would only introduce a one-frame plain-text flicker.
@@ -156,7 +260,7 @@ Per-stage profiling and optimisation history live in [docs/large_input_profiling
 For editor-style scenarios where the same source string changes incrementally
 (typing, paste, undo), prefer the `:material3-text-field` module — it packages
 this pattern as `SyntaxHighlightedTextField` and `rememberSyntaxHighlightedString`
-(see "Editing code" below). If you need to wire `IncrementalHighlighter` from
+(see "Editing code" in Usage). If you need to wire `IncrementalHighlighter` from
 `:core` manually (custom dispatcher, non-Compose state machine, etc.):
 
 ```kotlin
@@ -173,111 +277,11 @@ prepending at byte 0) degrade to ≈ baseline cost by design — interior edits 
 theme-only re-calls are 40×+ faster than a full re-highlight at 5k lines on the
 host JVM. See `docs/large_input_profiling.md` for the per-size acceptance numbers.
 
-## Editing code
-
-For an **editable** syntax-highlighted text surface, depend on the `:material3-text-field` module:
-
-```kotlin
-implementation("io.github.mataku:compose-syntax-highlight-material3-text-field:<version>")
-```
-
-Then:
-
-```kotlin
-val state = remember { TextFieldState(initialText = "val greeting = \"Hello\"") }
-SyntaxHighlightedTextField(
-  state = state,
-  language = Languages.Kotlin,
-  theme = SyntaxTheme.DarkDefault,
-  modifier = Modifier.fillMaxSize(),
-)
-```
-
-The Composable is backed by `IncrementalHighlighter` from `:core`: typing
-recomputes only the edited byte range, so highlighting stays interactive on
-multi-thousand-line files. For non-Material3 chrome or custom layouts, use
-`rememberSyntaxHighlightedString` directly:
-
-```kotlin
-val highlighted = rememberSyntaxHighlightedString(state, Languages.Kotlin)
-// drop `highlighted.value` into your own overlay / Text composition.
-```
-
-## Built-in themes
-
-All themes are static `SyntaxTheme` values on `SyntaxTheme.Companion`, shipped in `compose-syntax-highlight-core`. Attributions for the third-party themes are bundled in the artifact's `META-INF/NOTICE`.
-
-| Theme                       | Variant     | Inspired by / source                                                                                |
-|-----------------------------|-------------|-----------------------------------------------------------------------------------------------------|
-| `SyntaxTheme.DarkDefault`   | dark        | VSCode-inspired neutral palette (default for `LocalSyntaxTheme`)                                    |
-| `SyntaxTheme.LightDefault`  | light       | VSCode-inspired neutral palette                                                                     |
-| `SyntaxTheme.SolarizedDark` | dark        | [Solarized](https://github.com/altercation/solarized) by Ethan Schoonover                           |
-| `SyntaxTheme.SolarizedLight`| light       | [Solarized](https://github.com/altercation/solarized) by Ethan Schoonover                           |
-| `SyntaxTheme.GitHubDark`    | dark        | [GitHub Primer](https://github.com/primer/primer-primitives) syntax tokens                          |
-| `SyntaxTheme.GitHubLight`   | light       | [GitHub Primer](https://github.com/primer/primer-primitives) syntax tokens                          |
-| `SyntaxTheme.OneDark`       | dark        | [Atom One Dark](https://github.com/atom/atom) (one-dark-syntax)                                     |
-| `SyntaxTheme.OneLight`      | light       | [Atom One Light](https://github.com/atom/atom) (one-light-syntax)                                   |
-| `SyntaxTheme.Dracula`       | dark only   | [Dracula](https://github.com/dracula/dracula-theme) (no canonical light variant)                    |
-
-## Supported
-
-| Platform     | Status       | Notes                                                 |
-|--------------|--------------|-------------------------------------------------------|
-| Android      | yes          | minSdk 26                                             |
-| Desktop JVM  | yes          | KTreeSitter native lib must be on `java.library.path` |
-| Web (wasmJs) | not in scope | use highlight.js / Shiki on the JS side               |
-| iOS          | wip          | later release                                         |
-
-| Module                               | Artifact                                       | Purpose                                       |
-|--------------------------------------|------------------------------------------------|-----------------------------------------------|
-| Core highlighter                     | `compose-syntax-highlight-core`                | `highlight()`, `SyntaxTheme`, builtin themes  |
-| Material3 binding                    | `compose-syntax-highlight-material3`           | `SyntaxHighlightedText` for Material3         |
-
-| Language | Artifact                                  |
-|----------|-------------------------------------------|
-| Kotlin   | `compose-syntax-highlight-kotlin`         |
-| Swift    | `compose-syntax-highlight-swift`          |
-| Ruby     | `compose-syntax-highlight-ruby`           |
-| Rust     | `compose-syntax-highlight-rust`           |
-| Python   | `compose-syntax-highlight-python`         |
-| Go       | `compose-syntax-highlight-go`             |
-| Java     | `compose-syntax-highlight-java`           |
-
-## Custom theme
-
-Each capture has its own named field, so the IDE autocompletes them — no string keys to remember:
-
-```kotlin
-val myTheme = SyntaxTheme(
-  baseStyle = SpanStyle(color = Color.White),
-  keyword = SpanStyle(color = Color.Magenta, fontWeight = FontWeight.Bold),
-  string = SpanStyle(color = Color.Yellow),
-  // ...
-)
-```
-
-Unset fields fall back to a parent prefix — setting `keyword` covers `keyword.return`, `keyword.function`, etc., and `string.escape` falls back to `string` when `stringEscape` is unset. For grammar-specific captures not covered by a field (e.g. `keyword.return`, `variable.member`), use `extras`:
-
-```kotlin
-val myTheme = SyntaxTheme(
-  keyword = SpanStyle(color = Color.Magenta),
-  extras = mapOf("keyword.return" to SpanStyle(color = Color.Red)),
-)
-```
-
-`extras` wins over typed fields for the same name.
-
-## Performance
-
-`Language` instances pre-compile the tree-sitter highlights query on first access, so repeated highlighting of different code snippets with the same language is fast. The table below shows the full `highlight()` call measured on a single machine for realistic code samples (~75–150 lines).
-
-These values illustrate relative differences between languages, not absolute guarantees.
-
 ### What is measured?
 
 The benchmark targets the `highlight()` function, which is the same call used internally by `SyntaxHighlightedText`. It covers the full end-to-end pipeline: tree-sitter parsing, highlight-query matching, UTF-8 byte-to-char index mapping, and building the final `AnnotatedString` with `SpanStyle` applied. The returned `AnnotatedString` is ready to be passed directly to Compose `Text`.
 
-The benchmark measures two distinct scenarios from the perspective of a Compose app:
+`Language` instances pre-compile the tree-sitter highlights query on first access, so repeated highlighting of different code snippets with the same language is fast. The benchmark measures two distinct scenarios from the perspective of a Compose app:
 
 - First use: the first time you display a code block with a given language.
   This triggers one-time tree-sitter query compilation under the hood, so it is
@@ -286,7 +290,7 @@ The benchmark measures two distinct scenarios from the perspective of a Compose 
   the first. The query is already compiled, so this reflects the actual per-call
   cost during normal app usage.
 
-Both values are shown below so you can judge the one-time initial impact and the ongoing per-call cost.
+Both values are shown below so you can judge the one-time initial impact and the ongoing per-call cost. The reported numbers come from a single machine on realistic code samples (~75–150 lines) and illustrate relative differences between languages, not absolute guarantees.
 
 ```
 OS: Mac OS X (26.4.1)
