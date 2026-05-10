@@ -68,7 +68,7 @@ awk '
       printf "%s\t%s\t%s\t%s\n", key, cells[3], cells[4], cells[5]
     }
     # Skip 4-cell rows intentionally (BenchmarkSuite Cold table is hand-rolled
-    # | Language | ms |). Cold values are aggregated manually in Task 8.
+    # | Language | ms |). Cold values are aggregated manually downstream.
     next
   }
   /^[[:space:]]*$/ { in_table = 0 }
