@@ -302,7 +302,7 @@ JVM: OpenJDK 64-Bit Server VM 21.0.11
 Processors: 12
 Max heap: 2048 MB
 Total heap: 2048 MB
-JVM args: [-Djava.library.path=/Users/mataku/src/github.com/mataku/ComposeSyntaxHighlighter/languages/kotlin/build/host-cmake:/Users/mataku/src/github.com/mataku/ComposeSyntaxHighlighter/languages/swift/build/host-cmake:/Users/mataku/src/github.com/mataku/ComposeSyntaxHighlighter/languages/ruby/build/host-cmake:/Users/mataku/src/github.com/mataku/ComposeSyntaxHighlighter/languages/rust/build/host-cmake:/Users/mataku/src/github.com/mataku/ComposeSyntaxHighlighter/languages/python/build/host-cmake:/Users/mataku/src/github.com/mataku/ComposeSyntaxHighlighter/languages/go/build/host-cmake:/Users/mataku/src/github.com/mataku/ComposeSyntaxHighlighter/languages/java/build/host-cmake, -Dorg.gradle.internal.worker.tmpdir=/Users/mataku/src/github.com/mataku/ComposeSyntaxHighlighter/benchmark/build/tmp/jvmTest/work, -XX:+AlwaysPreTouch, -Xms2g, -Xmx2g, -Dfile.encoding=UTF-8, -Duser.country=JP, -Duser.language=ja, -Duser.variant, -ea]
+JVM args: [-XX:+AlwaysPreTouch, -Xms2g, -Xmx2g, -Dfile.encoding=UTF-8, -ea]
 Warmup iterations: 100
 Measure iterations: 50
 ```

@@ -116,8 +116,8 @@ running on Firebase Test Lab against a physical Pixel 10. **Flagship-class only*
 | Source raw JSON | [`docs/references/2026-05-10-android-ftl-pixel10-benchmarkData.json`](references/2026-05-10-android-ftl-pixel10-benchmarkData.json) |
 
 `androidx.benchmark.junit4.BenchmarkRule.measureRepeated` reports `min`,
-`median`, `max` per test — the columns differ from the host-JVM tables
-(which compute mean / stddev / p99 from a custom harness).
+`median`, `max` per test — the same Min/Median/Max surface as the
+host-JVM tables above, although the host harness is custom.
 
 ### Decomposition
 
