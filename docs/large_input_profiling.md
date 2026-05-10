@@ -4,64 +4,96 @@ Internal reference for `:core` highlight-path optimisation. Numbers
 are produced by `LargeInputBenchmark` in `:benchmark` and updated
 whenever a relevant change ships.
 
-Reproduce locally:
-
-```
-./gradlew :benchmark:jvmTest --tests "*LargeInputBenchmark"
-```
-
-The benchmark prints both per-row stats (mean / median / stddev /
-min / max / p99) and a markdown table per code size. The tables in
-this document are copied verbatim from that output.
-
 ## Environment
 
-- Hardware: Apple M-series (host JVM)
-- JVM: see `BenchmarkConfig.printEnvironment()` output at run time
-- Kotlin 2.3.20, Compose Multiplatform 1.10.3, ktreesitter 0.24.1
-- `JVM_WARMUP_ITERATIONS = 10`, `JVM_MEASURE_ITERATIONS = 50` (see
-  `benchmark/src/commonTest/kotlin/io/github/mataku/compose/highlight/benchmark/BenchmarkConfig.kt`)
+| Field | Value |
+| --- | --- |
+| Hardware | Apple M3 Pro |
+| Cores | 12 (12 physical / 12 logical) |
+| RAM | 36 GB |
+| OS | macOS 26.4.1 (build 25E253) |
+| JDK | OpenJDK 21.0.11 (Homebrew) |
+| JVM args | `-Xms2g -Xmx2g -XX:+AlwaysPreTouch` |
+| `JVM_WARMUP_ITERATIONS` | 100 |
+| `JVM_MEASURE_ITERATIONS` | 50 |
+| Run date | 2026-05-10 |
+| Source | `BenchmarkConfig.printEnvironment()` output at run time |
 
-On-device measurements live in [_Android device measurements (Firebase Test Lab)_](#android-device-measurements-firebase-test-lab) below.
-The Android section is flagship-class only and intentionally does not extrapolate older-device multipliers; host-JVM and flagship-Android microbenchmark numbers are not faithful proxies for mid-range Android single-shot latency.
+On-device measurements live in [_Android device measurements (Firebase Test Lab)_](#android-device-measurements-firebase-test-lab) below. The Android section is flagship-class only and intentionally does not extrapolate older-device multipliers; host-JVM and flagship-Android microbenchmark numbers are not faithful proxies for mid-range Android single-shot latency.
 
 ## Decomposition (latest)
 
 ### 100 lines
 
-| Stage                          | Mean (ms) | Median (ms) | StdDev (ms) | Min (ms) | Max (ms) | P99 (ms) |
-|--------------------------------|-----------|-------------|-------------|----------|----------|----------|
-| parse                          | 1.100     | 1.089       | 0.039       | 1.062    | 1.268    | 1.268    |
-| Utf8ByteIndex                  | 0.068     | 0.059       | 0.036       | 0.056    | 0.308    | 0.308    |
-| captures iterator only         | 0.003     | 0.003       | 0.001       | 0.003    | 0.007    | 0.007    |
-| captures drain (count)         | 3.440     | 3.383       | 0.174       | 3.293    | 4.071    | 4.071    |
-| captures only                  | 3.373     | 3.383       | 0.065       | 3.278    | 3.544    | 3.544    |
-| + theme.resolve                | 3.451     | 3.426       | 0.086       | 3.348    | 3.779    | 3.779    |
-| full highlight (+ addStyle)    | 5.081     | 5.076       | 0.131       | 4.870    | 5.378    | 5.378    |
+| Stage | Min (ms) | Median (ms) | Max (ms) |
+|-------|---------:|------------:|---------:|
+| parse                          | 1.122 | 1.130 | 1.154 |
+| Utf8ByteIndex                  | 0.014 | 0.014 | 0.017 |
+| captures iterator only         | 0.002 | 0.002 | 0.008 |
+| captures drain (count)         | 3.338 | 3.425 | 3.521 |
+| captures only                  | 3.339 | 3.481 | 3.501 |
+| + theme.resolve                | 3.356 | 3.502 | 3.552 |
+| full highlight (+ addStyle)    | 4.834 | 4.969 | 5.073 |
+
+#### Run-to-run variance band
+
+| Stage | Run 1 median (ms) | Run 2 median (ms) | Run 3 median (ms) | Spread % |
+|-------|------------------:|------------------:|------------------:|---------:|
+| parse                          | 1.130 | 1.136 | 1.130 | 0.5 |
+| Utf8ByteIndex                  | 0.015 | 0.015 | 0.014 | 6.7 |
+| captures iterator only         | 0.002 | 0.002 | 0.002 | 0.0 |
+| captures drain (count)         | 3.498 | 3.525 | 3.425 | 2.9 |
+| captures only                  | 3.403 | 3.538 | 3.481 | 3.9 |
+| + theme.resolve                | 3.513 | 3.563 | 3.502 | 1.7 |
+| full highlight (+ addStyle)    | 5.009 | 5.080 | 4.969 | 2.2 |
 
 ### 1k lines
 
-| Stage                          | Mean (ms) | Median (ms) | StdDev (ms) | Min (ms) | Max (ms) | P99 (ms) |
-|--------------------------------|-----------|-------------|-------------|----------|----------|----------|
-| parse                          | 10.515    | 10.389      | 0.280       | 10.308   | 11.433   | 11.433   |
-| Utf8ByteIndex                  | 0.106     | 0.105       | 0.008       | 0.096    | 0.139    | 0.139    |
-| captures iterator only         | 0.002     | 0.002       | 0.001       | 0.002    | 0.007    | 0.007    |
-| captures drain (count)         | 32.713    | 32.444      | 0.650       | 31.892   | 35.348   | 35.348   |
-| captures only                  | 32.510    | 32.358      | 0.538       | 31.844   | 34.872   | 34.872   |
-| + theme.resolve                | 32.721    | 32.676      | 0.522       | 32.113   | 35.363   | 35.363   |
-| full highlight (+ addStyle)    | 46.341    | 46.286      | 0.627       | 45.557   | 49.842   | 49.842   |
+| Stage | Min (ms) | Median (ms) | Max (ms) |
+|-------|---------:|------------:|---------:|
+| parse                          | 10.940 | 10.988 | 11.038 |
+| Utf8ByteIndex                  | 0.138  | 0.144  | 0.158  |
+| captures iterator only         | 0.002  | 0.002  | 0.010  |
+| captures drain (count)         | 33.295 | 33.451 | 47.458 |
+| captures only                  | 33.178 | 33.308 | 33.969 |
+| + theme.resolve                | 33.956 | 34.091 | 35.215 |
+| full highlight (+ addStyle)    | 48.610 | 48.753 | 50.467 |
+
+#### Run-to-run variance band
+
+| Stage | Run 1 median (ms) | Run 2 median (ms) | Run 3 median (ms) | Spread % |
+|-------|------------------:|------------------:|------------------:|---------:|
+| parse                          | 11.016 | 10.973 | 10.988 | 0.4 |
+| Utf8ByteIndex                  | 0.141  | 0.141  | 0.144  | 2.1 |
+| captures iterator only         | 0.002  | 0.002  | 0.002  | 0.0 |
+| captures drain (count)         | 33.269 | 33.821 | 33.451 | 1.7 |
+| captures only                  | 34.134 | 34.413 | 33.308 | 3.2 |
+| + theme.resolve                | 34.488 | 34.274 | 34.091 | 1.2 |
+| full highlight (+ addStyle)    | 47.271 | 49.370 | 48.753 | 4.3 |
 
 ### 5k lines
 
-| Stage                          | Mean (ms) | Median (ms) | StdDev (ms) | Min (ms) | Max (ms) | P99 (ms) |
-|--------------------------------|-----------|-------------|-------------|----------|----------|----------|
-| parse                          | 52.465    | 52.136      | 0.942       | 51.492   | 55.223   | 55.223   |
-| Utf8ByteIndex                  | 0.794     | 0.441       | 2.466       | 0.398    | 18.057   | 18.057   |
-| captures iterator only         | 0.003     | 0.002       | 0.002       | 0.002    | 0.012    | 0.012    |
-| captures drain (count)         | 161.418   | 161.008     | 1.524       | 159.488  | 167.255  | 167.255  |
-| captures only                  | 163.581   | 163.929     | 2.939       | 159.359  | 169.757  | 169.757  |
-| + theme.resolve                | 163.946   | 162.910     | 2.802       | 160.344  | 169.686  | 169.686  |
-| full highlight (+ addStyle)    | 241.511   | 240.558     | 13.788      | 229.528  | 309.970  | 309.970  |
+| Stage | Min (ms) | Median (ms) | Max (ms) |
+|-------|---------:|------------:|---------:|
+| parse                          | 54.849  | 55.015  | 56.019  |
+| Utf8ByteIndex                  | 0.747   | 0.758   | 0.780   |
+| captures iterator only         | 0.002   | 0.002   | 0.002   |
+| captures drain (count)         | 166.398 | 167.060 | 171.225 |
+| captures only                  | 166.196 | 170.418 | 172.873 |
+| + theme.resolve                | 167.421 | 172.395 | 187.267 |
+| full highlight (+ addStyle)    | 238.607 | 239.822 | 266.277 |
+
+#### Run-to-run variance band
+
+| Stage | Run 1 median (ms) | Run 2 median (ms) | Run 3 median (ms) | Spread % |
+|-------|------------------:|------------------:|------------------:|---------:|
+| parse                          | 54.709  | 54.989  | 55.015  | 0.6 |
+| Utf8ByteIndex                  | 0.738   | 0.744   | 0.758   | 2.7 |
+| captures iterator only         | 0.002   | 0.002   | 0.002   | 0.0 |
+| captures drain (count)         | 165.377 | 167.358 | 167.060 | 1.2 |
+| captures only                  | 170.402 | 168.273 | 170.418 | 1.3 |
+| + theme.resolve                | 168.090 | 174.048 | 172.395 | 3.5 |
+| full highlight (+ addStyle)    | 244.153 | 243.121 | 239.822 | 1.8 |
 
 ## Android device measurements (Firebase Test Lab)
 
@@ -220,16 +252,17 @@ that finding is itself worth surfacing.
   remains for `:core` without modifying the upstream binding (out of
   scope for 1.0).
 - Reasoning: at 5k median, `drain(count) / captures only` =
-  161.008 / 163.929 = 0.982. 98.2% of the bucket is irreducible
+  167.060 / 170.418 = 0.980. 98.0% of the bucket is irreducible
   native + JNI + `Pair` / `QueryMatch` return-object cost; the
   remaining Kotlin-side wrapper overhead (outer `forEach` + Pair
-  destructure + inner `match.captures` loop) is 2.921 ms — 1.2%
-  of the 240.558 ms full-highlight bucket. The `addStyle` bucket
-  (`full highlight − + theme.resolve` = 77.648 ms, 32.3% of full
-  highlight) carries ~26× the absolute headroom for the same level
+  destructure + inner `match.captures` loop) is 3.358 ms — 1.4%
+  of the 239.822 ms full-highlight bucket. The `addStyle` bucket
+  (`full highlight − + theme.resolve` = 67.427 ms, 28.1% of full
+  highlight) carries ~20× the absolute headroom for the same level
   of effort. `captures iterator only` measured at sub-microsecond
   median across all sizes, ruling out `Sequence` builder construction
-  as a target.
+  as a target. See `## Decomposition (latest)` — 5k lines for the
+  underlying medians.
 - Note: the original premise — "`query.captures(rootNode)` allocates
   a fresh cursor each call" — was already incorrect. ktreesitter
   0.24.1 stores a single native cursor inside `Query` for its
@@ -262,50 +295,86 @@ that finding is itself worth surfacing.
 
 *First-call tolerance is ±20%, not ±5%, because the benchmark constructs a fresh `IncrementalHighlighter` per measured iteration — the per-iteration `Query` construction cost (~1–2 ms parsing the highlights query string + building predicate/capture/setting/assertion lists) is included in "first call" but amortised away in real consumers, who construct the engine once per language and reuse it across many `update` calls.*
 
-#### Measured (host JVM, Apple M-series)
+#### Measured (host JVM, Apple M3 Pro)
 
 ##### 100 lines
 
-| Stage                                  | Mean (ms) | Median (ms) | StdDev (ms) | Min (ms) | Max (ms) | P99 (ms) |
-|----------------------------------------|-----------|-------------|-------------|----------|----------|----------|
-| full highlight (baseline)              | 5.396     | 5.365       | 0.279       | 4.863    | 6.517    | 6.517    |
-| first call                             | 5.386     | 5.362       | 0.165       | 5.154    | 5.742    | 5.742    |
-| insert near end                        | 0.203     | 0.200       | 0.015       | 0.180    | 0.251    | 0.251    |
-| insert at middle                       | 1.974     | 1.967       | 0.059       | 1.859    | 2.118    | 2.118    |
-| paste at middle                        | 2.168     | 2.154       | 0.079       | 2.069    | 2.369    | 2.369    |
-| theme only                             | 0.071     | 0.071       | 0.002       | 0.066    | 0.079    | 0.079    |
-| same text x5                           | 0.345     | 0.335       | 0.038       | 0.297    | 0.427    | 0.427    |
+| Stage | Min (ms) | Median (ms) | Max (ms) |
+|-------|---------:|------------:|---------:|
+| full highlight (baseline)      | 4.827 | 4.908 | 4.985 |
+| first call                     | 5.152 | 5.220 | 5.492 |
+| insert near end                | 0.115 | 0.139 | 0.150 |
+| insert at middle               | 1.938 | 1.967 | 1.998 |
+| paste at middle                | 2.019 | 2.143 | 2.177 |
+| theme only                     | 0.033 | 0.035 | 0.037 |
+| same text x5                   | 0.172 | 0.178 | 0.202 |
+
+###### Run-to-run variance band
+
+| Stage | Run 1 median (ms) | Run 2 median (ms) | Run 3 median (ms) | Spread % |
+|-------|------------------:|------------------:|------------------:|---------:|
+| full highlight (baseline)      | 4.754 | 4.949 | 4.908 | 4.0  |
+| first call                     | 4.970 | 5.191 | 5.220 | 4.8  |
+| insert near end                | 0.137 | 0.118 | 0.139 | 15.3 |
+| insert at middle               | 1.893 | 1.944 | 1.967 | 3.8  |
+| paste at middle                | 2.176 | 2.160 | 2.143 | 1.5  |
+| theme only                     | 0.035 | 0.035 | 0.035 | 0.0  |
+| same text x5                   | 0.178 | 0.177 | 0.178 | 0.6  |
 
 ##### 1k lines
 
-| Stage                                  | Mean (ms) | Median (ms) | StdDev (ms) | Min (ms) | Max (ms) | P99 (ms) |
-|----------------------------------------|-----------|-------------|-------------|----------|----------|----------|
-| full highlight (baseline)              | 48.401    | 48.071      | 0.924       | 47.172   | 50.660   | 50.660   |
-| first call                             | 50.443    | 50.072      | 1.066       | 49.271   | 53.524   | 53.524   |
-| insert near end                        | 0.981     | 0.978       | 0.032       | 0.929    | 1.045    | 1.045    |
-| insert at middle                       | 1.149     | 1.130       | 0.104       | 1.092    | 1.855    | 1.855    |
-| paste at middle                        | 1.201     | 1.181       | 0.055       | 1.126    | 1.314    | 1.314    |
-| theme only                             | 0.305     | 0.285       | 0.107       | 0.262    | 1.041    | 1.041    |
-| same text x5                           | 1.594     | 1.597       | 0.137       | 1.435    | 2.367    | 2.367    |
+| Stage | Min (ms) | Median (ms) | Max (ms) |
+|-------|---------:|------------:|---------:|
+| full highlight (baseline)      | 47.758 | 48.312 | 50.999 |
+| first call                     | 50.205 | 50.306 | 52.326 |
+| insert near end                | 0.938  | 0.963  | 2.549  |
+| insert at middle               | 1.142  | 1.162  | 1.207  |
+| paste at middle                | 1.104  | 1.121  | 1.170  |
+| theme only                     | 0.321  | 0.329  | 0.345  |
+| same text x5                   | 1.503  | 1.645  | 3.179  |
+
+###### Run-to-run variance band
+
+| Stage | Run 1 median (ms) | Run 2 median (ms) | Run 3 median (ms) | Spread % |
+|-------|------------------:|------------------:|------------------:|---------:|
+| full highlight (baseline)      | 48.846 | 48.068 | 48.312 | 1.6 |
+| first call                     | 50.401 | 49.802 | 50.306 | 1.2 |
+| insert near end                | 0.963  | 0.968  | 0.963  | 0.5 |
+| insert at middle               | 1.155  | 1.163  | 1.162  | 0.7 |
+| paste at middle                | 1.116  | 1.122  | 1.121  | 0.5 |
+| theme only                     | 0.326  | 0.325  | 0.329  | 1.2 |
+| same text x5                   | 1.640  | 1.645  | 1.645  | 0.3 |
 
 ##### 5k lines
 
-| Stage                                  | Mean (ms) | Median (ms) | StdDev (ms) | Min (ms) | Max (ms) | P99 (ms) |
-|----------------------------------------|-----------|-------------|-------------|----------|----------|----------|
-| full highlight (baseline)              | 249.735   | 248.749     | 3.692       | 245.146  | 260.893  | 260.893  |
-| first call                             | 262.998   | 262.876     | 1.998       | 258.782  | 267.360  | 267.360  |
-| insert near end                        | 7.362     | 6.171       | 2.862       | 4.749    | 13.947   | 13.947   |
-| insert at middle                       | 7.535     | 5.498       | 2.889       | 5.018    | 13.486   | 13.486   |
-| paste at middle                        | 7.012     | 6.157       | 1.709       | 5.158    | 10.573   | 10.573   |
-| theme only                             | 2.006     | 1.483       | 1.310       | 1.413    | 6.464    | 6.464    |
-| same text x5                           | 11.639    | 12.246      | 2.782       | 7.421    | 20.910   | 20.910   |
+| Stage | Min (ms) | Median (ms) | Max (ms) |
+|-------|---------:|------------:|---------:|
+| full highlight (baseline)      | 238.458 | 239.619 | 266.878 |
+| first call                     | 246.181 | 248.092 | 306.080 |
+| insert near end                | 4.727   | 4.764   | 98.070  |
+| insert at middle               | 4.999   | 5.033   | 67.005  |
+| paste at middle                | 5.266   | 5.338   | 21.932  |
+| theme only                     | 1.493   | 1.513   | 66.275  |
+| same text x5                   | 7.581   | 7.650   | 77.613  |
+
+###### Run-to-run variance band
+
+| Stage | Run 1 median (ms) | Run 2 median (ms) | Run 3 median (ms) | Spread % |
+|-------|------------------:|------------------:|------------------:|---------:|
+| full highlight (baseline)      | 234.170 | 243.301 | 239.619 | 3.8 |
+| first call                     | 245.277 | 249.929 | 248.092 | 1.9 |
+| insert near end                | 4.750   | 4.773   | 4.764   | 0.5 |
+| insert at middle               | 5.037   | 5.053   | 5.033   | 0.4 |
+| paste at middle                | 5.312   | 5.321   | 5.338   | 0.5 |
+| theme only                     | 1.510   | 1.521   | 1.513   | 0.7 |
+| same text x5                   | 7.652   | 7.685   | 7.650   | 0.5 |
 
 #### Speedup vs baseline (median)
 
 | Size | Insert near end | Insert at middle | Paste at middle | Theme only |
 |---|---|---|---|---|
-| 5k  | **40.3×** | **45.2×** | **40.4×** | **167.7×** |
-| 1k  | **49.1×** | **42.5×** | **40.7×** | **168.7×** |
+| 5k  | **50.3×** | **47.6×** | **44.9×** | **158.4×** |
+| 1k  | **50.2×** | **41.6×** | **43.1×** | **146.8×** |
 | 100 | (within tolerance) | (within tolerance) | (within tolerance) | (within tolerance) |
 
 #### Documented limitation — boundary edits
