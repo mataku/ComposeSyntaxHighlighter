@@ -74,7 +74,7 @@ fi
 echo "==> Results path: $gcs_path"
 echo "==> Downloading results to ./ftl-results"
 
-gsutil -m cp -r "${gcs_path}*" ftl-results/
+gcloud storage cp --recursive "${gcs_path}*" ftl-results/
 
 echo "==> Done. JSON files:"
 find ftl-results -name '*-benchmarkData.json' | sort
