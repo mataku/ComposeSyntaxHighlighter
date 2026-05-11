@@ -81,6 +81,9 @@ tasks.named<Test>("jvmTest") {
         .get()
         .asFile.absolutePath
     }
+  minHeapSize = "2g"
+  maxHeapSize = "2g"
+  jvmArgs("-XX:+AlwaysPreTouch")
   doFirst {
     systemProperty("java.library.path", libPaths)
   }
