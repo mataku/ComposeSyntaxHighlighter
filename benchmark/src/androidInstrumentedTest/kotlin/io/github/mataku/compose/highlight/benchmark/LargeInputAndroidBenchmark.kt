@@ -57,6 +57,9 @@ class LargeInputAndroidBenchmark {
   // iteration with zero JVM-heap pressure, hitting the same Cleaner / Scudo limit even at
   // 100 lines once enough iterations accumulate. Kept in code for future Android tuning
   // (e.g. once ktreesitter exposes Parser.close() / Tree.close()).
+  //
+  // Flagship-only `fullHighlight` 5k measurement lives in LargeInputAndroid5kBenchmark
+  // and is run via scripts/run-android-ftl-5k-benchmark.sh (separate FTL spend).
 
   // --- stage helpers ---
 
