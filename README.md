@@ -239,10 +239,15 @@ The async path is targeted at static code blocks. Each `code` change cancels the
 
 As a guideline, the synchronous path is fine up to a few hundred lines. Indicative `full highlight` medians (warm):
 
-| Device                                | 100 lines | 1k lines | 5k lines |
-|---------------------------------------|-----------|----------|----------|
-| Apple M-series (host JVM)             | 5.1 ms    | 46.3 ms  | 240.6 ms |
-| Pixel 10 (Tensor G5, Android 16, FTL) | 3.1 ms    | 30.3 ms  | not measured¹ |
+| Runtime                      | 100 lines | 1k lines | 5k lines      |
+|------------------------------|-----------|----------|---------------|
+| Host JVM (heap 2g)           | 5.0 ms    | 48.8 ms  | 239.8 ms      |
+| Android (BenchmarkRule, FTL) | 3.1 ms    | 30.3 ms  | not measured¹ |
+
+Hardware:
+
+- Host JVM: Apple M3 Pro, OpenJDK 21
+- Android: Pixel 10 (Tensor G5, Android 16)
 
 ¹ Flagship-class only — see [docs/large_input_profiling.md](docs/large_input_profiling.md#android-device-measurements-firebase-test-lab) for the on-device measurement caveat (BenchmarkRule's tight allocation loop crashes Scudo on lower-spec devices until ktreesitter exposes explicit native cleanup; `LargeInput5kSmokeTest` covers on-device functional verification).
 
@@ -300,34 +305,36 @@ OS: Mac OS X (26.4.1)
 Arch: aarch64
 JVM: OpenJDK 64-Bit Server VM 21.0.11
 Processors: 12
-Max heap: 512 MB
-Warmup iterations: 10
+Max heap: 2048 MB
+Total heap: 2048 MB
+JVM args: [-XX:+AlwaysPreTouch, -Xms2g, -Xmx2g, -Dfile.encoding=UTF-8, -ea]
+Warmup iterations: 100
 Measure iterations: 50
 ```
 
 ### First use [Cold] (includes query compilation)
 
-| Language | Lines | First use [Cold] (ms) |
-|----------|-------|----------------------|
-| Kotlin   | 100   | 533.608              |
-| Swift    | 100   | 378.779              |
-| Ruby     | 100   | 49.571               |
-| Rust     | 100   | 52.961               |
-| Python   | 100   | 19.873               |
-| Go       | 100   | 9.311                |
-| Java     | 100   | 20.797               |
+| Language | Lines | Min (ms) | Median (ms) | Max (ms) |
+|----------|-------|---------:|------------:|---------:|
+| Kotlin   | 100   | 1083.737 | 1150.319 | 1176.068 |
+| Swift    | 100   | 728.042 | 751.514 | 760.699 |
+| Ruby     | 100   | 397.201 | 412.628 | 440.905 |
+| Rust     | 100   | 391.256 | 411.147 | 412.385 |
+| Python   | 100   | 370.287 | 372.377 | 467.543 |
+| Go       | 100   | 320.408 | 325.528 | 355.918 |
+| Java     | 100   | 341.338 | 362.281 | 408.819 |
 
 ### Subsequent use [Warm] (query already compiled)
 
-| Language | Lines | Mean (ms) | Median (ms) | StdDev (ms) | P99 (ms) |
-|----------|-------|-----------|-------------|-------------|----------|
-| Kotlin   | 100   | 5.348     | 5.327       | 0.270       | 6.564    |
-| Swift    | 100   | 3.786     | 3.776       | 0.079       | 4.039    |
-| Ruby     | 100   | 3.544     | 3.520       | 0.091       | 3.779    |
-| Rust     | 100   | 3.508     | 3.521       | 0.099       | 3.693    |
-| Python   | 100   | 3.464     | 3.460       | 0.069       | 3.614    |
-| Go       | 100   | 2.337     | 2.335       | 0.045       | 2.438    |
-| Java     | 100   | 3.296     | 3.287       | 0.106       | 3.600    |
+| Language | Lines | Min (ms) | Median (ms) | Max (ms) |
+|----------|-------|---------:|------------:|---------:|
+| Kotlin   | 100   | 4.707 | 4.959 | 5.053 |
+| Swift    | 100   | 3.539 | 3.716 | 3.775 |
+| Ruby     | 100   | 3.424 | 3.505 | 3.511 |
+| Rust     | 100   | 3.356 | 3.437 | 3.452 |
+| Python   | 100   | 3.390 | 3.471 | 3.474 |
+| Go       | 100   | 2.341 | 2.346 | 2.353 |
+| Java     | 100   | 3.040 | 3.153 | 3.205 |
 
 Run `./gradlew :benchmark:jvmTest` to reproduce on your own machine.
 
