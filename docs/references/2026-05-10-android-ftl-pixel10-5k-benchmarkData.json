@@ -1,0 +1,119 @@
+{
+    "context": {
+        "build": {
+            "brand": "google",
+            "device": "frankel",
+            "fingerprint": "google/frankel/frankel:16/BD1A.250702.001/13724644:user/release-keys",
+            "id": "BD1A.250702.001",
+            "model": "Pixel 10",
+            "type": "user",
+            "version": {
+                "codename": "REL",
+                "sdk": 36
+            }
+        },
+        "cpuCoreCount": 8,
+        "cpuLocked": true,
+        "cpuMaxFreqHz": 3782000000,
+        "memTotalBytes": 12101046272,
+        "sustainedPerformanceModeEnabled": false,
+        "artMainlineVersion": 360527520,
+        "osCodenameAbbreviated": "B",
+        "compilationMode": "verify"
+    },
+    "benchmarks": [
+        {
+            "name": "fullHighlight_5kLines",
+            "params": {},
+            "className": "io.github.mataku.compose.highlight.benchmark.LargeInputAndroid5kBenchmark",
+            "totalRunTimeNs": 16761703814,
+            "metrics": {
+                "timeNs": {
+                    "minimum": 1.27329115E8,
+                    "maximum": 1.692675E8,
+                    "median": 1.430825785E8,
+                    "runs": [
+                        1.48115443E8,
+                        1.32986511E8,
+                        1.41590833E8,
+                        1.48240313E8,
+                        1.48933152E8,
+                        1.35867239E8,
+                        1.33904114E8,
+                        1.33510313E8,
+                        1.35046953E8,
+                        1.49691745E8,
+                        1.32072214E8,
+                        1.40237969E8,
+                        1.55647682E8,
+                        1.44572553E8,
+                        1.4955763E8,
+                        1.41244505E8,
+                        1.51638125E8,
+                        1.44027891E8,
+                        1.55669349E8,
+                        1.52423855E8,
+                        1.61658437E8,
+                        1.44696302E8,
+                        1.51506667E8,
+                        1.41946589E8,
+                        1.5477737E8,
+                        1.43790729E8,
+                        1.40723099E8,
+                        1.42374428E8,
+                        1.38373307E8,
+                        1.36827109E8,
+                        1.38376771E8,
+                        1.38425729E8,
+                        1.692675E8,
+                        1.56265104E8,
+                        1.5005526E8,
+                        1.52819584E8,
+                        1.49710625E8,
+                        1.60949792E8,
+                        1.41304297E8,
+                        1.27329115E8,
+                        1.32089376E8,
+                        1.33969635E8,
+                        1.38190052E8,
+                        1.41801458E8,
+                        1.55387969E8,
+                        1.50844792E8,
+                        1.61103646E8,
+                        1.35265365E8,
+                        1.34700625E8,
+                        1.33242604E8
+                    ]
+                },
+                "allocationCount": {
+                    "minimum": 1109050.0,
+                    "maximum": 1109054.0,
+                    "median": 1109051.0,
+                    "runs": [
+                        1109050.0,
+                        1109050.0,
+                        1109053.0,
+                        1109051.0,
+                        1109054.0
+                    ]
+                }
+            },
+            "sampledMetrics": {},
+            "warmupIterations": 56,
+            "repeatIterations": 1,
+            "thermalThrottleSleepSeconds": 0,
+            "profilerOutputs": [
+                {
+                    "type": "PerfettoTrace",
+                    "label": "Trace",
+                    "filename": "LargeInputAndroid5kBenchmark_fullHighlight_5kLines_2026-05-11-11-13-22.perfetto-trace"
+                },
+                {
+                    "type": "MethodTrace",
+                    "label": "Method Trace",
+                    "filename": "LargeInputAndroid5kBenchmark_fullHighlight_5kLines-methodTracing-2026-05-11-11-13-21.trace"
+                }
+            ]
+        }
+    ]
+}

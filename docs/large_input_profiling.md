@@ -112,8 +112,8 @@ running on Firebase Test Lab against a physical Pixel 10. **Flagship-class only*
 | Build fingerprint | `google/frankel/frankel:16/BD1A.250702.001/13724644:user/release-keys` |
 | BenchmarkRule cpuLocked | `true` (FTL applied thermal/freq locking) |
 | BenchmarkRule compilationMode | `verify` (default — JIT-warmed, not AOT speedProfile) |
-| Run date | 2026-05-10 |
-| Source raw JSON | [`docs/references/2026-05-10-android-ftl-pixel10-benchmarkData.json`](references/2026-05-10-android-ftl-pixel10-benchmarkData.json) |
+| Run date | 2026-05-10 (100/1k), 2026-05-11 (5k) |
+| Source raw JSON | [100/1k JSON](references/2026-05-10-android-ftl-pixel10-benchmarkData.json), [5k JSON](references/2026-05-10-android-ftl-pixel10-5k-benchmarkData.json) |
 
 `androidx.benchmark.junit4.BenchmarkRule.measureRepeated` reports `min`,
 `median`, `max` per test — the same Min/Median/Max surface as the
@@ -143,15 +143,22 @@ host-JVM tables above, although the host harness is custom.
 | + theme.resolve             | 15.287   | 18.036      | 24.480   |
 | full highlight (+ addStyle) | 27.573   | 30.349      | 38.314   |
 
+#### 5k lines (Pixel 10 only)
+
+| Stage                       | Min (ms) | Median (ms) | Max (ms) |
+|-----------------------------|---------:|------------:|---------:|
+| full highlight (+ addStyle) | 127.329  | 143.083     | 169.268  |
+
 `parse` is intentionally excluded — its tight per-iteration `Parser`/`Tree`
 allocation pattern outpaces ktreesitter's GC-driven `Cleaner` cleanup and
 hits Scudo OOM at 100 lines on Android devices. The standalone
 `LargeInputAndroidParseBenchmark` (kept compiled but excluded from FTL
 `--test-targets`) preserves the methodology for local re-enablement once
-ktreesitter exposes explicit `Parser.close()` / `Tree.close()`. 5k-line
-variants are excluded for the same reason; `LargeInput5kSmokeTest`
-(one-shot, non-benchmark) verifies that 5k inputs highlight correctly
-on-device without crashing.
+ktreesitter exposes explicit `Parser.close()` / `Tree.close()`. 5k variants
+of the other decomposition stages are excluded for the same reason; only
+`full highlight` at 5k is measured (flagship-only, table above).
+`LargeInput5kSmokeTest` (one-shot, non-benchmark) verifies that 5k inputs
+highlight correctly on-device without crashing.
 
 ### Incremental highlighter
 

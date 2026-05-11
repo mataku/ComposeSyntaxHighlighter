@@ -242,7 +242,7 @@ As a guideline, the synchronous path is fine up to a few hundred lines. Indicati
 | Runtime                      | 100 lines | 1k lines | 5k lines      |
 |------------------------------|-----------|----------|---------------|
 | Host JVM (heap 2g)           | 5.0 ms    | 48.8 ms  | 239.8 ms      |
-| Android (BenchmarkRule, FTL) | 3.1 ms    | 30.3 ms  | not measured¹ |
+| Android (BenchmarkRule, FTL) | 3.1 ms    | 30.3 ms  | 143.1ms¹ |
 
 Hardware:
 

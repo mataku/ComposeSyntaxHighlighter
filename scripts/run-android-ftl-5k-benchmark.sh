@@ -1,17 +1,27 @@
 #!/usr/bin/env bash
-# Run the Android FTL benchmark suite locally and download results.
+# Run the flagship-only 5k Android FTL benchmark and download results.
+#
+# Flagship-class only (Pixel 10 / 16 GB RAM tier). The single test in
+# LargeInputAndroid5kBenchmark probes whether 5k full-highlight survives the
+# same BenchmarkRule.measureRepeated tight loop that excludes 5k from the
+# regular suite. Lower-spec devices are expected to OOM and are not targeted.
+# Scudo OOM may still happen on Pixel 10 — accept the binary outcome.
+#
+# Costs 1/5 of the daily Spark-plan device-test quota. NOT run as part of
+# scripts/run-android-ftl-benchmark.sh — opt-in only.
 #
 # Prerequisites (one-time):
 #   gcloud auth login
 #   gcloud config set project <your-gcp-project-id>
 #
 # Outputs:
-#   ./ftl-results/<device>-<api>-<locale>-<orientation>/*-benchmarkData.json
+#   ./ftl-results-5k/<device>-<api>-<locale>-<orientation>/*-benchmarkData.json
 #
-# After running, paste the numbers you judge representative into
-# docs/large_input_profiling.md (and the small full-highlight table in
-# README.md). Always include device, API level, run date, and source
-# commit alongside the numbers.
+# After running, paste the median into the README.md `5k lines` Android cell
+# and add a 5k subsection to docs/large_input_profiling.md (under
+# "Decomposition") alongside device, API level, run date, and source commit.
+# If the run OOMs, add a short note (failure mode, device, source SHA, run
+# date) to LargeInputAndroid5kBenchmark.kt's class-level comment instead.
 
 set -euo pipefail
 
@@ -43,11 +53,11 @@ if [ -z "$app_apk" ] || [ -z "$test_apk" ]; then
   exit 1
 fi
 
-echo "==> Submitting to Firebase Test Lab"
+echo "==> Submitting flagship-only 5k benchmark to Firebase Test Lab"
 echo "    host: $app_apk"
 echo "    test: $test_apk"
 
-mkdir -p ftl-results
+mkdir -p ftl-results-5k
 
 gcloud firebase test android run \
   --type=instrumentation \
@@ -56,13 +66,13 @@ gcloud firebase test android run \
   --device=model=frankel,version=36,locale=en,orientation=portrait \
   --directories-to-pull=/sdcard/Android/media/io.github.mataku.compose.highlight.benchmark.test/additional_test_output \
   --environment-variables=additionalTestOutputDir=/sdcard/Android/media/io.github.mataku.compose.highlight.benchmark.test/additional_test_output,no-isolated-storage=true \
-  --test-targets="class io.github.mataku.compose.highlight.benchmark.LargeInputAndroidBenchmark,class io.github.mataku.compose.highlight.benchmark.IncrementalHighlighterAndroidBenchmark" \
+  --test-targets="class io.github.mataku.compose.highlight.benchmark.LargeInputAndroid5kBenchmark" \
   --timeout=30m \
   --no-record-video \
   --no-performance-metrics \
-  2>&1 | tee ftl-output.log
+  2>&1 | tee ftl-output-5k.log
 
-gcs_path=$(grep -oE 'storage/browser/test-lab-[a-z0-9-]+/[^/]+/' ftl-output.log \
+gcs_path=$(grep -oE 'storage/browser/test-lab-[a-z0-9-]+/[^/]+/' ftl-output-5k.log \
   | head -1 \
   | sed 's|storage/browser/|gs://|')
 
@@ -72,12 +82,12 @@ if [ -z "$gcs_path" ]; then
 fi
 
 echo "==> Results path: $gcs_path"
-echo "==> Downloading results to ./ftl-results"
+echo "==> Downloading results to ./ftl-results-5k"
 
-gcloud storage cp --recursive "${gcs_path}*" ftl-results/
+gcloud storage cp --recursive "${gcs_path}*" ftl-results-5k/
 
 echo "==> Done. JSON files:"
-find ftl-results -name '*-benchmarkData.json' | sort
+find ftl-results-5k -name '*-benchmarkData.json' | sort
 
 if ! command -v jq >/dev/null 2>&1; then
   echo
@@ -86,8 +96,8 @@ if ! command -v jq >/dev/null 2>&1; then
 fi
 
 echo
-echo "==> Summary (paste into docs/large_input_profiling.md after judging representativeness)"
-for device_dir in ftl-results/*/; do
+echo "==> Summary (paste into README.md and docs/large_input_profiling.md)"
+for device_dir in ftl-results-5k/*/; do
   device_label=$(basename "$device_dir")
   jsons=$(find "$device_dir" -name '*-benchmarkData.json' 2>/dev/null | sort || true)
   echo
