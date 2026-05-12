@@ -20,7 +20,6 @@ modules=(
   compose-syntax-highlight-go
   compose-syntax-highlight-java
   compose-syntax-highlight-markdown
-  compose-syntax-highlight-markdownInline
 )
 
 variants=(

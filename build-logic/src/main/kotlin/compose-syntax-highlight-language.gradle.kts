@@ -1,6 +1,7 @@
 import com.android.build.api.variant.LibraryAndroidComponentsExtension
 import com.android.build.gradle.LibraryExtension
 import io.github.mataku.compose.highlight.buildlogic.ComposeSyntaxHighlightLanguageExtension
+import io.github.mataku.compose.highlight.buildlogic.GrammarSpec
 import io.github.mataku.compose.highlight.buildlogic.writeAndroidCMakeLists
 import io.github.mataku.compose.highlight.buildlogic.writeHostCMakeLists
 import io.github.treesitter.ktreesitter.plugin.GrammarExtension
@@ -30,21 +31,29 @@ val highlightsQueryDir = layout.buildDirectory.dir("generated/highlights")
 val hostCMakeWorkDir = layout.buildDirectory.dir("host-cmake")
 val noticeOutDir = layout.buildDirectory.dir("notice")
 
-val grammarDirProvider: Provider<File> = composeSyntaxHighlightLanguage.grammarSubmodulePath.map { projectDir.resolve(it) }
-val packageNameProvider: Provider<String> = composeSyntaxHighlightLanguage.languageName.map {
-  "io.github.mataku.compose.highlight.$it.internal"
+val primaryGrammarProvider: Provider<GrammarSpec> = providers.provider {
+  val grammars = composeSyntaxHighlightLanguage.grammars.toList()
+  require(grammars.isNotEmpty()) { "composeSyntaxHighlightLanguage.grammars must contain at least one entry" }
+  grammars.first()
 }
-val highlightsPackageDirProvider: Provider<String> = composeSyntaxHighlightLanguage.languageName.map {
-  "io/github/mataku/compose/highlight/$it"
+
+val grammarDirProvider: Provider<File> = primaryGrammarProvider.flatMap { spec ->
+  spec.submodulePath.map { projectDir.resolve(it) }
+}
+val packageNameProvider: Provider<String> = primaryGrammarProvider.map {
+  "io.github.mataku.compose.highlight.${it.name}.internal"
+}
+val highlightsPackageDirProvider: Provider<String> = primaryGrammarProvider.map {
+  "io/github/mataku/compose/highlight/${it.name}"
 }
 
 extensions.configure<GrammarExtension>("grammar") {
   baseDir.set(grammarDirProvider)
-  grammarName.set(composeSyntaxHighlightLanguage.languageName)
-  className.set(composeSyntaxHighlightLanguage.parserClassName)
+  grammarName.set(primaryGrammarProvider.map { it.name })
+  className.set(primaryGrammarProvider.flatMap { it.parserClassName })
   packageName.set(packageNameProvider)
   files.set(
-    composeSyntaxHighlightLanguage.sources.zip(grammarDirProvider) { sources, grammarDir ->
+    primaryGrammarProvider.flatMap { it.sources }.zip(grammarDirProvider) { sources, grammarDir ->
       sources.map { grammarDir.resolve(it) }.toTypedArray()
     },
   )
@@ -53,22 +62,24 @@ extensions.configure<GrammarExtension>("grammar") {
 val generateNotice = tasks.register("generateNotice") {
   val tplFile = rootProject.file("NOTICE.tpl")
   val outDirProvider = noticeOutDir.map { it.asFile }
-  val nameProvider = composeSyntaxHighlightLanguage.languageName
+  val grammarsProvider = providers.provider { composeSyntaxHighlightLanguage.grammars.map { it.name } }
   val licenseSpdxProvider = composeSyntaxHighlightLanguage.licenseSpdx
   val licenseSourceProvider = composeSyntaxHighlightLanguage.licenseSource
   inputs.file(tplFile)
-  inputs.property("languageName", nameProvider)
+  inputs.property("grammars", grammarsProvider)
   inputs.property("licenseSpdx", licenseSpdxProvider)
   inputs.property("licenseSource", licenseSourceProvider)
   outputs.dir(outDirProvider)
   doLast {
     val baseTpl = tplFile.readText()
     val entry = buildString {
-      appendLine()
-      appendLine("Bundled grammar:")
-      appendLine("  Component: tree-sitter-${nameProvider.get()}")
-      appendLine("  License: ${licenseSpdxProvider.get()}")
-      appendLine("  Source: ${licenseSourceProvider.get()}")
+      for (grammarName in grammarsProvider.get()) {
+        appendLine()
+        appendLine("Bundled grammar:")
+        appendLine("  Component: tree-sitter-$grammarName")
+        appendLine("  License: ${licenseSpdxProvider.get()}")
+        appendLine("  Source: ${licenseSourceProvider.get()}")
+      }
     }
     val outFile = File(outDirProvider.get(), "META-INF/NOTICE")
     outFile.parentFile.mkdirs()
@@ -77,11 +88,11 @@ val generateNotice = tasks.register("generateNotice") {
 }
 
 val generateHighlightsQuery = tasks.register("generateHighlightsQuery") {
-  val srcProvider = composeSyntaxHighlightLanguage.queries.zip(grammarDirProvider) { queries, grammarDir ->
-    require(queries.isNotEmpty()) { "composeSyntaxHighlightLanguage.queries must contain at least one entry" }
+  val srcProvider = primaryGrammarProvider.flatMap { it.queries }.zip(grammarDirProvider) { queries, grammarDir ->
+    require(queries.isNotEmpty()) { "primary grammar.queries must contain at least one entry" }
     grammarDir.resolve(queries.first())
   }
-  val packageProvider = composeSyntaxHighlightLanguage.languageName
+  val packageProvider = primaryGrammarProvider.map { it.name }
   val pkgDirProvider = highlightsPackageDirProvider
   val outDirProvider = highlightsQueryDir.map { it.asFile }
   inputs.file(srcProvider)
@@ -248,32 +259,56 @@ extensions.configure<LibraryAndroidComponentsExtension>("androidComponents") {
 afterEvaluate {
   val languageName = composeSyntaxHighlightLanguage.languageName.orNull
     ?: error("composeSyntaxHighlightLanguage.languageName must be set in the consumer build script")
-  val grammarSubmodulePath = composeSyntaxHighlightLanguage.grammarSubmodulePath.orNull
-    ?: error("composeSyntaxHighlightLanguage.grammarSubmodulePath must be set")
-  composeSyntaxHighlightLanguage.parserClassName.orNull
-    ?: error("composeSyntaxHighlightLanguage.parserClassName must be set")
-  val sources = composeSyntaxHighlightLanguage.sources.orNull?.takeIf { it.isNotEmpty() }
-    ?: error("composeSyntaxHighlightLanguage.sources must contain at least one C source path relative to the grammar submodule")
-  composeSyntaxHighlightLanguage.queries.orNull?.takeIf { it.isNotEmpty() }
-    ?: error("composeSyntaxHighlightLanguage.queries must contain at least the highlights.scm path")
 
-  val cSymbol = composeSyntaxHighlightLanguage.cSymbol.orNull
+  val grammars = composeSyntaxHighlightLanguage.grammars.toList()
+  require(grammars.isNotEmpty()) {
+    "composeSyntaxHighlightLanguage.grammars { ... } must contain at least one create(...) entry"
+  }
+  val primary = grammars.first()
+  val primarySubmodulePath = primary.submodulePath.orNull
+    ?: error("grammars.${primary.name}.submodulePath must be set")
+  primary.parserClassName.orNull
+    ?: error("grammars.${primary.name}.parserClassName must be set")
+  val primarySources = primary.sources.orNull?.takeIf { it.isNotEmpty() }
+    ?: error("grammars.${primary.name}.sources must contain at least one C source path")
+  primary.queries.orNull?.takeIf { it.isNotEmpty() }
+    ?: error("grammars.${primary.name}.queries must contain at least the highlights.scm path")
+
+  val primaryCSymbol = primary.cSymbol.orNull
+  val primaryResolvedSymbol = primaryCSymbol ?: "tree_sitter_${primary.name}"
+
+  val grammarBuildSpecs = grammars.map { spec ->
+    val specName = spec.name
+    val specSubmodulePath = spec.submodulePath.orNull
+      ?: error("grammars.$specName.submodulePath must be set")
+    val specSources = spec.sources.orNull?.takeIf { it.isNotEmpty() }
+      ?: error("grammars.$specName.sources must contain at least one C source path")
+    val specCSymbol = spec.cSymbol.orNull ?: "tree_sitter_$specName"
+    val bindingPath = if (specName == primary.name) {
+      "build/generated/src/jni/binding.c"
+    } else {
+      "build/generated/src/jni/binding-$specName.c"
+    }
+    io.github.mataku.compose.highlight.buildlogic.GrammarBuildSpec(
+      name = specName,
+      submodulePath = specSubmodulePath,
+      sources = specSources,
+      cSymbol = specCSymbol,
+      bindingCPath = bindingPath,
+    )
+  }
   writeAndroidCMakeLists(
     projectDir.resolve("CMakeLists.txt"),
     languageName,
-    grammarSubmodulePath,
-    sources,
-    cSymbol,
+    grammarBuildSpecs,
   )
   writeHostCMakeLists(
     projectDir.resolve("host-cmake/CMakeLists.txt"),
     languageName,
-    grammarSubmodulePath,
-    sources,
-    cSymbol,
+    grammarBuildSpecs,
   )
 
-  cSymbol?.let { symbol ->
+  primaryCSymbol?.let { symbol ->
     extensions.configure<GrammarExtension>("grammar") {
       languageMethods.set(mapOf("language" to symbol))
     }
@@ -333,5 +368,140 @@ afterEvaluate {
   mavenPublishing.pom {
     name.set("Compose Syntax Highlight $languageName")
     description.set("$languageName syntax highlighting for Compose Multiplatform powered by tree-sitter")
+  }
+
+  // Secondary grammars (entries 2..N in grammars container). The primary entry is wired
+  // via ktreesitter-plugin's GrammarExtension above; secondaries get hand-rolled task
+  // graph here that mirrors what ktreesitter generates for the primary.
+  val secondaryGrammars = grammars.drop(1)
+  for (secondary in secondaryGrammars) {
+    val name = secondary.name
+    val submodulePath = secondary.submodulePath.orNull
+      ?: error("grammars.$name.submodulePath must be set")
+    val parserClassName = secondary.parserClassName.orNull
+      ?: error("grammars.$name.parserClassName must be set")
+    val srcs = secondary.sources.orNull?.takeIf { it.isNotEmpty() }
+      ?: error("grammars.$name.sources must contain at least one C source path")
+    val qrys = secondary.queries.orNull?.takeIf { it.isNotEmpty() }
+      ?: error("grammars.$name.queries must contain at least one query path")
+    val symbol = secondary.cSymbol.orNull ?: "tree_sitter_$name"
+    val grammarDir = projectDir.resolve(submodulePath)
+    val packageName = "io.github.mataku.compose.highlight.$name.internal"
+    val packagePath = "io/github/mataku/compose/highlight/$name/internal"
+    val highlightsPkgPath = "io/github/mataku/compose/highlight/$name"
+    val bindingCRel = "build/generated/src/jni/binding-$name.c"
+    val nameCapitalized = name.replaceFirstChar { it.uppercaseChar() }
+
+    val genParserTask = tasks.register<Exec>("generateParserSource$nameCapitalized") {
+      val grammarJs = grammarDir.resolve("grammar.js")
+      val parserC = grammarDir.resolve("src/parser.c")
+      val localTreeSitterBin = rootProject.file("node_modules/.bin/tree-sitter")
+      inputs.file(grammarJs)
+      outputs.file(parserC)
+      workingDir(grammarDir)
+      val abi = versionCatalog.findVersion("treesitterAbi").get().requiredVersion
+      val resolvedCommand = if (localTreeSitterBin.exists()) localTreeSitterBin.absolutePath else "tree-sitter"
+      commandLine(resolvedCommand, "generate", "--abi=$abi")
+      onlyIf { !parserC.exists() }
+    }
+
+    val genBindingTask = tasks.register("generateSecondaryBinding$nameCapitalized") {
+      val outFile = projectDir.resolve(bindingCRel)
+      val headerName = "tree-sitter-$languageName.h"
+      outputs.file(outFile)
+      doLast {
+        outFile.parentFile.mkdirs()
+        outFile.writeText(
+          io.github.mataku.compose.highlight.buildlogic.renderSecondaryBindingC(
+            packageName = packageName,
+            className = parserClassName,
+            cSymbol = symbol,
+            headerName = headerName,
+          ),
+        )
+      }
+    }
+
+    val genKotlinTask = tasks.register("generateSecondaryKotlin$nameCapitalized") {
+      val commonDir = layout.buildDirectory.dir("generated/secondary/$name/commonMain/kotlin/$packagePath").get().asFile
+      val jvmDir = layout.buildDirectory.dir("generated/secondary/$name/jvmMain/kotlin/$packagePath").get().asFile
+      val androidDir = layout.buildDirectory.dir("generated/secondary/$name/androidMain/kotlin/$packagePath").get().asFile
+      outputs.dir(layout.buildDirectory.dir("generated/secondary/$name"))
+      doLast {
+        commonDir.mkdirs()
+        jvmDir.mkdirs()
+        androidDir.mkdirs()
+        commonDir.resolve("$parserClassName.kt").writeText(
+          io.github.mataku.compose.highlight.buildlogic.renderCommonTreeSitterClass(packageName, parserClassName),
+        )
+        jvmDir.resolve("$parserClassName.kt").writeText(
+          io.github.mataku.compose.highlight.buildlogic.renderJvmTreeSitterClass(
+            packageName = packageName,
+            className = parserClassName,
+            libName = "ktreesitter-$languageName",
+            cSymbol = symbol,
+          ),
+        )
+        androidDir.resolve("$parserClassName.kt").writeText(
+          io.github.mataku.compose.highlight.buildlogic.renderAndroidTreeSitterClass(
+            packageName = packageName,
+            className = parserClassName,
+            libName = "ktreesitter-$languageName",
+            cSymbol = symbol,
+          ),
+        )
+      }
+    }
+
+    val genHighlightsTask = tasks.register("generateHighlightsQuery$nameCapitalized") {
+      val src = grammarDir.resolve(qrys.first())
+      val outFile = layout.buildDirectory.dir("generated/secondary/$name/commonMain/kotlin/$highlightsPkgPath").get().asFile.resolve("HighlightsQuery.kt")
+      inputs.file(src)
+      outputs.file(outFile)
+      doLast {
+        outFile.parentFile.mkdirs()
+        val text = src.readText()
+        outFile.writeText(
+          """
+            |package io.github.mataku.compose.highlight.$name
+            |
+            |internal const val HIGHLIGHTS_QUERY: String = ${'"'}${'"'}${'"'}
+            |$text${'"'}${'"'}${'"'}
+            |
+          """.trimMargin(),
+        )
+      }
+    }
+
+    genBindingTask.configure { dependsOn(genParserTask) }
+    genKotlinTask.configure { dependsOn(genParserTask) }
+    genHighlightsTask.configure { dependsOn(genParserTask) }
+
+    extensions.configure<KotlinMultiplatformExtension>("kotlin") {
+      sourceSets.named("commonMain") {
+        kotlin.srcDir(layout.buildDirectory.dir("generated/secondary/$name/commonMain/kotlin"))
+      }
+      sourceSets.named("jvmMain") {
+        kotlin.srcDir(layout.buildDirectory.dir("generated/secondary/$name/jvmMain/kotlin"))
+      }
+      sourceSets.named("androidMain") {
+        kotlin.srcDir(layout.buildDirectory.dir("generated/secondary/$name/androidMain/kotlin"))
+      }
+    }
+
+    tasks.withType<KotlinCompilationTask<*>>().configureEach {
+      dependsOn(genKotlinTask, genHighlightsTask)
+    }
+    tasks.matching {
+      it.name.endsWith("SourcesJar", ignoreCase = true)
+    }.configureEach {
+      dependsOn(genKotlinTask, genHighlightsTask)
+    }
+    tasks.matching {
+      it.name.startsWith("configureCMake") || it.name.startsWith("buildCMake") ||
+        it.name == "configureHostCMake" || it.name == "buildHostCMake"
+    }.configureEach {
+      dependsOn(genBindingTask, genParserTask)
+    }
   }
 }
