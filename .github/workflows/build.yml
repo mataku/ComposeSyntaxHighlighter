@@ -65,6 +65,7 @@ jobs:
         with:
           submodules: recursive
       - uses: ./.github/actions/setup-android-deps
+      - uses: ./.github/actions/setup-tree-sitter
       - run: ./gradlew dokkaGenerate
 
   ios:
