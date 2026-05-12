@@ -74,7 +74,7 @@ class LargeInputAndroidBenchmark {
     val tree = parser.parse(code)
     val query = Languages.Kotlin.query
     benchmarkRule.measureRepeated {
-      query.captures(tree.rootNode).iterator()
+      query(tree.rootNode).captures().iterator()
     }
   }
 
@@ -83,7 +83,7 @@ class LargeInputAndroidBenchmark {
     val tree = parser.parse(code)
     val query = Languages.Kotlin.query
     benchmarkRule.measureRepeated {
-      query.captures(tree.rootNode).count()
+      query(tree.rootNode).captures().count()
     }
   }
 
@@ -92,7 +92,7 @@ class LargeInputAndroidBenchmark {
     val tree = parser.parse(code)
     val query = Languages.Kotlin.query
     benchmarkRule.measureRepeated {
-      query.captures(tree.rootNode).forEach { (_, match) ->
+      query(tree.rootNode).captures().forEach { (_, match) ->
         match.captures.forEach { _ -> }
       }
     }
@@ -103,7 +103,7 @@ class LargeInputAndroidBenchmark {
     val tree = parser.parse(code)
     val query = Languages.Kotlin.query
     benchmarkRule.measureRepeated {
-      query.captures(tree.rootNode).forEach { (_, match) ->
+      query(tree.rootNode).captures().forEach { (_, match) ->
         match.captures.forEach { capture ->
           BenchmarkConfig.theme.resolve(capture.name)
         }

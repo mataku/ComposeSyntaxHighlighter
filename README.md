@@ -16,8 +16,8 @@ This is still an experimental project. Android is supported via the published AA
 
 | Platform     | Status       | Notes                                                 |
 |--------------|--------------|-------------------------------------------------------|
-| Android      | yes          | minSdk 26                                             |
-| Desktop JVM  | yes          | KTreeSitter native lib must be on `java.library.path` |
+| Android      | available    | minSdk 26                                             |
+| Desktop JVM  | available    | KTreeSitter native lib must be on `java.library.path` |
 | iOS          | wip          | later release                                         |
 | Web (wasmJs) | not in scope | use highlight.js / Shiki on the JS side               |
 

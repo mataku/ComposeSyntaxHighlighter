@@ -46,7 +46,7 @@ internal fun applyStyles(
     if (theme.baseStyle != emptySpan && code.isNotEmpty()) {
       addStyle(theme.baseStyle, 0, code.length)
     }
-    query.captures(tree.rootNode).forEach { (_, match) ->
+    query(tree.rootNode).captures().forEach { (_, match) ->
       match.captures.forEach { capture ->
         val style = theme.resolve(capture.name) ?: return@forEach
         val start = byteToChar.charIndexAt(capture.node.startByte.toInt())

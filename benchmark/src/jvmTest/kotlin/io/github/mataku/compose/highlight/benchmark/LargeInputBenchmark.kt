@@ -39,21 +39,21 @@ class LargeInputBenchmark {
       val query = Languages.Kotlin.query
 
       results += run("$label / captures iterator only") {
-        query.captures(tree.rootNode).iterator()
+        query(tree.rootNode).captures().iterator()
       }
 
       results += run("$label / captures drain (count)") {
-        query.captures(tree.rootNode).count()
+        query(tree.rootNode).captures().count()
       }
 
       results += run("$label / captures only") {
-        query.captures(tree.rootNode).forEach { (_, match) ->
+        query(tree.rootNode).captures().forEach { (_, match) ->
           match.captures.forEach { _ -> }
         }
       }
 
       results += run("$label / + theme.resolve") {
-        query.captures(tree.rootNode).forEach { (_, match) ->
+        query(tree.rootNode).captures().forEach { (_, match) ->
           match.captures.forEach { capture ->
             BenchmarkConfig.theme.resolve(capture.name)
           }
