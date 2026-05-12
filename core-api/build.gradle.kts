@@ -18,6 +18,10 @@ kotlin {
 
   jvm()
 
+  iosArm64()
+
+  applyDefaultHierarchyTemplate()
+
   sourceSets {
     commonMain.dependencies {
       api(libs.ktreesitter)
