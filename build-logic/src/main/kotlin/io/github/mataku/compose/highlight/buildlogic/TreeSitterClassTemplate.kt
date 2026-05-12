@@ -126,14 +126,15 @@ actual object $className {
 
 /**
  * Renders the Native (iOS) `actual` implementation for a secondary grammar.
- * The C symbol is reached through cinterop bindings that ktreesitter-plugin emits into
- * the primary grammar's package. The unified header at
- * `build/generated/iosHeaders/tree-sitter-<langName>.h` declares every grammar's
- * `tree_sitter_*` symbol, so cinterop emits Kotlin bindings for all of them in the
- * same package.
+ * The C symbol is reached through cinterop bindings that ktreesitter-plugin emits
+ * one level below the primary grammar's package (`<primary.packageName>.internal`).
+ * The unified header at `build/generated/iosHeaders/tree-sitter-<langName>.h`
+ * declares every grammar's `tree_sitter_*` symbol, so cinterop emits Kotlin bindings
+ * for all of them in that same package.
  *
- * - [cinteropPackage] e.g. `io.github.mataku.compose.highlight.markdown.internal` —
- *   the package where cinterop emits bindings (= primary grammar's packageName).
+ * - [cinteropPackage] e.g.
+ *   `io.github.mataku.compose.highlight.markdown.internal.internal` —
+ *   the package where cinterop emits bindings.
  */
 internal fun renderNativeTreeSitterClass(
   packageName: String,

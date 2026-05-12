@@ -557,7 +557,11 @@ afterEvaluate {
       }
     }
 
-    val primaryPackageName = "io.github.mataku.compose.highlight.${primary.name}.internal"
+    // ktreesitter-plugin emits cinterop bindings into <grammar.packageName>.internal.
+    // The convention plugin's grammar { packageName = ... } is already
+    // "io.github.mataku.compose.highlight.<primary>.internal", so the cinterop's
+    // emitted package is "io.github.mataku.compose.highlight.<primary>.internal.internal".
+    val cinteropEmittedPackage = "io.github.mataku.compose.highlight.${primary.name}.internal.internal"
     val genKotlinTask = tasks.register("generateSecondaryKotlin$nameCapitalized") {
       val commonDir = layout.buildDirectory.dir("generated/secondary/$name/commonMain/kotlin/$packagePath").get().asFile
       val jvmDir = layout.buildDirectory.dir("generated/secondary/$name/jvmMain/kotlin/$packagePath").get().asFile
@@ -592,7 +596,7 @@ afterEvaluate {
           io.github.mataku.compose.highlight.buildlogic.renderNativeTreeSitterClass(
             packageName = packageName,
             className = parserClassName,
-            cinteropPackage = primaryPackageName,
+            cinteropPackage = cinteropEmittedPackage,
             cSymbol = symbol,
           ),
         )
