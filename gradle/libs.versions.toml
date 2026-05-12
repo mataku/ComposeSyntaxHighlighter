@@ -15,8 +15,8 @@ skiko = "0.9.37.4"
 junit = "4.13.2"
 kotlin = "2.3.20"
 kotlinx-coroutines = "1.10.2"
-ktreesitter = "0.24.1"
-ktreesitterPlugin = "0.24.1"
+ktreesitter = "0.25.0"
+ktreesitterPlugin = "0.25.0"
 # tree-sitter ABI pinned to 14: ktreesitter 0.24.1 supports ABI 13-14 only,
 # while modern tree-sitter-cli (0.25+) defaults to ABI 15. Bump in lockstep
 # with ktreesitter when it adds ABI 15 support.

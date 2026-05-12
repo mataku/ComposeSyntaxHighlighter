@@ -89,7 +89,7 @@ class IncrementalHighlighter(
     val newIndex = Utf8ByteIndex(newCode)
     val edit = synthesiseInputEdit(oldCode, oldIndex, newCode, newIndex)
     previousTree.edit(edit)
-    val newTree = parser.parse(newCode, previousTree)
+    val newTree = parser.parse(newCode, oldTree = previousTree)
 
     val editedRange = ByteRange(
       start = edit.startByte.toInt(),
@@ -105,8 +105,9 @@ class IncrementalHighlighter(
     shiftCaptureSpansSuffix(captureSpans, after = edit.oldEndByte.toInt(), delta = delta)
     removeCaptureSpansOverlapping(captureSpans, affectedRange)
 
-    query.byteRange = affectedRange.start.toUInt()..affectedRange.endExclusive.toUInt()
-    query.captures(newTree.rootNode).forEach { (_, match) ->
+    val cursor = query(newTree.rootNode)
+    cursor.byteRange = affectedRange.start.toUInt()..affectedRange.endExclusive.toUInt()
+    cursor.captures().forEach { (_, match) ->
       match.captures.forEach { capture ->
         insertSorted(
           captureSpans,
@@ -126,8 +127,7 @@ class IncrementalHighlighter(
   private fun runFirstCall(newCode: String) {
     val tree = parser.parse(newCode)
     captureSpans.clear()
-    query.byteRange = UInt.MIN_VALUE..UInt.MAX_VALUE
-    query.captures(tree.rootNode).forEach { (_, match) ->
+    query(tree.rootNode).captures().forEach { (_, match) ->
       match.captures.forEach { capture ->
         captureSpans += CaptureSpan(
           startByte = capture.node.startByte.toInt(),
