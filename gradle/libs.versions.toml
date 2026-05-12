@@ -17,10 +17,12 @@ kotlin = "2.3.20"
 kotlinx-coroutines = "1.10.2"
 ktreesitter = "0.25.0"
 ktreesitterPlugin = "0.25.0"
-# tree-sitter ABI pinned to 14: ktreesitter 0.24.1 supports ABI 13-14 only,
-# while modern tree-sitter-cli (0.25+) defaults to ABI 15. Bump in lockstep
-# with ktreesitter when it adds ABI 15 support.
-treesitterAbi = "14"
+# tree-sitter ABI pinned to 15. ktreesitter 0.25.0 bundles tree-sitter 0.25.10,
+# which accepts ABI 13-15. The plugin only consults this value when invoking
+# `tree-sitter generate --abi=<N>`, i.e. when a submodule does not commit
+# parser.c (currently only tree-sitter-swift). Bump in lockstep with
+# ktreesitter when its supported ABI window moves.
+treesitterAbi = "15"
 material3 = "1.9.0"
 vanniktechPublish = "0.34.0"
 dokka = "2.2.0"
