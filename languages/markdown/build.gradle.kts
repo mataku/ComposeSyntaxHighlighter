@@ -1,3 +1,5 @@
+import org.gradle.api.tasks.testing.Test
+
 plugins {
   id("compose-syntax-highlight-language")
 }
@@ -14,4 +16,21 @@ composeSyntaxHighlightLanguage {
 
 dependencies {
   commonMainImplementation(projects.languages.markdownInline)
+}
+
+tasks.named<Test>("jvmTest") {
+  val inlineHostDir = project(":languages:markdown-inline").layout.buildDirectory
+    .dir("host-cmake")
+    .map { it.asFile.absolutePath }
+  dependsOn(":languages:markdown-inline:buildHostCMake")
+  doFirst {
+    val existing = systemProperties["java.library.path"]?.toString().orEmpty()
+    val sep = File.pathSeparator
+    val combined = if (existing.isBlank()) {
+      inlineHostDir.get()
+    } else {
+      "$existing$sep${inlineHostDir.get()}"
+    }
+    systemProperty("java.library.path", combined)
+  }
 }
