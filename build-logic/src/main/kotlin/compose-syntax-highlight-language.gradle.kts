@@ -48,6 +48,9 @@ extensions.configure<GrammarExtension>("grammar") {
       sources.map { grammarDir.resolve(it) }.toTypedArray()
     },
   )
+  composeSyntaxHighlightLanguage.cSymbol.orNull?.let { symbol ->
+    languageMethods.set(mapOf("language" to symbol))
+  }
 }
 
 val generateNotice = tasks.register("generateNotice") {
