@@ -57,6 +57,7 @@ implementation("io.github.mataku:compose-syntax-highlight-swift:$latestHighlight
 | Python   | `compose-syntax-highlight-python` | [![](https://img.shields.io/maven-central/v/io.github.mataku/compose-syntax-highlight-python.svg?label=)](https://central.sonatype.com/artifact/io.github.mataku/compose-syntax-highlight-python) |
 | Go       | `compose-syntax-highlight-go`     | [![](https://img.shields.io/maven-central/v/io.github.mataku/compose-syntax-highlight-go.svg?label=)](https://central.sonatype.com/artifact/io.github.mataku/compose-syntax-highlight-go)         |
 | Java     | `compose-syntax-highlight-java`   | [![](https://img.shields.io/maven-central/v/io.github.mataku/compose-syntax-highlight-java.svg?label=)](https://central.sonatype.com/artifact/io.github.mataku/compose-syntax-highlight-java)     |
+| Markdown | `compose-syntax-highlight-markdown` | [![](https://img.shields.io/maven-central/v/io.github.mataku/compose-syntax-highlight-markdown.svg?label=)](https://central.sonatype.com/artifact/io.github.mataku/compose-syntax-highlight-markdown) |
 
 For an **editable** code surface, depend on `:material3-text-field` instead of (or alongside) `:material3` — it ships `SyntaxHighlightedTextField`:
 
