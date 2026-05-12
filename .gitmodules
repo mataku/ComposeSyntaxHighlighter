@@ -22,3 +22,6 @@
 [submodule "languages/markdown-inline/tree-sitter-markdown"]
 	path = languages/markdown-inline/tree-sitter-markdown
 	url = https://github.com/tree-sitter-grammars/tree-sitter-markdown.git
+[submodule "languages/markdown/tree-sitter-markdown"]
+	path = languages/markdown/tree-sitter-markdown
+	url = https://github.com/tree-sitter-grammars/tree-sitter-markdown.git
