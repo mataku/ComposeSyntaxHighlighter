@@ -48,9 +48,6 @@ extensions.configure<GrammarExtension>("grammar") {
       sources.map { grammarDir.resolve(it) }.toTypedArray()
     },
   )
-  composeSyntaxHighlightLanguage.cSymbol.orNull?.let { symbol ->
-    languageMethods.set(mapOf("language" to symbol))
-  }
 }
 
 val generateNotice = tasks.register("generateNotice") {
@@ -260,18 +257,27 @@ afterEvaluate {
   composeSyntaxHighlightLanguage.queries.orNull?.takeIf { it.isNotEmpty() }
     ?: error("composeSyntaxHighlightLanguage.queries must contain at least the highlights.scm path")
 
+  val cSymbol = composeSyntaxHighlightLanguage.cSymbol.orNull
   writeAndroidCMakeLists(
     projectDir.resolve("CMakeLists.txt"),
     languageName,
     grammarSubmodulePath,
     sources,
+    cSymbol,
   )
   writeHostCMakeLists(
     projectDir.resolve("host-cmake/CMakeLists.txt"),
     languageName,
     grammarSubmodulePath,
     sources,
+    cSymbol,
   )
+
+  cSymbol?.let { symbol ->
+    extensions.configure<GrammarExtension>("grammar") {
+      languageMethods.set(mapOf("language" to symbol))
+    }
+  }
 
   val generateGrammarFilesTask = tasks.named<GrammarFilesTask>("generateGrammarFiles")
   generateGrammarFilesTask.configure {
