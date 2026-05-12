@@ -19,9 +19,6 @@
 [submodule "languages/java/tree-sitter-java"]
 	path = languages/java/tree-sitter-java
 	url = https://github.com/tree-sitter/tree-sitter-java.git
-[submodule "languages/markdown-inline/tree-sitter-markdown"]
-	path = languages/markdown-inline/tree-sitter-markdown
-	url = https://github.com/tree-sitter-grammars/tree-sitter-markdown.git
 [submodule "languages/markdown/tree-sitter-markdown"]
 	path = languages/markdown/tree-sitter-markdown
 	url = https://github.com/tree-sitter-grammars/tree-sitter-markdown.git

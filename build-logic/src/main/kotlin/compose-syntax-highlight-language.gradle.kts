@@ -277,22 +277,35 @@ afterEvaluate {
   val primaryCSymbol = primary.cSymbol.orNull
   val primaryResolvedSymbol = primaryCSymbol ?: "tree_sitter_${primary.name}"
 
-  val primaryBuildSpec = io.github.mataku.compose.highlight.buildlogic.GrammarBuildSpec(
-    name = primary.name,
-    submodulePath = primarySubmodulePath,
-    sources = primarySources,
-    cSymbol = primaryResolvedSymbol,
-    bindingCPath = "build/generated/src/jni/binding.c",
-  )
+  val grammarBuildSpecs = grammars.map { spec ->
+    val specName = spec.name
+    val specSubmodulePath = spec.submodulePath.orNull
+      ?: error("grammars.$specName.submodulePath must be set")
+    val specSources = spec.sources.orNull?.takeIf { it.isNotEmpty() }
+      ?: error("grammars.$specName.sources must contain at least one C source path")
+    val specCSymbol = spec.cSymbol.orNull ?: "tree_sitter_$specName"
+    val bindingPath = if (specName == primary.name) {
+      "build/generated/src/jni/binding.c"
+    } else {
+      "build/generated/src/jni/binding-$specName.c"
+    }
+    io.github.mataku.compose.highlight.buildlogic.GrammarBuildSpec(
+      name = specName,
+      submodulePath = specSubmodulePath,
+      sources = specSources,
+      cSymbol = specCSymbol,
+      bindingCPath = bindingPath,
+    )
+  }
   writeAndroidCMakeLists(
     projectDir.resolve("CMakeLists.txt"),
     languageName,
-    listOf(primaryBuildSpec),
+    grammarBuildSpecs,
   )
   writeHostCMakeLists(
     projectDir.resolve("host-cmake/CMakeLists.txt"),
     languageName,
-    listOf(primaryBuildSpec),
+    grammarBuildSpecs,
   )
 
   primaryCSymbol?.let { symbol ->
@@ -355,5 +368,140 @@ afterEvaluate {
   mavenPublishing.pom {
     name.set("Compose Syntax Highlight $languageName")
     description.set("$languageName syntax highlighting for Compose Multiplatform powered by tree-sitter")
+  }
+
+  // Secondary grammars (entries 2..N in grammars container). The primary entry is wired
+  // via ktreesitter-plugin's GrammarExtension above; secondaries get hand-rolled task
+  // graph here that mirrors what ktreesitter generates for the primary.
+  val secondaryGrammars = grammars.drop(1)
+  for (secondary in secondaryGrammars) {
+    val name = secondary.name
+    val submodulePath = secondary.submodulePath.orNull
+      ?: error("grammars.$name.submodulePath must be set")
+    val parserClassName = secondary.parserClassName.orNull
+      ?: error("grammars.$name.parserClassName must be set")
+    val srcs = secondary.sources.orNull?.takeIf { it.isNotEmpty() }
+      ?: error("grammars.$name.sources must contain at least one C source path")
+    val qrys = secondary.queries.orNull?.takeIf { it.isNotEmpty() }
+      ?: error("grammars.$name.queries must contain at least one query path")
+    val symbol = secondary.cSymbol.orNull ?: "tree_sitter_$name"
+    val grammarDir = projectDir.resolve(submodulePath)
+    val packageName = "io.github.mataku.compose.highlight.$name.internal"
+    val packagePath = "io/github/mataku/compose/highlight/$name/internal"
+    val highlightsPkgPath = "io/github/mataku/compose/highlight/$name"
+    val bindingCRel = "build/generated/src/jni/binding-$name.c"
+    val nameCapitalized = name.replaceFirstChar { it.uppercaseChar() }
+
+    val genParserTask = tasks.register<Exec>("generateParserSource$nameCapitalized") {
+      val grammarJs = grammarDir.resolve("grammar.js")
+      val parserC = grammarDir.resolve("src/parser.c")
+      val localTreeSitterBin = rootProject.file("node_modules/.bin/tree-sitter")
+      inputs.file(grammarJs)
+      outputs.file(parserC)
+      workingDir(grammarDir)
+      val abi = versionCatalog.findVersion("treesitterAbi").get().requiredVersion
+      val resolvedCommand = if (localTreeSitterBin.exists()) localTreeSitterBin.absolutePath else "tree-sitter"
+      commandLine(resolvedCommand, "generate", "--abi=$abi")
+      onlyIf { !parserC.exists() }
+    }
+
+    val genBindingTask = tasks.register("generateSecondaryBinding$nameCapitalized") {
+      val outFile = projectDir.resolve(bindingCRel)
+      val headerName = "tree-sitter-$languageName.h"
+      outputs.file(outFile)
+      doLast {
+        outFile.parentFile.mkdirs()
+        outFile.writeText(
+          io.github.mataku.compose.highlight.buildlogic.renderSecondaryBindingC(
+            packageName = packageName,
+            className = parserClassName,
+            cSymbol = symbol,
+            headerName = headerName,
+          ),
+        )
+      }
+    }
+
+    val genKotlinTask = tasks.register("generateSecondaryKotlin$nameCapitalized") {
+      val commonDir = layout.buildDirectory.dir("generated/secondary/$name/commonMain/kotlin/$packagePath").get().asFile
+      val jvmDir = layout.buildDirectory.dir("generated/secondary/$name/jvmMain/kotlin/$packagePath").get().asFile
+      val androidDir = layout.buildDirectory.dir("generated/secondary/$name/androidMain/kotlin/$packagePath").get().asFile
+      outputs.dir(layout.buildDirectory.dir("generated/secondary/$name"))
+      doLast {
+        commonDir.mkdirs()
+        jvmDir.mkdirs()
+        androidDir.mkdirs()
+        commonDir.resolve("$parserClassName.kt").writeText(
+          io.github.mataku.compose.highlight.buildlogic.renderCommonTreeSitterClass(packageName, parserClassName),
+        )
+        jvmDir.resolve("$parserClassName.kt").writeText(
+          io.github.mataku.compose.highlight.buildlogic.renderJvmTreeSitterClass(
+            packageName = packageName,
+            className = parserClassName,
+            libName = "ktreesitter-$languageName",
+            cSymbol = symbol,
+          ),
+        )
+        androidDir.resolve("$parserClassName.kt").writeText(
+          io.github.mataku.compose.highlight.buildlogic.renderAndroidTreeSitterClass(
+            packageName = packageName,
+            className = parserClassName,
+            libName = "ktreesitter-$languageName",
+            cSymbol = symbol,
+          ),
+        )
+      }
+    }
+
+    val genHighlightsTask = tasks.register("generateHighlightsQuery$nameCapitalized") {
+      val src = grammarDir.resolve(qrys.first())
+      val outFile = layout.buildDirectory.dir("generated/secondary/$name/commonMain/kotlin/$highlightsPkgPath").get().asFile.resolve("HighlightsQuery.kt")
+      inputs.file(src)
+      outputs.file(outFile)
+      doLast {
+        outFile.parentFile.mkdirs()
+        val text = src.readText()
+        outFile.writeText(
+          """
+            |package io.github.mataku.compose.highlight.$name
+            |
+            |internal const val HIGHLIGHTS_QUERY: String = ${'"'}${'"'}${'"'}
+            |$text${'"'}${'"'}${'"'}
+            |
+          """.trimMargin(),
+        )
+      }
+    }
+
+    genBindingTask.configure { dependsOn(genParserTask) }
+    genKotlinTask.configure { dependsOn(genParserTask) }
+    genHighlightsTask.configure { dependsOn(genParserTask) }
+
+    extensions.configure<KotlinMultiplatformExtension>("kotlin") {
+      sourceSets.named("commonMain") {
+        kotlin.srcDir(layout.buildDirectory.dir("generated/secondary/$name/commonMain/kotlin"))
+      }
+      sourceSets.named("jvmMain") {
+        kotlin.srcDir(layout.buildDirectory.dir("generated/secondary/$name/jvmMain/kotlin"))
+      }
+      sourceSets.named("androidMain") {
+        kotlin.srcDir(layout.buildDirectory.dir("generated/secondary/$name/androidMain/kotlin"))
+      }
+    }
+
+    tasks.withType<KotlinCompilationTask<*>>().configureEach {
+      dependsOn(genKotlinTask, genHighlightsTask)
+    }
+    tasks.matching {
+      it.name.endsWith("SourcesJar", ignoreCase = true)
+    }.configureEach {
+      dependsOn(genKotlinTask, genHighlightsTask)
+    }
+    tasks.matching {
+      it.name.startsWith("configureCMake") || it.name.startsWith("buildCMake") ||
+        it.name == "configureHostCMake" || it.name == "buildHostCMake"
+    }.configureEach {
+      dependsOn(genBindingTask, genParserTask)
+    }
   }
 }
