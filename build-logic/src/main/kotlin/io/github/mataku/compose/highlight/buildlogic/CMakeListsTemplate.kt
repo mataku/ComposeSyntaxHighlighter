@@ -52,20 +52,17 @@ private fun renderHostSourcesBlock(grammars: List<GrammarBuildSpec>): String {
   return lines.joinToString("\n")
 }
 
-private fun renderHeaderExterns(grammars: List<GrammarBuildSpec>): String =
-  grammars.joinToString(separator = "\n") { g ->
-    "\"extern const TSLanguage *${g.cSymbol}(void);\\n\""
-  }
+private fun renderHeaderExterns(grammars: List<GrammarBuildSpec>): String = grammars.joinToString(separator = "\n") { g ->
+  "\"extern const TSLanguage *${g.cSymbol}(void);\\n\""
+}
 
-private fun renderAndroidGrammarDirAssignments(grammars: List<GrammarBuildSpec>): String =
-  grammars.joinToString(separator = "\n") { g ->
-    "set(${grammarDirVar(g.name)} \${CMAKE_CURRENT_SOURCE_DIR}/${g.submodulePath})"
-  }
+private fun renderAndroidGrammarDirAssignments(grammars: List<GrammarBuildSpec>): String = grammars.joinToString(separator = "\n") { g ->
+  "set(${grammarDirVar(g.name)} \${CMAKE_CURRENT_SOURCE_DIR}/${g.submodulePath})"
+}
 
-private fun renderHostGrammarDirAssignments(grammars: List<GrammarBuildSpec>): String =
-  grammars.joinToString(separator = "\n") { g ->
-    "set(${grammarDirVar(g.name)} \${REPO_ROOT}/${g.submodulePath})"
-  }
+private fun renderHostGrammarDirAssignments(grammars: List<GrammarBuildSpec>): String = grammars.joinToString(separator = "\n") { g ->
+  "set(${grammarDirVar(g.name)} \${REPO_ROOT}/${g.submodulePath})"
+}
 
 internal fun renderAndroidCMakeLists(
   languageName: String,

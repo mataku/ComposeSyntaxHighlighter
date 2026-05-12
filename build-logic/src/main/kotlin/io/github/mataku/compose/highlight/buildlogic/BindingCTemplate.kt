@@ -32,8 +32,8 @@ internal fun renderSecondaryBindingC(
 #define NATIVE_FUNCTION(name) JNIEXPORT jlong JNICALL name()
 #endif
 
-NATIVE_FUNCTION(Java_${jniPackage}_${className}_${jniSymbol}) {
-    return (jlong)${cSymbol}();
+NATIVE_FUNCTION(Java_${jniPackage}_${className}_$jniSymbol) {
+    return (jlong)$cSymbol();
 }
 """
 }

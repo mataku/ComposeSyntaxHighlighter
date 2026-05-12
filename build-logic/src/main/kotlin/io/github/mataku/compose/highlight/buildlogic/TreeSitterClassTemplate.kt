@@ -3,8 +3,7 @@ package io.github.mataku.compose.highlight.buildlogic
 /**
  * Renders the common-source-set `expect` declaration for a secondary grammar.
  */
-internal fun renderCommonTreeSitterClass(packageName: String, className: String): String {
-  return """// Automatically generated file. DO NOT MODIFY
+internal fun renderCommonTreeSitterClass(packageName: String, className: String): String = """// Automatically generated file. DO NOT MODIFY
 
 package $packageName
 
@@ -12,7 +11,6 @@ expect object $className {
     fun language(): Any
 }
 """
-}
 
 /**
  * Renders the JVM-source-set `actual` implementation for a secondary grammar.
@@ -24,8 +22,7 @@ internal fun renderJvmTreeSitterClass(
   className: String,
   libName: String,
   cSymbol: String,
-): String {
-  return """// Automatically generated file. DO NOT MODIFY
+): String = """// Automatically generated file. DO NOT MODIFY
 
 package $packageName
 
@@ -94,7 +91,6 @@ actual object $className {
     }
 }
 """
-}
 
 /**
  * Renders the Android-source-set `actual` implementation for a secondary grammar.
@@ -106,8 +102,7 @@ internal fun renderAndroidTreeSitterClass(
   className: String,
   libName: String,
   cSymbol: String,
-): String {
-  return """// Automatically generated file. DO NOT MODIFY
+): String = """// Automatically generated file. DO NOT MODIFY
 
 package $packageName
 
@@ -128,4 +123,3 @@ actual object $className {
     private external fun $cSymbol(): Long
 }
 """
-}
