@@ -149,4 +149,23 @@ object SampleCode {
             }
         }
   """.trimIndent()
+
+  val markdown: String = """
+        # ComposeSyntaxHighlighter
+
+        A *Kotlin Multiplatform* library for syntax-highlighted source.
+
+        ## Features
+
+        - Block and inline structure rendered with **tree-sitter**
+        - Themes for Solarized, GitHub, One Dark, Dracula
+        - `SyntaxHighlightedText` for read-only viewers
+
+        ```kotlin
+        Text(text = SampleCode.markdown)
+        ```
+
+        See [the README](https://example.com/readme) and \*do not\* skip
+        the install steps.
+  """.trimIndent()
 }

@@ -39,6 +39,7 @@ kotlin {
       implementation(projects.languages.python)
       implementation(projects.languages.go)
       implementation(projects.languages.java)
+      implementation(projects.languages.markdown)
     }
     commonTest.dependencies {
       implementation(libs.kotlin.test)

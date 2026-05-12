@@ -30,12 +30,18 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import io.github.mataku.compose.highlight.api.Languages
 import io.github.mataku.compose.highlight.core.SyntaxTheme
 import io.github.mataku.compose.highlight.go.Go
 import io.github.mataku.compose.highlight.java.Java
 import io.github.mataku.compose.highlight.kotlin.Kotlin
+import io.github.mataku.compose.highlight.markdown.Markdown
 import io.github.mataku.compose.highlight.material3.SyntaxHighlightedText
 import io.github.mataku.compose.highlight.python.Python
 import io.github.mataku.compose.highlight.ruby.Ruby
@@ -50,6 +56,7 @@ private enum class DemoLanguage(val label: String) {
   Python("Python"),
   Go("Go"),
   Java("Java"),
+  Markdown("Markdown"),
 }
 
 private enum class DemoTheme(val label: String) {
@@ -83,8 +90,9 @@ fun HighlighterDemo() {
     DemoLanguage.Python -> SampleCode.python to Languages.Python
     DemoLanguage.Go -> SampleCode.go to Languages.Go
     DemoLanguage.Java -> SampleCode.java to Languages.Java
+    DemoLanguage.Markdown -> SampleCode.markdown to Languages.Markdown
   }
-  val theme = when (selectedTheme) {
+  val baseTheme = when (selectedTheme) {
     DemoTheme.DefaultDark -> SyntaxTheme.DarkDefault
     DemoTheme.DefaultLight -> SyntaxTheme.LightDefault
     DemoTheme.SolarizedDark -> SyntaxTheme.SolarizedDark
@@ -94,6 +102,31 @@ fun HighlighterDemo() {
     DemoTheme.OneDark -> SyntaxTheme.OneDark
     DemoTheme.OneLight -> SyntaxTheme.OneLight
     DemoTheme.Dracula -> SyntaxTheme.Dracula
+  }
+  val theme = if (selectedLang == DemoLanguage.Markdown) {
+    baseTheme.copy(
+      extras = baseTheme.extras + mapOf(
+        "text.title" to SpanStyle(
+          fontWeight = FontWeight.Bold,
+          color = baseTheme.keyword?.color ?: baseTheme.baseStyle.color,
+        ),
+        "text.emphasis" to SpanStyle(fontStyle = FontStyle.Italic),
+        "text.strong" to SpanStyle(fontWeight = FontWeight.Bold),
+        "text.literal" to SpanStyle(
+          fontFamily = FontFamily.Monospace,
+          color = baseTheme.string?.color ?: baseTheme.baseStyle.color,
+        ),
+        "text.uri" to SpanStyle(
+          color = baseTheme.function?.color ?: baseTheme.baseStyle.color,
+          textDecoration = TextDecoration.Underline,
+        ),
+        "text.reference" to SpanStyle(
+          color = baseTheme.property?.color ?: baseTheme.baseStyle.color,
+        ),
+      ),
+    )
+  } else {
+    baseTheme
   }
 
   MaterialTheme {

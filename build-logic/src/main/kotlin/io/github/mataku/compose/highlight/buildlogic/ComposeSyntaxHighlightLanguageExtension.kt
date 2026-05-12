@@ -11,4 +11,13 @@ abstract class ComposeSyntaxHighlightLanguageExtension {
   abstract val queries: ListProperty<String>
   abstract val licenseSpdx: Property<String>
   abstract val licenseSource: Property<String>
+
+  /**
+   * C symbol exported by the grammar's `parser.c`, used to override the default
+   * `tree_sitter_${languageName}` JNI binding. Set this when the upstream grammar's C
+   * identifier differs from [languageName] — e.g. when a camelCase Gradle module name
+   * (`markdownInline`) maps to a snake_case upstream symbol (`tree_sitter_markdown_inline`).
+   * Leave unset to inherit the ktreesitter plugin default.
+   */
+  abstract val cSymbol: Property<String>
 }

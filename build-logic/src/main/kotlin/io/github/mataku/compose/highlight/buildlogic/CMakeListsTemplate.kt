@@ -16,7 +16,9 @@ internal fun renderAndroidCMakeLists(
   languageName: String,
   grammarSubmodulePath: String,
   sources: List<String>,
+  cSymbol: String? = null,
 ): String {
+  val resolvedSymbol = cSymbol ?: "tree_sitter_$languageName"
   val symbol = headerSymbol(languageName)
   val headerName = headerFileName(languageName)
   val headerVar = headerDirVar(languageName)
@@ -53,7 +55,7 @@ file(WRITE ${'$'}{$headerVar}/$headerName
 "#ifdef __cplusplus\n"
 "extern \"C\" {\n"
 "#endif\n"
-"extern const TSLanguage *tree_sitter_$languageName(void);\n"
+"extern const TSLanguage *$resolvedSymbol(void);\n"
 "#ifdef __cplusplus\n"
 "}\n"
 "#endif\n"
@@ -78,7 +80,9 @@ internal fun renderHostCMakeLists(
   languageName: String,
   grammarSubmodulePath: String,
   sources: List<String>,
+  cSymbol: String? = null,
 ): String {
+  val resolvedSymbol = cSymbol ?: "tree_sitter_$languageName"
   val symbol = headerSymbol(languageName)
   val headerName = headerFileName(languageName)
   val headerVar = headerDirVar(languageName)
@@ -91,7 +95,7 @@ internal fun renderHostCMakeLists(
     append("#ifdef __cplusplus\\n")
     append("extern \\\"C\\\" {\\n")
     append("#endif\\n")
-    append("extern const TSLanguage *tree_sitter_").append(languageName).append("(void);\\n")
+    append("extern const TSLanguage *").append(resolvedSymbol).append("(void);\\n")
     append("#ifdef __cplusplus\\n")
     append("}\\n")
     append("#endif\\n")
@@ -134,8 +138,9 @@ fun writeAndroidCMakeLists(
   languageName: String,
   grammarSubmodulePath: String,
   sources: List<String>,
+  cSymbol: String? = null,
 ) {
-  val desired = renderAndroidCMakeLists(languageName, grammarSubmodulePath, sources)
+  val desired = renderAndroidCMakeLists(languageName, grammarSubmodulePath, sources, cSymbol)
   writeIfChanged(file, desired)
 }
 
@@ -144,8 +149,9 @@ fun writeHostCMakeLists(
   languageName: String,
   grammarSubmodulePath: String,
   sources: List<String>,
+  cSymbol: String? = null,
 ) {
-  val desired = renderHostCMakeLists(languageName, grammarSubmodulePath, sources)
+  val desired = renderHostCMakeLists(languageName, grammarSubmodulePath, sources, cSymbol)
   writeIfChanged(file, desired)
 }
 
