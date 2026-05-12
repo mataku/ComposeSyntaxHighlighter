@@ -258,19 +258,23 @@ afterEvaluate {
     ?: error("composeSyntaxHighlightLanguage.queries must contain at least the highlights.scm path")
 
   val cSymbol = composeSyntaxHighlightLanguage.cSymbol.orNull
+  val resolvedCSymbol = cSymbol ?: "tree_sitter_$languageName"
+  val primarySpec = io.github.mataku.compose.highlight.buildlogic.GrammarBuildSpec(
+    name = languageName,
+    submodulePath = grammarSubmodulePath,
+    sources = sources,
+    cSymbol = resolvedCSymbol,
+    bindingCPath = "build/generated/src/jni/binding.c",
+  )
   writeAndroidCMakeLists(
     projectDir.resolve("CMakeLists.txt"),
     languageName,
-    grammarSubmodulePath,
-    sources,
-    cSymbol,
+    listOf(primarySpec),
   )
   writeHostCMakeLists(
     projectDir.resolve("host-cmake/CMakeLists.txt"),
     languageName,
-    grammarSubmodulePath,
-    sources,
-    cSymbol,
+    listOf(primarySpec),
   )
 
   cSymbol?.let { symbol ->
