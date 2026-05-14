@@ -17,12 +17,13 @@ kotlin = "2.3.20"
 kotlinx-coroutines = "1.10.2"
 ktreesitter = "0.25.0"
 ktreesitterPlugin = "0.25.0"
-# tree-sitter ABI pinned to 15. ktreesitter 0.25.0 bundles tree-sitter 0.25.10,
-# which accepts ABI 13-15. The plugin only consults this value when invoking
-# `tree-sitter generate --abi=<N>`, i.e. when a submodule does not commit
-# parser.c (currently only tree-sitter-swift). Bump in lockstep with
-# ktreesitter when its supported ABI window moves.
-treesitterAbi = "15"
+# tree-sitter ABI temporarily pinned to 14: ktreesitter 0.25.0's Kotlin/Native
+# Language init asserts abiVersion in 13..14 (its commonMain Kotlin constants
+# have not been bumped to match the bundled tree-sitter 0.25.10 C headers,
+# which accept 13-15 on JVM/Android). The plugin consults this value only for
+# `tree-sitter generate --abi=<N>` (currently only tree-sitter-swift). Restore
+# to 15 once upstream ktreesitter bumps its Kotlin constants.
+treesitterAbi = "14"
 material3 = "1.9.0"
 vanniktechPublish = "0.34.0"
 dokka = "2.2.0"
