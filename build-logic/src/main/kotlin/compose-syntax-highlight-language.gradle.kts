@@ -4,12 +4,15 @@ import io.github.mataku.compose.highlight.buildlogic.ComposeSyntaxHighlightLangu
 import io.github.mataku.compose.highlight.buildlogic.GrammarSpec
 import io.github.mataku.compose.highlight.buildlogic.writeAndroidCMakeLists
 import io.github.mataku.compose.highlight.buildlogic.writeHostCMakeLists
+import io.github.mataku.compose.highlight.buildlogic.writeIosHeader
 import io.github.treesitter.ktreesitter.plugin.GrammarExtension
 import io.github.treesitter.ktreesitter.plugin.GrammarFilesTask
 import org.gradle.api.tasks.Exec
 import org.gradle.api.tasks.testing.Test
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
+import org.jetbrains.kotlin.gradle.tasks.CInteropProcess
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
 
 plugins {
@@ -30,6 +33,8 @@ fun catalogVersionInt(alias: String): Int = versionCatalog.findVersion(alias).ge
 val highlightsQueryDir = layout.buildDirectory.dir("generated/highlights")
 val hostCMakeWorkDir = layout.buildDirectory.dir("host-cmake")
 val noticeOutDir = layout.buildDirectory.dir("notice")
+val iosHeaderDirProvider = layout.buildDirectory.dir("generated/iosHeaders")
+val iosStaticLibsDirProvider = layout.buildDirectory.dir("libs")
 
 val primaryGrammarProvider: Provider<GrammarSpec> = providers.provider {
   val grammars = composeSyntaxHighlightLanguage.grammars.toList()
@@ -57,6 +62,24 @@ extensions.configure<GrammarExtension>("grammar") {
       sources.map { grammarDir.resolve(it) }.toTypedArray()
     },
   )
+}
+
+val grammarCSymbolsProvider: Provider<List<String>> = providers.provider {
+  composeSyntaxHighlightLanguage.grammars.map { spec ->
+    spec.cSymbol.orNull ?: "tree_sitter_${spec.name}"
+  }
+}
+
+val writeIosHeaderTask = tasks.register("writeIosHeader") {
+  val nameProvider = composeSyntaxHighlightLanguage.languageName
+  val symbolsProvider = grammarCSymbolsProvider
+  val dirProvider = iosHeaderDirProvider.map { it.asFile }
+  inputs.property("languageName", nameProvider)
+  inputs.property("grammarCSymbols", symbolsProvider)
+  outputs.dir(dirProvider)
+  doLast {
+    writeIosHeader(dirProvider.get(), nameProvider.get(), symbolsProvider.get())
+  }
 }
 
 val generateNotice = tasks.register("generateNotice") {
@@ -193,6 +216,10 @@ extensions.configure<KotlinMultiplatformExtension>("kotlin") {
 
   jvm()
 
+  iosArm64()
+
+  applyDefaultHierarchyTemplate()
+
   sourceSets {
     commonMain {
       resources.srcDir(noticeOutDir)
@@ -297,6 +324,7 @@ afterEvaluate {
       bindingCPath = bindingPath,
     )
   }
+  val secondaryGrammars = grammars.drop(1)
   writeAndroidCMakeLists(
     projectDir.resolve("CMakeLists.txt"),
     languageName,
@@ -323,6 +351,27 @@ afterEvaluate {
     sourceSets.configureEach {
       kotlin.srcDir(generatedSrc.dir(this.name).dir("kotlin"))
     }
+    targets.withType<KotlinNativeTarget>().configureEach {
+      val interopName = "treesitter${languageName.replaceFirstChar(Char::uppercaseChar)}"
+      val headerDir = iosHeaderDirProvider.map { it.asFile }
+      val libsDir = iosStaticLibsDirProvider
+      val konanTargetName = konanTarget.name
+      compilations.configureEach {
+        cinterops.register(interopName) {
+          definitionFile.set(generateGrammarFilesTask.flatMap { it.interopFile })
+          includeDirs.allHeaders(headerDir)
+          extraOpts(
+            "-libraryPath",
+            libsDir.get().dir(konanTargetName).asFile.absolutePath,
+          )
+          val taskName = interopProcessingTaskName
+          tasks.matching { it.name == taskName }.configureEach {
+            dependsOn(writeIosHeaderTask)
+            dependsOn(generateGrammarFilesTask)
+          }
+        }
+      }
+    }
   }
 
   tasks.withType<KotlinCompilationTask<*>>().configureEach {
@@ -340,6 +389,93 @@ afterEvaluate {
   }.configureEach {
     dependsOn(generateGrammarFilesTask)
     dependsOn(generateParserSource)
+  }
+
+  // iOS static library build: compile every grammar's parser.c (+ scanner.c) under the
+  // Konan-bundled clang and archive the per-grammar object files into one
+  // libtree-sitter-<languageName>.a that cinterop links against. Mirrors the
+  // languages/java pattern in upstream kotlin-tree-sitter, extended for multi-grammar
+  // modules (separate clang invocation per grammar to keep parser.o / scanner.o file
+  // names from colliding across submodules).
+  val grammarCompileInputs = grammarBuildSpecs.map { spec ->
+    val grammarDir = projectDir.resolve(spec.submodulePath)
+    val sourceFiles = spec.sources.map { grammarDir.resolve(it) }
+    Triple(grammarDir, sourceFiles, spec.name == primary.name)
+  }
+  val secondaryParserTaskNames = secondaryGrammars.map { secondary ->
+    "generateParserSource${secondary.name.replaceFirstChar(Char::uppercaseChar)}"
+  }
+  @Suppress("DEPRECATION")
+  tasks.withType<CInteropProcess>().configureEach {
+    if (name.startsWith("cinteropTest")) return@configureEach
+
+    val konanHomePath = konanHome.get()
+    val target = konanTarget
+    val libFile = iosStaticLibsDirProvider.get()
+      .dir(target.name)
+      .file("libtree-sitter-$languageName.a")
+      .asFile
+    val allObjectFiles = grammarCompileInputs.flatMap { (grammarDir, sourceFiles, _) ->
+      sourceFiles.map { grammarDir.resolve("${it.nameWithoutExtension}.o") }
+    }
+    val compileInputs = grammarCompileInputs
+
+    dependsOn(generateParserSource)
+    dependsOn(generateGrammarFilesTask)
+    for (taskName in secondaryParserTaskNames) {
+      dependsOn(taskName)
+    }
+
+    compileInputs.forEach { (_, sourceFiles, _) ->
+      inputs.files(*sourceFiles.toTypedArray())
+    }
+    outputs.file(libFile)
+
+    doFirst {
+      val runKonan = File(konanHomePath, "bin/run_konan").absolutePath
+      libFile.parentFile.mkdirs()
+
+      for ((grammarDir, sourceFiles, _) in compileInputs) {
+        val argsFile = File.createTempFile("args", null)
+        argsFile.deleteOnExit()
+        argsFile.writer().use { w ->
+          w.write("-I${grammarDir.resolve("src").absolutePath}\n")
+          w.write("-DTREE_SITTER_HIDE_SYMBOLS\n")
+          w.write("-fvisibility=hidden\n")
+          w.write("-std=c11\n")
+          w.write("-O2\n")
+          w.write("-g\n")
+          w.write("-c\n")
+          sourceFiles.forEach { w.write("${it.absolutePath}\n") }
+        }
+        val clangProc = ProcessBuilder(runKonan, "clang", "clang", target.name, "@${argsFile.path}")
+          .directory(grammarDir)
+          .redirectErrorStream(true)
+          .start()
+        val clangOut = clangProc.inputStream.bufferedReader().readText()
+        val clangExit = clangProc.waitFor()
+        if (clangExit != 0) {
+          error("run_konan clang failed for ${grammarDir.name} (target=${target.name}, exit=$clangExit):\n$clangOut")
+        }
+      }
+
+      val arArgs = buildList {
+        add(runKonan)
+        add("llvm")
+        add("llvm-ar")
+        add("rcs")
+        add(libFile.absolutePath)
+        addAll(allObjectFiles.map { it.absolutePath })
+      }
+      val arProc = ProcessBuilder(arArgs)
+        .redirectErrorStream(true)
+        .start()
+      val arOut = arProc.inputStream.bufferedReader().readText()
+      val arExit = arProc.waitFor()
+      if (arExit != 0) {
+        error("run_konan llvm-ar failed (exit=$arExit):\n$arOut")
+      }
+    }
   }
 
   tasks.named<Test>("jvmTest") {
@@ -373,7 +509,6 @@ afterEvaluate {
   // Secondary grammars (entries 2..N in grammars container). The primary entry is wired
   // via ktreesitter-plugin's GrammarExtension above; secondaries get hand-rolled task
   // graph here that mirrors what ktreesitter generates for the primary.
-  val secondaryGrammars = grammars.drop(1)
   for (secondary in secondaryGrammars) {
     val name = secondary.name
     val submodulePath = secondary.submodulePath.orNull
@@ -422,15 +557,22 @@ afterEvaluate {
       }
     }
 
+    // ktreesitter-plugin emits cinterop bindings into <grammar.packageName>.internal.
+    // The convention plugin's grammar { packageName = ... } is already
+    // "io.github.mataku.compose.highlight.<primary>.internal", so the cinterop's
+    // emitted package is "io.github.mataku.compose.highlight.<primary>.internal.internal".
+    val cinteropEmittedPackage = "io.github.mataku.compose.highlight.${primary.name}.internal.internal"
     val genKotlinTask = tasks.register("generateSecondaryKotlin$nameCapitalized") {
       val commonDir = layout.buildDirectory.dir("generated/secondary/$name/commonMain/kotlin/$packagePath").get().asFile
       val jvmDir = layout.buildDirectory.dir("generated/secondary/$name/jvmMain/kotlin/$packagePath").get().asFile
       val androidDir = layout.buildDirectory.dir("generated/secondary/$name/androidMain/kotlin/$packagePath").get().asFile
+      val iosDir = layout.buildDirectory.dir("generated/secondary/$name/iosMain/kotlin/$packagePath").get().asFile
       outputs.dir(layout.buildDirectory.dir("generated/secondary/$name"))
       doLast {
         commonDir.mkdirs()
         jvmDir.mkdirs()
         androidDir.mkdirs()
+        iosDir.mkdirs()
         commonDir.resolve("$parserClassName.kt").writeText(
           io.github.mataku.compose.highlight.buildlogic.renderCommonTreeSitterClass(packageName, parserClassName),
         )
@@ -447,6 +589,14 @@ afterEvaluate {
             packageName = packageName,
             className = parserClassName,
             libName = "ktreesitter-$languageName",
+            cSymbol = symbol,
+          ),
+        )
+        iosDir.resolve("$parserClassName.kt").writeText(
+          io.github.mataku.compose.highlight.buildlogic.renderNativeTreeSitterClass(
+            packageName = packageName,
+            className = parserClassName,
+            cinteropPackage = cinteropEmittedPackage,
             cSymbol = symbol,
           ),
         )
@@ -486,6 +636,9 @@ afterEvaluate {
       }
       sourceSets.named("androidMain") {
         kotlin.srcDir(layout.buildDirectory.dir("generated/secondary/$name/androidMain/kotlin"))
+      }
+      sourceSets.named("iosMain") {
+        kotlin.srcDir(layout.buildDirectory.dir("generated/secondary/$name/iosMain/kotlin"))
       }
     }
 

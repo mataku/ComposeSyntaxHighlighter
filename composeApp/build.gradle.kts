@@ -15,6 +15,15 @@ kotlin {
     }
   }
 
+  iosArm64 {
+    binaries.framework {
+      baseName = "ComposeApp"
+      isStatic = true
+    }
+  }
+
+  applyDefaultHierarchyTemplate()
+
   sourceSets {
     androidMain.dependencies {
       implementation(libs.compose.uiToolingPreview)

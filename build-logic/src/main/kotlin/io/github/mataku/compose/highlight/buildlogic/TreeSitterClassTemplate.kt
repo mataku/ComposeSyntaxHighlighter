@@ -3,8 +3,7 @@ package io.github.mataku.compose.highlight.buildlogic
 /**
  * Renders the common-source-set `expect` declaration for a secondary grammar.
  */
-internal fun renderCommonTreeSitterClass(packageName: String, className: String): String {
-  return """// Automatically generated file. DO NOT MODIFY
+internal fun renderCommonTreeSitterClass(packageName: String, className: String): String = """// Automatically generated file. DO NOT MODIFY
 
 package $packageName
 
@@ -12,7 +11,6 @@ expect object $className {
     fun language(): Any
 }
 """
-}
 
 /**
  * Renders the JVM-source-set `actual` implementation for a secondary grammar.
@@ -24,8 +22,7 @@ internal fun renderJvmTreeSitterClass(
   className: String,
   libName: String,
   cSymbol: String,
-): String {
-  return """// Automatically generated file. DO NOT MODIFY
+): String = """// Automatically generated file. DO NOT MODIFY
 
 package $packageName
 
@@ -94,7 +91,6 @@ actual object $className {
     }
 }
 """
-}
 
 /**
  * Renders the Android-source-set `actual` implementation for a secondary grammar.
@@ -106,8 +102,7 @@ internal fun renderAndroidTreeSitterClass(
   className: String,
   libName: String,
   cSymbol: String,
-): String {
-  return """// Automatically generated file. DO NOT MODIFY
+): String = """// Automatically generated file. DO NOT MODIFY
 
 package $packageName
 
@@ -128,4 +123,33 @@ actual object $className {
     private external fun $cSymbol(): Long
 }
 """
+
+/**
+ * Renders the Native (iOS) `actual` implementation for a secondary grammar.
+ * The C symbol is reached through cinterop bindings that ktreesitter-plugin emits
+ * one level below the primary grammar's package (`<primary.packageName>.internal`).
+ * The unified header at `build/generated/iosHeaders/tree-sitter-<langName>.h`
+ * declares every grammar's `tree_sitter_*` symbol, so cinterop emits Kotlin bindings
+ * for all of them in that same package.
+ *
+ * - [cinteropPackage] e.g.
+ *   `io.github.mataku.compose.highlight.markdown.internal.internal` —
+ *   the package where cinterop emits bindings.
+ */
+internal fun renderNativeTreeSitterClass(
+  packageName: String,
+  className: String,
+  cinteropPackage: String,
+  cSymbol: String,
+): String = """// Automatically generated file. DO NOT MODIFY
+
+package $packageName
+
+import $cinteropPackage.$cSymbol
+import kotlinx.cinterop.ExperimentalForeignApi
+
+@OptIn(ExperimentalForeignApi::class)
+actual object $className {
+    actual fun language(): Any = $cSymbol()!!
 }
+"""
