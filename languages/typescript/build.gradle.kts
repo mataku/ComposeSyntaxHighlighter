@@ -11,7 +11,7 @@ composeSyntaxHighlightLanguage {
       sources.set(listOf("src/parser.c", "src/scanner.c"))
       queries.set(
         listOf(
-          "../../../javascript/tree-sitter-javascript/queries/highlights.scm",
+          "../../../javascript/queries/highlights.scm",
           "../queries/highlights.scm",
         ),
       )
@@ -22,7 +22,7 @@ composeSyntaxHighlightLanguage {
       sources.set(listOf("src/parser.c", "src/scanner.c"))
       queries.set(
         listOf(
-          "../../../javascript/tree-sitter-javascript/queries/highlights.scm",
+          "../../../javascript/queries/highlights.scm",
           "../queries/highlights.scm",
         ),
       )
