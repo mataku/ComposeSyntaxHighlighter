@@ -111,19 +111,19 @@ val generateNotice = tasks.register("generateNotice") {
 }
 
 val generateHighlightsQuery = tasks.register("generateHighlightsQuery") {
-  val srcProvider = primaryGrammarProvider.flatMap { it.queries }.zip(grammarDirProvider) { queries, grammarDir ->
+  val srcsProvider = primaryGrammarProvider.flatMap { it.queries }.zip(grammarDirProvider) { queries, grammarDir ->
     require(queries.isNotEmpty()) { "primary grammar.queries must contain at least one entry" }
-    grammarDir.resolve(queries.first())
+    queries.map { grammarDir.resolve(it) }
   }
   val packageProvider = primaryGrammarProvider.map { it.name }
   val pkgDirProvider = highlightsPackageDirProvider
   val outDirProvider = highlightsQueryDir.map { it.asFile }
-  inputs.file(srcProvider)
+  inputs.files(srcsProvider)
   outputs.dir(outDirProvider)
   doLast {
-    val src = srcProvider.get()
+    val srcs = srcsProvider.get()
     val outDir = outDirProvider.get()
-    val text = src.readText()
+    val text = srcs.joinToString(separator = "\n") { it.readText() }
     val out = File(outDir, "${pkgDirProvider.get()}/HighlightsQuery.kt")
     out.parentFile.mkdirs()
     out.writeText(
@@ -604,13 +604,13 @@ afterEvaluate {
     }
 
     val genHighlightsTask = tasks.register("generateHighlightsQuery$nameCapitalized") {
-      val src = grammarDir.resolve(qrys.first())
+      val srcs = qrys.map { grammarDir.resolve(it) }
       val outFile = layout.buildDirectory.dir("generated/secondary/$name/commonMain/kotlin/$highlightsPkgPath").get().asFile.resolve("HighlightsQuery.kt")
-      inputs.file(src)
+      inputs.files(srcs)
       outputs.file(outFile)
       doLast {
         outFile.parentFile.mkdirs()
-        val text = src.readText()
+        val text = srcs.joinToString(separator = "\n") { it.readText() }
         outFile.writeText(
           """
             |package io.github.mataku.compose.highlight.$name
