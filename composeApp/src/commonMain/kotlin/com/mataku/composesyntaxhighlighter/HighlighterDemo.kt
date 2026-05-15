@@ -40,6 +40,7 @@ import io.github.mataku.compose.highlight.api.Languages
 import io.github.mataku.compose.highlight.core.SyntaxTheme
 import io.github.mataku.compose.highlight.go.Go
 import io.github.mataku.compose.highlight.java.Java
+import io.github.mataku.compose.highlight.javascript.Javascript
 import io.github.mataku.compose.highlight.kotlin.Kotlin
 import io.github.mataku.compose.highlight.markdown.Markdown
 import io.github.mataku.compose.highlight.material3.SyntaxHighlightedText
@@ -47,6 +48,8 @@ import io.github.mataku.compose.highlight.python.Python
 import io.github.mataku.compose.highlight.ruby.Ruby
 import io.github.mataku.compose.highlight.rust.Rust
 import io.github.mataku.compose.highlight.swift.Swift
+import io.github.mataku.compose.highlight.tsx.Tsx
+import io.github.mataku.compose.highlight.typescript.Typescript
 
 private enum class DemoLanguage(val label: String) {
   Kotlin("Kotlin"),
@@ -56,6 +59,9 @@ private enum class DemoLanguage(val label: String) {
   Python("Python"),
   Go("Go"),
   Java("Java"),
+  Javascript("JavaScript"),
+  Typescript("TypeScript"),
+  Tsx("TSX"),
   Markdown("Markdown"),
 }
 
@@ -90,6 +96,9 @@ fun HighlighterDemo() {
     DemoLanguage.Python -> SampleCode.python to Languages.Python
     DemoLanguage.Go -> SampleCode.go to Languages.Go
     DemoLanguage.Java -> SampleCode.java to Languages.Java
+    DemoLanguage.Javascript -> SampleCode.javascript to Languages.Javascript
+    DemoLanguage.Typescript -> SampleCode.typescript to Languages.Typescript
+    DemoLanguage.Tsx -> SampleCode.tsx to Languages.Tsx
     DemoLanguage.Markdown -> SampleCode.markdown to Languages.Markdown
   }
   val baseTheme = when (selectedTheme) {

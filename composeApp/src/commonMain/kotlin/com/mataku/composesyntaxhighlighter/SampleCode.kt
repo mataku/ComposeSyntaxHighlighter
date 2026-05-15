@@ -150,6 +150,64 @@ object SampleCode {
         }
   """.trimIndent()
 
+  val javascript: String = """
+        // npm install --save lodash
+        import { debounce } from "lodash";
+
+        const MAX_ATTEMPTS = 3;
+
+        function fetchUser(id) {
+          const url = `https://example.com/users/${'$'}{id}`;
+          return fetch(url).then((res) => res.json());
+        }
+
+        class Repository {
+          constructor(api) {
+            this.api = api;
+          }
+
+          observe = debounce((id) => this.api.stream(id), 250);
+        }
+  """.trimIndent()
+
+  val typescript: String = """
+        // tsc --strict --target ES2022
+        import { Repository } from "./repo";
+
+        type UserId = number;
+
+        interface User {
+          readonly id: UserId;
+          name: string;
+          email?: string;
+        }
+
+        const MAX_USERS = 100;
+
+        async function loadUsers(repo: Repository<User>): Promise<User[]> {
+          const list = await repo.fetchAll();
+          return list.filter((u) => u.email !== undefined);
+        }
+  """.trimIndent()
+
+  val tsx: String = """
+        // npx tsc --jsx react-jsx
+        import { useState } from "react";
+
+        type Props = {
+          initial: number;
+        };
+
+        export function Counter({ initial }: Props) {
+          const [count, setCount] = useState(initial);
+          return (
+            <button onClick={() => setCount(count + 1)}>
+              clicked {count} times
+            </button>
+          );
+        }
+  """.trimIndent()
+
   val markdown: String = """
         # ComposeSyntaxHighlighter
 
