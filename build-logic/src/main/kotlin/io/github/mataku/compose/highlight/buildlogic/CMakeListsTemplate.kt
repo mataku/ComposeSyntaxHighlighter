@@ -69,8 +69,12 @@ internal fun renderAndroidCMakeLists(
   grammars: List<GrammarBuildSpec>,
 ): String {
   require(grammars.isNotEmpty()) { "grammars must contain at least one entry" }
-  val symbol = headerSymbol(languageName)
-  val headerName = headerFileName(languageName)
+  // The ktreesitter-plugin-generated binding.c for the primary grammar includes
+  // <tree-sitter-<primary>.h>, so the alias header must be named after the primary
+  // grammar (not languageName). For single-grammar modules these are the same.
+  val primaryName = grammars.first().name
+  val symbol = headerSymbol(primaryName)
+  val headerName = headerFileName(primaryName)
   val headerVar = headerDirVar(languageName)
   val target = targetName(languageName)
   val grammarDirAssignments = renderAndroidGrammarDirAssignments(grammars)
@@ -132,8 +136,9 @@ internal fun renderHostCMakeLists(
   grammars: List<GrammarBuildSpec>,
 ): String {
   require(grammars.isNotEmpty()) { "grammars must contain at least one entry" }
-  val symbol = headerSymbol(languageName)
-  val headerName = headerFileName(languageName)
+  val primaryName = grammars.first().name
+  val symbol = headerSymbol(primaryName)
+  val headerName = headerFileName(primaryName)
   val headerVar = headerDirVar(languageName)
   val target = targetName(languageName)
   val grammarDirAssignments = renderHostGrammarDirAssignments(grammars)

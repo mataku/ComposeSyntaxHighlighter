@@ -57,6 +57,10 @@ extensions.configure<GrammarExtension>("grammar") {
   grammarName.set(primaryGrammarProvider.map { it.name })
   className.set(primaryGrammarProvider.flatMap { it.parserClassName })
   packageName.set(packageNameProvider)
+  // Override ktreesitter's default `ktreesitter-<grammarName>`: we ship one shared
+  // library per module, named after languageName (matches the CMakeLists target).
+  // For single-grammar modules where grammarName == languageName this is a no-op.
+  libraryName.set(composeSyntaxHighlightLanguage.languageName.map { "ktreesitter-$it" })
   files.set(
     primaryGrammarProvider.flatMap { it.sources }.zip(grammarDirProvider) { sources, grammarDir ->
       sources.map { grammarDir.resolve(it) }.toTypedArray()
@@ -124,6 +128,7 @@ val generateHighlightsQuery = tasks.register("generateHighlightsQuery") {
     val srcs = srcsProvider.get()
     val outDir = outDirProvider.get()
     val text = srcs.joinToString(separator = "\n") { it.readText() }
+      .replace("$", "\${'$'}")
     val out = File(outDir, "${pkgDirProvider.get()}/HighlightsQuery.kt")
     out.parentFile.mkdirs()
     out.writeText(
@@ -542,7 +547,9 @@ afterEvaluate {
 
     val genBindingTask = tasks.register("generateSecondaryBinding$nameCapitalized") {
       val outFile = projectDir.resolve(bindingCRel)
-      val headerName = "tree-sitter-$languageName.h"
+      // Must match the alias header emitted by writeAndroidCMakeLists, which is
+      // tree-sitter-<primaryGrammarName>.h.
+      val headerName = "tree-sitter-${primary.name}.h"
       outputs.file(outFile)
       doLast {
         outFile.parentFile.mkdirs()
@@ -611,6 +618,7 @@ afterEvaluate {
       doLast {
         outFile.parentFile.mkdirs()
         val text = srcs.joinToString(separator = "\n") { it.readText() }
+          .replace("$", "\${'$'}")
         outFile.writeText(
           """
             |package io.github.mataku.compose.highlight.$name
