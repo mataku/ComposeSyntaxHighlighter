@@ -75,10 +75,13 @@ val grammarCSymbolsProvider: Provider<List<String>> = providers.provider {
 }
 
 val writeIosHeaderTask = tasks.register("writeIosHeader") {
-  val nameProvider = composeSyntaxHighlightLanguage.languageName
+  // The cinterop grammar.def emitted by ktreesitter-plugin references
+  // tree-sitter-<primaryGrammarName>.h, so the iOS alias header must match.
+  // For single-grammar modules this equals languageName.
+  val nameProvider = primaryGrammarProvider.map { it.name }
   val symbolsProvider = grammarCSymbolsProvider
   val dirProvider = iosHeaderDirProvider.map { it.asFile }
-  inputs.property("languageName", nameProvider)
+  inputs.property("primaryGrammarName", nameProvider)
   inputs.property("grammarCSymbols", symbolsProvider)
   outputs.dir(dirProvider)
   doLast {
@@ -398,9 +401,11 @@ afterEvaluate {
 
   // iOS static library build: compile every grammar's parser.c (+ scanner.c) under the
   // Konan-bundled clang and archive the per-grammar object files into one
-  // libtree-sitter-<languageName>.a that cinterop links against. Mirrors the
-  // languages/java pattern in upstream kotlin-tree-sitter, extended for multi-grammar
-  // modules (separate clang invocation per grammar to keep parser.o / scanner.o file
+  // libtree-sitter-<primaryGrammarName>.a that cinterop links against (the
+  // generated grammar.def references this exact filename). For single-grammar
+  // modules the primary name equals languageName. Mirrors the languages/java
+  // pattern in upstream kotlin-tree-sitter, extended for multi-grammar modules
+  // (separate clang invocation per grammar to keep parser.o / scanner.o file
   // names from colliding across submodules).
   val grammarCompileInputs = grammarBuildSpecs.map { spec ->
     val grammarDir = projectDir.resolve(spec.submodulePath)
@@ -418,7 +423,7 @@ afterEvaluate {
     val target = konanTarget
     val libFile = iosStaticLibsDirProvider.get()
       .dir(target.name)
-      .file("libtree-sitter-$languageName.a")
+      .file("libtree-sitter-${primary.name}.a")
       .asFile
     val allObjectFiles = grammarCompileInputs.flatMap { (grammarDir, sourceFiles, _) ->
       sourceFiles.map { grammarDir.resolve("${it.nameWithoutExtension}.o") }
