@@ -58,6 +58,8 @@ implementation("io.github.mataku:compose-syntax-highlight-swift:$latestHighlight
 | Go       | `compose-syntax-highlight-go`     | [![](https://img.shields.io/maven-central/v/io.github.mataku/compose-syntax-highlight-go.svg?label=)](https://central.sonatype.com/artifact/io.github.mataku/compose-syntax-highlight-go)         |
 | Java     | `compose-syntax-highlight-java`   | [![](https://img.shields.io/maven-central/v/io.github.mataku/compose-syntax-highlight-java.svg?label=)](https://central.sonatype.com/artifact/io.github.mataku/compose-syntax-highlight-java)     |
 | Markdown | `compose-syntax-highlight-markdown` | [![](https://img.shields.io/maven-central/v/io.github.mataku/compose-syntax-highlight-markdown.svg?label=)](https://central.sonatype.com/artifact/io.github.mataku/compose-syntax-highlight-markdown) |
+| JavaScript | `compose-syntax-highlight-javascript` | [![](https://img.shields.io/maven-central/v/io.github.mataku/compose-syntax-highlight-javascript.svg?label=)](https://central.sonatype.com/artifact/io.github.mataku/compose-syntax-highlight-javascript) |
+| TypeScript / TSX | `compose-syntax-highlight-typescript` | [![](https://img.shields.io/maven-central/v/io.github.mataku/compose-syntax-highlight-typescript.svg?label=)](https://central.sonatype.com/artifact/io.github.mataku/compose-syntax-highlight-typescript) |
 
 For an **editable** code surface, depend on `:material3-text-field` instead of (or alongside) `:material3` — it ships `SyntaxHighlightedTextField`:
 

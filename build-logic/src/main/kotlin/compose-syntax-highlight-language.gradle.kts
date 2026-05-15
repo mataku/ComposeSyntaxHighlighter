@@ -57,6 +57,10 @@ extensions.configure<GrammarExtension>("grammar") {
   grammarName.set(primaryGrammarProvider.map { it.name })
   className.set(primaryGrammarProvider.flatMap { it.parserClassName })
   packageName.set(packageNameProvider)
+  // Override ktreesitter's default `ktreesitter-<grammarName>`: we ship one shared
+  // library per module, named after languageName (matches the CMakeLists target).
+  // For single-grammar modules where grammarName == languageName this is a no-op.
+  libraryName.set(composeSyntaxHighlightLanguage.languageName.map { "ktreesitter-$it" })
   files.set(
     primaryGrammarProvider.flatMap { it.sources }.zip(grammarDirProvider) { sources, grammarDir ->
       sources.map { grammarDir.resolve(it) }.toTypedArray()
@@ -71,10 +75,13 @@ val grammarCSymbolsProvider: Provider<List<String>> = providers.provider {
 }
 
 val writeIosHeaderTask = tasks.register("writeIosHeader") {
-  val nameProvider = composeSyntaxHighlightLanguage.languageName
+  // The cinterop grammar.def emitted by ktreesitter-plugin references
+  // tree-sitter-<primaryGrammarName>.h, so the iOS alias header must match.
+  // For single-grammar modules this equals languageName.
+  val nameProvider = primaryGrammarProvider.map { it.name }
   val symbolsProvider = grammarCSymbolsProvider
   val dirProvider = iosHeaderDirProvider.map { it.asFile }
-  inputs.property("languageName", nameProvider)
+  inputs.property("primaryGrammarName", nameProvider)
   inputs.property("grammarCSymbols", symbolsProvider)
   outputs.dir(dirProvider)
   doLast {
@@ -111,19 +118,20 @@ val generateNotice = tasks.register("generateNotice") {
 }
 
 val generateHighlightsQuery = tasks.register("generateHighlightsQuery") {
-  val srcProvider = primaryGrammarProvider.flatMap { it.queries }.zip(grammarDirProvider) { queries, grammarDir ->
+  val srcsProvider = primaryGrammarProvider.flatMap { it.queries }.zip(grammarDirProvider) { queries, grammarDir ->
     require(queries.isNotEmpty()) { "primary grammar.queries must contain at least one entry" }
-    grammarDir.resolve(queries.first())
+    queries.map { grammarDir.resolve(it) }
   }
   val packageProvider = primaryGrammarProvider.map { it.name }
   val pkgDirProvider = highlightsPackageDirProvider
   val outDirProvider = highlightsQueryDir.map { it.asFile }
-  inputs.file(srcProvider)
+  inputs.files(srcsProvider)
   outputs.dir(outDirProvider)
   doLast {
-    val src = srcProvider.get()
+    val srcs = srcsProvider.get()
     val outDir = outDirProvider.get()
-    val text = src.readText()
+    val text = srcs.joinToString(separator = "\n") { it.readText() }
+      .replace("$", "\${'$'}")
     val out = File(outDir, "${pkgDirProvider.get()}/HighlightsQuery.kt")
     out.parentFile.mkdirs()
     out.writeText(
@@ -393,9 +401,11 @@ afterEvaluate {
 
   // iOS static library build: compile every grammar's parser.c (+ scanner.c) under the
   // Konan-bundled clang and archive the per-grammar object files into one
-  // libtree-sitter-<languageName>.a that cinterop links against. Mirrors the
-  // languages/java pattern in upstream kotlin-tree-sitter, extended for multi-grammar
-  // modules (separate clang invocation per grammar to keep parser.o / scanner.o file
+  // libtree-sitter-<primaryGrammarName>.a that cinterop links against (the
+  // generated grammar.def references this exact filename). For single-grammar
+  // modules the primary name equals languageName. Mirrors the languages/java
+  // pattern in upstream kotlin-tree-sitter, extended for multi-grammar modules
+  // (separate clang invocation per grammar to keep parser.o / scanner.o file
   // names from colliding across submodules).
   val grammarCompileInputs = grammarBuildSpecs.map { spec ->
     val grammarDir = projectDir.resolve(spec.submodulePath)
@@ -413,7 +423,7 @@ afterEvaluate {
     val target = konanTarget
     val libFile = iosStaticLibsDirProvider.get()
       .dir(target.name)
-      .file("libtree-sitter-$languageName.a")
+      .file("libtree-sitter-${primary.name}.a")
       .asFile
     val allObjectFiles = grammarCompileInputs.flatMap { (grammarDir, sourceFiles, _) ->
       sourceFiles.map { grammarDir.resolve("${it.nameWithoutExtension}.o") }
@@ -542,7 +552,9 @@ afterEvaluate {
 
     val genBindingTask = tasks.register("generateSecondaryBinding$nameCapitalized") {
       val outFile = projectDir.resolve(bindingCRel)
-      val headerName = "tree-sitter-$languageName.h"
+      // Must match the alias header emitted by writeAndroidCMakeLists, which is
+      // tree-sitter-<primaryGrammarName>.h.
+      val headerName = "tree-sitter-${primary.name}.h"
       outputs.file(outFile)
       doLast {
         outFile.parentFile.mkdirs()
@@ -604,13 +616,14 @@ afterEvaluate {
     }
 
     val genHighlightsTask = tasks.register("generateHighlightsQuery$nameCapitalized") {
-      val src = grammarDir.resolve(qrys.first())
+      val srcs = qrys.map { grammarDir.resolve(it) }
       val outFile = layout.buildDirectory.dir("generated/secondary/$name/commonMain/kotlin/$highlightsPkgPath").get().asFile.resolve("HighlightsQuery.kt")
-      inputs.file(src)
+      inputs.files(srcs)
       outputs.file(outFile)
       doLast {
         outFile.parentFile.mkdirs()
-        val text = src.readText()
+        val text = srcs.joinToString(separator = "\n") { it.readText() }
+          .replace("$", "\${'$'}")
         outFile.writeText(
           """
             |package io.github.mataku.compose.highlight.$name
