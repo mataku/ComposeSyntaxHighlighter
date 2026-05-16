@@ -28,12 +28,9 @@ kotlin {
   applyDefaultHierarchyTemplate()
 
   sourceSets {
-    commonMain {
-      resources.srcDirs("src/commonMain/resources")
-      dependencies {
-        api(libs.ktreesitter)
-        compileOnly(libs.compose.runtime)
-      }
+    commonMain.dependencies {
+      api(libs.ktreesitter)
+      compileOnly(libs.compose.runtime)
     }
   }
 }
