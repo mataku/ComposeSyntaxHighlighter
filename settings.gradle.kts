@@ -29,13 +29,11 @@ dependencyResolutionManagement {
   }
 }
 
-// :composeApp and :benchmark are temporarily excluded until Tasks 15 / 19 migrate
-// them under com.android.kotlin.multiplatform.library and split their layouts.
+// :benchmark is temporarily excluded until Task 19 slims it to JVM only.
 // :androidApp and :benchmark-android are NEW modules added in Stage 4 (Tasks 16 / 20).
 // See docs/plans/2026-05-16-agp-9-phase1-plan.md.
-//
-// include(":composeApp")    // re-included by Task 15
-include(":androidApp")       // new in Stage 4 (Task 16)
+include(":composeApp")
+include(":androidApp") // new in Stage 4 (Task 16)
 include(":core-api")
 include(":core")
 include(":material3")
@@ -51,7 +49,7 @@ include(":languages:markdown")
 include(":languages:javascript")
 include(":languages:typescript")
 // include(":benchmark")     // re-included by Task 19
-include(":benchmark-android") // new in Stage 4 (Task 20)
+// include(":benchmark-android") // new in Stage 4 (Task 20)
 
 gradle.allprojects {
   configurations.all {

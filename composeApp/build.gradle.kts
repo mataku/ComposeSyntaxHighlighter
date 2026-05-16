@@ -2,16 +2,24 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
   alias(libs.plugins.kotlinMultiplatform)
-  alias(libs.plugins.androidApplication)
+  id("com.android.kotlin.multiplatform.library")
   alias(libs.plugins.composeMultiplatform)
   alias(libs.plugins.composeCompiler)
   id("compose-syntax-highlight-spotless")
 }
 
 kotlin {
-  androidTarget {
-    compilerOptions {
-      jvmTarget.set(JvmTarget.JVM_17)
+  android {
+    namespace = "com.mataku.composesyntaxhighlighter.shared"
+    compileSdk = libs.versions.android.compileSdk.get().toInt()
+    minSdk = libs.versions.android.minSdk.get().toInt()
+    compilerOptions { jvmTarget.set(JvmTarget.JVM_17) }
+    androidResources { enable = true }
+    packaging {
+      resources {
+        excludes -= setOf("/META-INF/NOTICE", "/META-INF/NOTICE.txt", "/META-INF/NOTICE.md")
+        pickFirsts += "/META-INF/NOTICE"
+      }
     }
   }
 
@@ -27,7 +35,6 @@ kotlin {
   sourceSets {
     androidMain.dependencies {
       implementation(libs.compose.uiToolingPreview)
-      implementation(libs.androidx.activity.compose)
     }
     commonMain.dependencies {
       implementation(libs.compose.runtime)
@@ -56,40 +63,4 @@ kotlin {
       implementation(libs.kotlin.test)
     }
   }
-}
-
-android {
-  namespace = "com.mataku.composesyntaxhighlighter"
-  compileSdk = libs.versions.android.compileSdk.get().toInt()
-
-  defaultConfig {
-    applicationId = "com.mataku.composesyntaxhighlighter"
-    minSdk = libs.versions.android.minSdk.get().toInt()
-    targetSdk = libs.versions.android.targetSdk.get().toInt()
-    versionCode = 1
-    versionName = "1.0"
-  }
-  packaging {
-    resources {
-      excludes += "/META-INF/{AL2.0,LGPL2.1}"
-    }
-  }
-  buildTypes {
-    getByName("release") {
-      isMinifyEnabled = false
-    }
-    create("benchmark") {
-      signingConfig = signingConfigs.getByName("debug")
-      matchingFallbacks += listOf("release")
-      isDebuggable = false
-    }
-  }
-  compileOptions {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
-  }
-}
-
-dependencies {
-  debugImplementation(libs.compose.uiTooling)
 }
