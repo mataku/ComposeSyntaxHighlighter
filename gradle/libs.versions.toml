@@ -24,10 +24,11 @@ ktreesitterPlugin = "0.25.0"
 # `tree-sitter generate --abi=<N>` (currently only tree-sitter-swift). Restore
 # to 15 once upstream ktreesitter bumps its Kotlin constants.
 treesitterAbi = "14"
-# build-logic が言語モジュールと :core の compose-syntax-highlight-api 依存に注入する
-# strict version 範囲。ktreesitter の range 運用に同期し、ktreesitter が受理窓を
-# 狭めるリリース(古い ABI を切り捨てる)を major で出したら、こちらも major に上げる。
-# ルールは docs/specs/2026-05-16-independent-language-versioning-design.md 参照。
+# The strict version range injected by build-logic into each language module's
+# and :core's dependency on compose-syntax-highlight-api. Kept in sync with
+# ktreesitter's accept window: when ktreesitter narrows the window (drops an
+# old ABI) with a major release, this range gets a corresponding major bump.
+# See docs/specs/2026-05-16-independent-language-versioning-design.md for the rules.
 coreApiCompatibleRange = "[0.6, 1.0)"
 material3 = "1.9.0"
 vanniktechPublish = "0.34.0"
