@@ -28,7 +28,7 @@ dependencies {
   // :languages:* are temporarily excluded during AGP 9 Stage 1 / Stage 2.
   // Re-add when modules are restored. See
   // docs/plans/2026-05-16-agp-9-phase1-plan.md Task 2.5.
-  // dokka(project(":languages:kotlin"))
+  dokka(project(":languages:kotlin"))
   // dokka(project(":languages:swift"))
   // dokka(project(":languages:ruby"))
   // dokka(project(":languages:rust"))

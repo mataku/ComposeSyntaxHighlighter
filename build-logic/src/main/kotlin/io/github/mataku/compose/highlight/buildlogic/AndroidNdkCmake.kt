@@ -14,8 +14,8 @@ import java.io.File
  * (or, for secondary grammars, build-logic's renderSecondaryBindingC).
  *
  * Source paths in the CMakeLists are written relative to the CMakeLists' own
- * directory (<module>/android-cmake/<abi>/), so each path traverses up three
- * components ("../../../") to reach the module root, then the submodule's
+ * directory (<module>/android-cmake/<abi>/), so each path traverses up two
+ * components ("../../") to reach the module root, then the submodule's
  * tracked source file or the build-relative binding.c output.
  */
 fun writeAndroidNdkCmakeLists(
@@ -23,6 +23,13 @@ fun writeAndroidNdkCmakeLists(
   languageName: String,
   grammars: List<GrammarBuildSpec>,
 ) {
+  require(grammars.isNotEmpty()) { "grammars must contain at least one entry" }
+  // The ktreesitter-plugin-generated binding.c for the primary grammar includes
+  // <tree-sitter-<primary>.h>, so the alias header must be named after the primary
+  // grammar (not languageName). For single-grammar modules these are the same.
+  val primaryName = grammars.first().name
+  val headerSymbol = "TREE_SITTER_${primaryName.uppercase()}_H_"
+  val headerFileName = "tree-sitter-$primaryName.h"
   target.parentFile.mkdirs()
   target.writeText(buildString {
     appendLine("cmake_minimum_required(VERSION 3.22.1)")
@@ -32,21 +39,41 @@ fun writeAndroidNdkCmakeLists(
     appendLine("set(CMAKE_C_VISIBILITY_PRESET hidden)")
     appendLine("set(CMAKE_POSITION_INDEPENDENT_CODE ON)")
     appendLine()
+    // binding.c includes <tree-sitter-<primary>.h>; supply it via a generated alias header.
+    appendLine("set(LANGUAGE_HEADER_DIR \${CMAKE_CURRENT_BINARY_DIR}/include)")
+    appendLine("file(MAKE_DIRECTORY \${LANGUAGE_HEADER_DIR})")
+    appendLine("file(WRITE \${LANGUAGE_HEADER_DIR}/$headerFileName")
+    appendLine("\"#ifndef $headerSymbol\\n\"")
+    appendLine("\"#define $headerSymbol\\n\"")
+    appendLine("\"#include <tree_sitter/parser.h>\\n\"")
+    appendLine("\"#ifdef __cplusplus\\n\"")
+    appendLine("\"extern \\\"C\\\" {\\n\"")
+    appendLine("\"#endif\\n\"")
+    for (g in grammars) {
+      appendLine("\"extern const TSLanguage *${g.cSymbol}(void);\\n\"")
+    }
+    appendLine("\"#ifdef __cplusplus\\n\"")
+    appendLine("\"}\\n\"")
+    appendLine("\"#endif\\n\"")
+    appendLine("\"#endif\\n\"")
+    appendLine(")")
+    appendLine()
     val sources = buildList {
       for (spec in grammars) {
-        val srcRoot = "../../../${spec.submodulePath}"
+        val srcRoot = "../../${spec.submodulePath}"
         for (rel in spec.sources) {
           add("$srcRoot/$rel")
         }
-        add("../../../${spec.bindingCPath}")
+        add("../../${spec.bindingCPath}")
       }
     }
     appendLine("add_library(tree-sitter-$languageName SHARED")
     for (src in sources) appendLine("  $src")
     appendLine(")")
     appendLine()
+    appendLine("target_include_directories(tree-sitter-$languageName PRIVATE \${LANGUAGE_HEADER_DIR})")
     for (spec in grammars) {
-      appendLine("target_include_directories(tree-sitter-$languageName PRIVATE ../../../${spec.submodulePath}/src)")
+      appendLine("target_include_directories(tree-sitter-$languageName PRIVATE ../../${spec.submodulePath}/src)")
     }
     appendLine("target_compile_definitions(tree-sitter-$languageName PRIVATE TREE_SITTER_HIDE_SYMBOLS)")
   })

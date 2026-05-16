@@ -32,11 +32,14 @@ fun catalogVersionInt(alias: String): Int = versionCatalog.findVersion(alias).ge
 val highlightsQueryDir = layout.buildDirectory.dir("generated/highlights")
 val hostCMakeWorkDir = layout.buildDirectory.dir("host-cmake")
 
-// Used by Task 12 (Android NDK CMake task chain). Mirrors the value from the
+// Used by the Android NDK CMake task chain. Mirrors the value from the
 // pre-AGP-9 `android { ndkVersion = ... }` block. When the project bumps NDK,
 // update both this value and the version pinned in CI's setup-android-deps action.
-@Suppress("UnusedPrivateProperty")
 private val androidNdkVersion = "26.3.11579264"
+private val androidAbis = listOf("arm64-v8a", "armeabi-v7a", "x86_64")
+private val androidPlatform = "android-${catalogVersionInt("android-minSdk")}"
+private val androidCMakeRootDir = layout.buildDirectory.dir("android-cmake")
+private val androidJniLibsDir = layout.buildDirectory.dir("generated/jniLibs")
 
 val noticeOutDir = layout.buildDirectory.dir("notice")
 val iosHeaderDirProvider = layout.buildDirectory.dir("generated/iosHeaders")
@@ -235,9 +238,115 @@ val buildHostCMake = tasks.register<Exec>("buildHostCMake") {
   dependsOn(configureHostCMake)
 }
 
+// Per-ABI Android NDK CMake task chain. Mirrors host CMake but invokes cmake via
+// the NDK toolchain file. Outputs land in build/generated/jniLibs/<abi>/, which
+// is wired into androidMain's jniLibs source set so AGP packages the .so files
+// into jni/<abi>/lib*.so inside the published AAR.
+
+val androidCopyToJniLibsTasks: Map<String, TaskProvider<Copy>> = androidAbis.associateWith { abi ->
+  val abiCapitalized = abi.replace("-", "").replaceFirstChar(Char::uppercaseChar)
+  val workDirProvider = androidCMakeRootDir.map { it.dir(abi).asFile }
+  val cmakeListsSrcDirProvider = providers.provider {
+    projectDir.resolve("android-cmake/$abi")
+  }
+  val cmakeListsFileProvider = cmakeListsSrcDirProvider.map { File(it, "CMakeLists.txt") }
+  val soFileProvider: Provider<File> = workDirProvider.map { workDir ->
+    File(workDir, "libtree-sitter-${composeSyntaxHighlightLanguage.languageName.get()}.so")
+  }
+  val jniLibsDestDirProvider: Provider<File> = androidJniLibsDir.map { it.dir(abi).asFile }
+
+  val writeCMakeListsTask = tasks.register("writeAndroidCMakeLists$abiCapitalized") {
+    val languageNameProvider = composeSyntaxHighlightLanguage.languageName
+    inputs.property("languageName", languageNameProvider)
+    inputs.property("abi", abi)
+    outputs.file(cmakeListsFileProvider)
+    val grammarSpecsProvider: Provider<List<io.github.mataku.compose.highlight.buildlogic.GrammarBuildSpec>> =
+      providers.provider {
+        val grammars = composeSyntaxHighlightLanguage.grammars.toList()
+        val primaryName = grammars.first().name
+        grammars.map { spec ->
+          io.github.mataku.compose.highlight.buildlogic.GrammarBuildSpec(
+            name = spec.name,
+            submodulePath = spec.submodulePath.get(),
+            sources = spec.sources.get(),
+            cSymbol = spec.cSymbol.orNull ?: "tree_sitter_${spec.name}",
+            bindingCPath = if (spec.name == primaryName) {
+              "build/generated/src/jni/binding.c"
+            } else {
+              "build/generated/src/jni/binding-${spec.name}.c"
+            },
+          )
+        }
+      }
+    doLast {
+      io.github.mataku.compose.highlight.buildlogic.writeAndroidNdkCmakeLists(
+        cmakeListsFileProvider.get(),
+        languageNameProvider.get(),
+        grammarSpecsProvider.get(),
+      )
+    }
+  }
+
+  val configureTask = tasks.register<Exec>("configureAndroidCMake$abiCapitalized") {
+    dependsOn(writeCMakeListsTask)
+    dependsOn("generateGrammarFiles")
+    dependsOn(generateParserSource)
+    workingDir(workDirProvider)
+    inputs.file(cmakeListsFileProvider)
+    outputs.file(workDirProvider.map { File(it, "CMakeCache.txt") })
+    val ndkRoot = io.github.mataku.compose.highlight.buildlogic.resolveAndroidNdkRoot(androidNdkVersion)
+    commandLine(
+      "cmake",
+      "-DCMAKE_TOOLCHAIN_FILE=${ndkRoot.absolutePath}/build/cmake/android.toolchain.cmake",
+      "-DANDROID_ABI=$abi",
+      "-DANDROID_PLATFORM=$androidPlatform",
+      "-DCMAKE_BUILD_TYPE=Release",
+      cmakeListsSrcDirProvider.get().absolutePath,
+    )
+    val capturedWorkDir = workDirProvider
+    doFirst { capturedWorkDir.get().mkdirs() }
+  }
+
+  val buildTask = tasks.register<Exec>("buildAndroidCMake$abiCapitalized") {
+    dependsOn(configureTask)
+    workingDir(workDirProvider)
+    inputs.dir(workDirProvider)
+    outputs.file(soFileProvider)
+    commandLine("cmake", "--build", ".")
+  }
+
+  tasks.register<Copy>("copyAndroidSoTo${abiCapitalized}JniLibs") {
+    dependsOn(buildTask)
+    from(soFileProvider)
+    into(jniLibsDestDirProvider)
+  }
+}
+
+// Wire the per-ABI jniLibs output directory into the Android variant's source
+// list. With com.android.kotlin.multiplatform.library there is no Kotlin source
+// set or Android DSL surface that exposes jniLibs.srcDir(...); the
+// KotlinMultiplatformAndroidComponentsExtension is the AGP-blessed path.
+// addStaticSourceDirectory requires the directory to exist at configuration
+// time, so the copy tasks create the parent ABI subdirs before the variant API
+// inspects them.
+extensions.configure<com.android.build.api.variant.KotlinMultiplatformAndroidComponentsExtension>("androidComponents") {
+  // namespace is read by AGP at variant creation time, which is after the
+  // plugin script body but before afterEvaluate. finalizeDsl runs at the right
+  // moment to pull from the consumer-populated extension.
+  finalizeDsl { dsl ->
+    dsl.namespace = "io.github.mataku.compose.highlight.${composeSyntaxHighlightLanguage.languageName.get()}"
+  }
+  onVariants { variant ->
+    val jniLibsDirAbs = androidJniLibsDir.map { it.asFile.absolutePath }.get()
+    File(jniLibsDirAbs).mkdirs()
+    variant.sources.jniLibs?.addStaticSourceDirectory(jniLibsDirAbs)
+  }
+}
+
 extensions.configure<KotlinMultiplatformExtension>("kotlin") {
   android {
-    namespace = composeSyntaxHighlightLanguage.languageName.map { "io.github.mataku.compose.highlight.$it" }.get()
+    // namespace is set via androidComponents.finalizeDsl above; the consumer DSL block
+    // (which populates languageName) has not yet run when this block executes.
     compileSdk = catalogVersionInt("android-compileSdk")
     minSdk = catalogVersionInt("android-minSdk")
     compilerOptions {
@@ -504,9 +613,28 @@ afterEvaluate {
       n == "mergeReleaseJavaResource" ||
       n == "mergeDebugJavaResource" ||
       n == "processReleaseJavaRes" ||
-      n == "processDebugJavaRes"
+      n == "processDebugJavaRes" ||
+      n == "processAndroidMainJavaRes"
   }.configureEach {
     dependsOn(generateNotice)
+  }
+
+  // Make Android packaging depend on the per-ABI .so being staged in jniLibs.
+  // AGP merges jniLibs source dirs during merge*JniLibFolders / bundleAar tasks.
+  tasks.matching { task ->
+    val name = task.name
+    name.startsWith("merge") && name.endsWith("JniLibFolders") ||
+      name == "bundleAndroidMainAar" ||
+      name == "syncAndroidMainLibJars"
+  }.configureEach {
+    androidCopyToJniLibsTasks.values.forEach { copy -> dependsOn(copy) }
+  }
+
+  // AGP's prepareAndroidMainArtProfile inspects build/generated/src/*/baselineProfiles
+  // — a sibling of the kotlin/ output that ktreesitter's generateGrammarFiles emits.
+  // Declare the ordering so Gradle doesn't flag an implicit dependency.
+  tasks.matching { it.name == "prepareAndroidMainArtProfile" }.configureEach {
+    mustRunAfter(generateGrammarFilesTask)
   }
 
   val mavenPublishing = extensions.getByType(com.vanniktech.maven.publish.MavenPublishBaseExtension::class.java)
