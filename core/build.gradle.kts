@@ -2,7 +2,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
   alias(libs.plugins.kotlinMultiplatform)
-  alias(libs.plugins.androidLibrary)
+  id("com.android.kotlin.multiplatform.library")
   alias(libs.plugins.composeMultiplatform)
   alias(libs.plugins.composeCompiler)
   alias(libs.plugins.vanniktechPublish)
@@ -11,17 +11,22 @@ plugins {
 }
 
 kotlin {
-  androidTarget {
-    compilerOptions {
-      jvmTarget.set(JvmTarget.JVM_17)
+  android {
+    namespace = "io.github.mataku.compose.highlight.core"
+    compileSdk = libs.versions.android.compileSdk.get().toInt()
+    minSdk = libs.versions.android.minSdk.get().toInt()
+    compilerOptions { jvmTarget.set(JvmTarget.JVM_17) }
+    androidResources { enable = true }
+    packaging {
+      resources {
+        excludes -= setOf("/META-INF/NOTICE", "/META-INF/NOTICE.txt", "/META-INF/NOTICE.md")
+        pickFirsts += "/META-INF/NOTICE"
+      }
     }
-    publishLibraryVariants("release")
   }
 
   jvm()
-
   iosArm64()
-
   applyDefaultHierarchyTemplate()
 
   sourceSets {
@@ -46,29 +51,6 @@ kotlin {
 
   sourceSets.all {
     languageSettings.optIn("io.github.mataku.compose.highlight.api.InternalSyntaxHighlightApi")
-  }
-}
-
-android {
-  namespace = "io.github.mataku.compose.highlight.core"
-  compileSdk = libs.versions.android.compileSdk.get().toInt()
-
-  defaultConfig {
-    minSdk = libs.versions.android.minSdk.get().toInt()
-    consumerProguardFiles("consumer-rules.pro")
-  }
-  compileOptions {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
-  }
-  sourceSets.named("main") {
-    resources.srcDirs("src/commonMain/resources")
-  }
-  packaging {
-    resources {
-      excludes -= setOf("/META-INF/NOTICE", "/META-INF/NOTICE.txt", "/META-INF/NOTICE.md")
-      pickFirsts += "/META-INF/NOTICE"
-    }
   }
 }
 

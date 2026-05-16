@@ -21,7 +21,7 @@ apiValidation {
 }
 
 dependencies {
-  // dokka(project(":core"))  // re-enabled by Task 6
+  dokka(project(":core"))
   dokka(project(":core-api"))
   // dokka(project(":material3"))  // re-enabled by Task 8
   // dokka(project(":material3-text-field"))  // re-enabled by Task 7
