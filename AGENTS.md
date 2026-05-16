@@ -54,6 +54,23 @@ JVM tests depend on `buildHostCMake`, which compiles the parser into a host shar
 
 After running tests, run `./gradlew spotlessApply` to keep the working tree formatted (Spotless ktlint is wired via the `compose-syntax-highlight-spotless` build-logic plugin) and `./gradlew apiCheck` for binary-compatibility validation.
 
+## `:languages:swift` regenerates its own `parser.c`
+
+`tree-sitter-swift` upstream gitignores `src/parser.c` (`/src/*` except `scanner.c` and `*.json`). Swift is the only language module in this repo that has this property today; every other grammar commits a checked-in `parser.c`. For swift, the convention plugin runs `tree-sitter generate --abi=<treesitterAbi>` on demand to produce the file locally.
+
+The `:languages:swift:generateParserSource` task is gated by `onlyIf { !parserC.exists() }`, so a `parser.c` that already exists locally is never regenerated — even after `treesitterAbi` changes in the catalog, or after the previous file was produced under a different ABI. The local file sticks.
+
+Symptom: the published swift POM property `tree-sitter-abi`, or a local `grep '#define LANGUAGE_VERSION' languages/swift/tree-sitter-swift/src/parser.c`, reports an ABI that does not match `gradle/libs.versions.toml`'s `treesitterAbi`. The repository is fine; the local file is stale. CI starts from a fresh checkout where the file does not exist, so CI builds always emit the catalog's ABI.
+
+Fix: delete the file and let the plugin regenerate it on the next build.
+
+```bash
+rm languages/swift/tree-sitter-swift/src/parser.c
+./gradlew :languages:swift:generateParserSource
+```
+
+When verifying ABI compliance from a local checkout, do not trust `ls`/`grep` of swift's `parser.c` — the source of truth is `gradle/libs.versions.toml`'s `treesitterAbi`. (Other language modules ship `parser.c` from upstream, so for those the on-disk file is authoritative.)
+
 ## Publishing
 
 See [`docs/publishing.md`](docs/publishing.md) for Maven Central publishing, local SNAPSHOT cuts, signing-key setup, and NOTICE verification.
