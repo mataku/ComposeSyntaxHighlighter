@@ -13,10 +13,7 @@ plugins {
 }
 
 apiValidation {
-  // :benchmark and :benchmark-android are temporarily excluded from settings until
-  // Tasks 19 / 20 land. Restore those ignored entries here when the modules
-  // re-appear in settings.gradle.kts. See docs/plans/2026-05-16-agp-9-phase1-plan.md.
-  ignoredProjects += listOf("composeApp", "androidApp")
+  ignoredProjects += listOf("composeApp", "androidApp", "benchmark", "benchmark-android")
   nonPublicMarkers += "io.github.mataku.compose.highlight.api.InternalSyntaxHighlightApi"
 }
 
