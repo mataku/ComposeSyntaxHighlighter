@@ -78,7 +78,7 @@ jobs:
       - name: Download benchmark results from GCS
         run: |
           mkdir -p ftl-results
-          gsutil -m cp -r "${{ steps.ftl.outputs.gcs_path }}*" ftl-results/
+          gcloud storage cp --recursive "${{ steps.ftl.outputs.gcs_path }}*" ftl-results/
 
       - name: Write benchmark step summary
         if: always()
