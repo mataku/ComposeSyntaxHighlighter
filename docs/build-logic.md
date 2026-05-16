@@ -54,8 +54,46 @@ commonMain  (all production code)
 - `jvmTest` configures this via `systemProperty("java.library.path", ...)`.
 - For Compose Desktop consumers, ship the host library alongside the JAR or document the requirement.
 
-## Tree-sitter ABI version pinning
+## Tree-sitter ABI
 
-`libs.versions.toml` pins `treesitterAbi = "15"`. `ktreesitter` 0.25.0 bundles `tree-sitter` 0.25.10, whose `api.h` reports `TREE_SITTER_LANGUAGE_VERSION = 15` and `TREE_SITTER_MIN_COMPATIBLE_LANGUAGE_VERSION = 13`, so ABI 13, 14, and 15 are all loadable at runtime. The plugin only consults `treesitterAbi` when invoking `tree-sitter generate --abi=<N>`, which currently fires only for `tree-sitter-swift` (its upstream gitignores `src/parser.c`). Bump in lockstep with `ktreesitter` when its supported ABI window moves.
+Three related concepts that should not be conflated:
 
-When picking a submodule pin for a new (or updated) language module, the bundled `src/parser.c` must fall within the supported ABI window. `generateParserSource` skips regeneration whenever `parser.c` already exists — the build trusts the checked-in upstream artifact. If a grammar gitignores `parser.c` upstream (e.g. `tree-sitter-swift`), the plugin generates it locally at the configured ABI.
+- **Parser ABI** — the ABI baked into each `parser.c`. Recorded per
+  language module as the POM property `tree-sitter-abi` by the convention
+  plugin (and `tree-sitter-abi-<grammarName>` for multi-grammar modules).
+- **Catalog `treesitterAbi`** — the value passed as `--abi=N` to
+  `tree-sitter generate`. Affects only grammars whose upstream gitignores
+  `parser.c` (currently `tree-sitter-swift`); grammars that commit a generated
+  `parser.c` use the ABI of that committed file regardless of this value.
+- **Accept window** — the `[MIN_COMPATIBLE_LANGUAGE_VERSION ..
+  LANGUAGE_VERSION]` range that the currently-pinned `ktreesitter` accepts at
+  runtime. We do not duplicate this window in our catalog; the consumer-side
+  build-time enforcement is delegated to the strict version mechanism on
+  `:core-api` (see below).
+
+When picking a submodule pin for a new or updated language module, ensure the
+bundled `parser.c` falls inside the current accept window of the catalog-pinned
+ktreesitter. `generateParserSource` skips regeneration whenever `parser.c`
+already exists; the build trusts the checked-in upstream artefact. If a grammar
+gitignores `parser.c` upstream, the plugin generates it locally at the
+configured `treesitterAbi`.
+
+## Strict version constraint on `compose-syntax-highlight-api`
+
+The convention plugin injects a `strictly` constraint on each language module's
+dependency on `:core-api`, derived from `coreApiCompatibleRange` in the catalog.
+The same constraint is set in `core/build.gradle.kts`. Together they cause
+Gradle to fail at consumer dependency resolution if a too-new core stack and an
+older language module land on the same classpath.
+
+Local development continues to use `project(":core-api")` thanks to a
+`dependencySubstitution` rule in `settings.gradle.kts` that rewrites
+`io.github.mataku:compose-syntax-highlight-api` back to the project. The
+substitution affects resolution but not publication, so published metadata
+records the coordinate and the strict range as designed.
+
+The strict range moves whenever ktreesitter narrows its accept window — we
+follow ktreesitter's range semantics and major-bump `:core-api` in lockstep.
+See
+[`docs/specs/2026-05-16-independent-language-versioning-design.md`](specs/2026-05-16-independent-language-versioning-design.md)
+for the bump rules.
