@@ -29,22 +29,27 @@ dependencyResolutionManagement {
   }
 }
 
-include(":composeApp")
+// :composeApp, :benchmark, and :languages:* are temporarily excluded during AGP 9
+// Stage 1 / Stage 2. They will be re-included in Stage 3 (convention plugin
+// migration) and Stage 4 (composeApp / benchmark split). See
+// docs/plans/2026-05-16-agp-9-phase1-plan.md Task 2.5.
+//
+// include(":composeApp")
 include(":core-api")
 include(":core")
 include(":material3")
 include(":material3-text-field")
-include(":languages:kotlin")
-include(":languages:swift")
-include(":languages:ruby")
-include(":languages:rust")
-include(":languages:python")
-include(":languages:go")
-include(":languages:java")
-include(":languages:markdown")
-include(":languages:javascript")
-include(":languages:typescript")
-include(":benchmark")
+// include(":languages:kotlin")
+// include(":languages:swift")
+// include(":languages:ruby")
+// include(":languages:rust")
+// include(":languages:python")
+// include(":languages:go")
+// include(":languages:java")
+// include(":languages:markdown")
+// include(":languages:javascript")
+// include(":languages:typescript")
+// include(":benchmark")
 
 gradle.allprojects {
   configurations.all {
