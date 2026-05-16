@@ -26,7 +26,9 @@ kotlin {
 
   sourceSets {
     commonMain.dependencies {
-      api(project(":core-api"))
+      api("${libs.coreApi.get().module}") {
+        version { strictly(libs.versions.coreApiCompatibleRange.get()) }
+      }
       api(libs.ktreesitter)
       api(libs.compose.runtime)
       api(libs.compose.ui)
