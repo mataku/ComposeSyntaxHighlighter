@@ -3,12 +3,13 @@
 #
 # Usage:
 #   bash scripts/verify-notice.sh
-#       Check all artifacts (uses root VERSION_NAME from gradle.properties).
+#       Check all artifacts. Each module's version is resolved from its own
+#       gradle.properties (root for core stack; languages/<lang>/gradle.properties
+#       for language modules).
 #
 #   bash scripts/verify-notice.sh :core :languages:kotlin ...
 #       Check only the artifacts corresponding to the given Gradle project paths.
-#       Version for core-stack modules comes from the root gradle.properties;
-#       version for language modules comes from languages/<lang>/gradle.properties.
+#       Version resolution is the same as the full-sweep mode.
 
 set -euo pipefail
 
@@ -120,39 +121,33 @@ resolve_project() {
   esac
 }
 
-if [[ $# -eq 0 ]]; then
-  # No arguments: full sweep using root VERSION_NAME (original behaviour).
-  root_version="$(grep '^VERSION_NAME=' gradle.properties | cut -d= -f2)"
-  all_modules=(
-    compose-syntax-highlight-api
-    compose-syntax-highlight-core
-    compose-syntax-highlight-material3
-    compose-syntax-highlight-material3-text-field
-    compose-syntax-highlight-kotlin
-    compose-syntax-highlight-swift
-    compose-syntax-highlight-ruby
-    compose-syntax-highlight-rust
-    compose-syntax-highlight-python
-    compose-syntax-highlight-go
-    compose-syntax-highlight-java
-    compose-syntax-highlight-markdown
-    compose-syntax-highlight-javascript
-    compose-syntax-highlight-typescript
-  )
-  for module in "${all_modules[@]}"; do
-    check_module "$module" "$root_version"
-  done
-else
-  # Arguments are Gradle project paths (e.g. :core, :languages:kotlin).
-  for project in "$@"; do
-    _module_name=""
-    _version_file=""
-    resolve_project "$project"
-    version="$(grep '^VERSION_NAME=' "$_version_file" | cut -d= -f2)"
-    if [[ -z "$version" ]]; then
-      echo "VERSION_NAME not found in $_version_file" >&2
-      exit 1
-    fi
-    check_module "$_module_name" "$version"
-  done
-fi
+default_projects=(
+  :core-api
+  :core
+  :material3
+  :material3-text-field
+  :languages:kotlin
+  :languages:swift
+  :languages:ruby
+  :languages:rust
+  :languages:python
+  :languages:go
+  :languages:java
+  :languages:markdown
+  :languages:javascript
+  :languages:typescript
+)
+
+projects=("${@:-${default_projects[@]}}")
+
+for project in "${projects[@]}"; do
+  _module_name=""
+  _version_file=""
+  resolve_project "$project"
+  version="$(grep '^VERSION_NAME=' "$_version_file" | cut -d= -f2)"
+  if [[ -z "$version" ]]; then
+    echo "VERSION_NAME not found in $_version_file" >&2
+    exit 1
+  fi
+  check_module "$_module_name" "$version"
+done
