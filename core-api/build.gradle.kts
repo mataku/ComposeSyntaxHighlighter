@@ -2,52 +2,29 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
   alias(libs.plugins.kotlinMultiplatform)
-  alias(libs.plugins.androidLibrary)
+  id("com.android.kotlin.multiplatform.library")
   alias(libs.plugins.vanniktechPublish)
   id("compose-syntax-highlight-kdoc")
   id("compose-syntax-highlight-spotless")
 }
 
 kotlin {
-  androidTarget {
-    compilerOptions {
-      jvmTarget.set(JvmTarget.JVM_17)
-    }
-    publishLibraryVariants("release")
+  android {
+    namespace = "io.github.mataku.compose.highlight.api"
+    compileSdk = libs.versions.android.compileSdk.get().toInt()
+    minSdk = libs.versions.android.minSdk.get().toInt()
+    compilerOptions { jvmTarget.set(JvmTarget.JVM_17) }
+    androidResources { enable = true }
   }
 
   jvm()
-
   iosArm64()
-
   applyDefaultHierarchyTemplate()
 
   sourceSets {
     commonMain.dependencies {
       api(libs.ktreesitter)
       compileOnly(libs.compose.runtime)
-    }
-  }
-}
-
-android {
-  namespace = "io.github.mataku.compose.highlight.api"
-  compileSdk = libs.versions.android.compileSdk.get().toInt()
-
-  defaultConfig {
-    minSdk = libs.versions.android.minSdk.get().toInt()
-  }
-  compileOptions {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
-  }
-  sourceSets.named("main") {
-    resources.srcDirs("src/commonMain/resources")
-  }
-  packaging {
-    resources {
-      excludes -= setOf("/META-INF/NOTICE", "/META-INF/NOTICE.txt", "/META-INF/NOTICE.md")
-      pickFirsts += "/META-INF/NOTICE"
     }
   }
 }
