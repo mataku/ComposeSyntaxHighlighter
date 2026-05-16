@@ -249,7 +249,11 @@ extensions.configure<KotlinMultiplatformExtension>("kotlin") {
       resources.srcDir(noticeOutDir)
       kotlin.srcDir(highlightsQueryDir)
       dependencies {
-        api(project(":core-api"))
+        api("${versionCatalog.findLibrary("coreApi").get().get().module}") {
+          version {
+            strictly(versionCatalog.findVersion("coreApiCompatibleRange").get().requiredVersion)
+          }
+        }
         api(versionCatalog.findLibrary("ktreesitter").get())
       }
     }
