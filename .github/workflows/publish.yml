@@ -1,15 +1,35 @@
 name: Publish
 
 on:
-  push:
-    tags:
-      - 'v*'
   workflow_dispatch:
-
+    inputs:
+      module:
+        description: 'Module scope to publish'
+        required: true
+        type: choice
+        options:
+          - core-stack
+          - languages/kotlin
+          - languages/swift
+          - languages/ruby
+          - languages/rust
+          - languages/python
+          - languages/go
+          - languages/java
+          - languages/markdown
+          - languages/javascript
+          - languages/typescript
+      dry-run:
+        description: 'Run all steps except the final Maven Central upload and tag push'
+        required: false
+        default: false
+        type: boolean
 
 jobs:
   publish:
     runs-on: macos-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
@@ -18,23 +38,79 @@ jobs:
       - uses: ./.github/actions/setup-android-deps
       - uses: ./.github/actions/setup-tree-sitter
 
-      - name: Build & publish to Maven Local (pre-flight)
-        run: ./gradlew publishToMavenLocal -PRELEASE_SIGNING_ENABLED=false --no-configuration-cache
+      - name: Resolve target projects and version
+        id: target
+        run: |
+          MODULE="${{ inputs.module }}"
+          if [ "$MODULE" = "core-stack" ]; then
+            PROJECTS=":core-api :core :material3 :material3-text-field"
+            VERSION_FILE="gradle.properties"
+          else
+            PROJECTS=":$MODULE"
+            VERSION_FILE="$MODULE/gradle.properties"
+          fi
+          VERSION=$(grep '^VERSION_NAME=' "$VERSION_FILE" | cut -d= -f2)
+          if [ -z "$VERSION" ]; then
+            echo "VERSION_NAME not found in $VERSION_FILE" >&2
+            exit 1
+          fi
+          if [[ "$VERSION" == *SNAPSHOT* ]]; then
+            echo "Refusing to publish SNAPSHOT version $VERSION via this workflow" >&2
+            exit 1
+          fi
+          {
+            echo "projects=$PROJECTS"
+            echo "version=$VERSION"
+            echo "module=$MODULE"
+          } >> "$GITHUB_OUTPUT"
 
-      - name: Verify META-INF/NOTICE in published artifacts
-        run: bash scripts/verify-notice.sh
+      - name: Build target projects
+        run: |
+          TASKS=""
+          for P in ${{ steps.target.outputs.projects }}; do
+            TASKS="$TASKS $P:publishToMavenLocal"
+          done
+          # shellcheck disable=SC2086
+          ./gradlew $TASKS -PRELEASE_SIGNING_ENABLED=false --no-configuration-cache
+
+      - name: Verify META-INF/NOTICE in target artefacts
+        run: bash scripts/verify-notice.sh ${{ steps.target.outputs.projects }}
 
       - name: Publish to Maven Central
+        if: ${{ !inputs.dry-run }}
         env:
           ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.ORG_GRADLE_PROJECT_MAVENCENTRALUSERNAME }}
           ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.ORG_GRADLE_PROJECT_MAVENCENTRALPASSWORD }}
           ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGINMEMORYKEY }}
           ORG_GRADLE_PROJECT_signingInMemoryKeyId: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGINMEMORYKEYID }}
           ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGINMEMORYKEYPASSWORD }}
-        run: ./gradlew publishToMavenCentral --no-configuration-cache
+        run: |
+          TASKS=""
+          for P in ${{ steps.target.outputs.projects }}; do
+            TASKS="$TASKS $P:publishToMavenCentral"
+          done
+          # shellcheck disable=SC2086
+          ./gradlew $TASKS --no-configuration-cache
+
+      - name: Tag release on success
+        if: ${{ !inputs.dry-run }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          MODULE="${{ steps.target.outputs.module }}"
+          VERSION="${{ steps.target.outputs.version }}"
+          if [ "$MODULE" = "core-stack" ]; then
+            TAG="core-stack-v$VERSION"
+          else
+            LANG_NAME="${MODULE#languages/}"
+            TAG="$LANG_NAME-v$VERSION"
+          fi
+          git tag "$TAG"
+          git push origin "$TAG"
 
   deploy-docs:
     needs: publish
+    if: ${{ !inputs.dry-run }}
     runs-on: ubuntu-latest
     permissions:
       pages: write
