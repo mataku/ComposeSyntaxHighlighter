@@ -40,7 +40,7 @@ include(":core-api")
 // Tasks 7 / 8 as each migrates to com.android.kotlin.multiplatform.library.
 include(":core")
 // include(":material3")
-// include(":material3-text-field")
+include(":material3-text-field")
 // include(":languages:kotlin")
 // include(":languages:swift")
 // include(":languages:ruby")

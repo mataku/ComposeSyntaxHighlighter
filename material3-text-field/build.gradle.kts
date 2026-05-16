@@ -2,7 +2,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
   alias(libs.plugins.kotlinMultiplatform)
-  alias(libs.plugins.androidLibrary)
+  id("com.android.kotlin.multiplatform.library")
   alias(libs.plugins.composeMultiplatform)
   alias(libs.plugins.composeCompiler)
   alias(libs.plugins.vanniktechPublish)
@@ -11,17 +11,22 @@ plugins {
 }
 
 kotlin {
-  androidTarget {
-    compilerOptions {
-      jvmTarget.set(JvmTarget.JVM_17)
+  android {
+    namespace = "io.github.mataku.compose.highlight.material3.textfield"
+    compileSdk = libs.versions.android.compileSdk.get().toInt()
+    minSdk = libs.versions.android.minSdk.get().toInt()
+    compilerOptions { jvmTarget.set(JvmTarget.JVM_17) }
+    androidResources { enable = true }
+    packaging {
+      resources {
+        excludes -= setOf("/META-INF/NOTICE", "/META-INF/NOTICE.txt", "/META-INF/NOTICE.md")
+        pickFirsts += "/META-INF/NOTICE"
+      }
     }
-    publishLibraryVariants("release")
   }
 
   jvm()
-
   iosArm64()
-
   applyDefaultHierarchyTemplate()
 
   sourceSets {
@@ -33,11 +38,17 @@ kotlin {
       api(libs.compose.material3)
       implementation(libs.kotlinx.coroutines.core)
     }
-    commonTest.dependencies {
-      implementation(libs.kotlin.test)
-      implementation(libs.compose.uiTest)
-      implementation(projects.languages.kotlin)
-      implementation(projects.languages.python)
+    commonTest {
+      // Tests reference :languages:kotlin and :languages:python, which are temporarily
+      // excluded during AGP 9 Stage 1 / Stage 2. The commonTest sources are parked and
+      // restored in Stage 3. See docs/plans/2026-05-16-agp-9-phase1-plan.md Task 2.5.
+      kotlin.setSrcDirs(emptyList<Any>())
+      dependencies {
+        implementation(libs.kotlin.test)
+        implementation(libs.compose.uiTest)
+        // implementation(projects.languages.kotlin)
+        // implementation(projects.languages.python)
+      }
     }
     // Skiko awt-runtime is a runtime-only dependency for jvmTest: nothing in commonTest references org.jetbrains.skiko.* directly.
     // runComposeUiTest renders Compose via Skiko on the JVM, and the awt-runtime ships per OS/arch via classifier.
@@ -63,28 +74,6 @@ kotlin {
   }
 }
 
-android {
-  namespace = "io.github.mataku.compose.highlight.material3.textfield"
-  compileSdk = libs.versions.android.compileSdk.get().toInt()
-
-  defaultConfig {
-    minSdk = libs.versions.android.minSdk.get().toInt()
-  }
-  compileOptions {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
-  }
-  sourceSets.named("main") {
-    resources.srcDirs("src/commonMain/resources")
-  }
-  packaging {
-    resources {
-      excludes -= setOf("/META-INF/NOTICE", "/META-INF/NOTICE.txt", "/META-INF/NOTICE.md")
-      pickFirsts += "/META-INF/NOTICE"
-    }
-  }
-}
-
 mavenPublishing {
   coordinates(artifactId = "compose-syntax-highlight-material3-text-field")
   pom {
@@ -95,16 +84,19 @@ mavenPublishing {
   }
 }
 
-tasks.named<Test>("jvmTest") {
-  val languageProjects = listOf(
-    project(":languages:kotlin"),
-    project(":languages:python"),
-  )
-  languageProjects.forEach { dependsOn(it.tasks.named("buildHostCMake")) }
-  val libPaths = languageProjects.joinToString(":") {
-    it.layout.buildDirectory.dir("host-cmake").get().asFile.absolutePath
-  }
-  doFirst {
-    systemProperty("java.library.path", libPaths)
-  }
-}
+// jvmTest language-library wiring temporarily disabled during AGP 9 Stage 1 / Stage 2;
+// restored in Stage 3 once :languages:* modules are re-included. See
+// docs/plans/2026-05-16-agp-9-phase1-plan.md Task 2.5.
+// tasks.named<Test>("jvmTest") {
+//   val languageProjects = listOf(
+//     project(":languages:kotlin"),
+//     project(":languages:python"),
+//   )
+//   languageProjects.forEach { dependsOn(it.tasks.named("buildHostCMake")) }
+//   val libPaths = languageProjects.joinToString(":") {
+//     it.layout.buildDirectory.dir("host-cmake").get().asFile.absolutePath
+//   }
+//   doFirst {
+//     systemProperty("java.library.path", libPaths)
+//   }
+// }
