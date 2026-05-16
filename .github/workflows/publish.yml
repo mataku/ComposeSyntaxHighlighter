@@ -46,7 +46,7 @@ jobs:
             PROJECTS=":core-api :core :material3 :material3-text-field"
             VERSION_FILE="gradle.properties"
           else
-            PROJECTS=":$MODULE"
+            PROJECTS=":${MODULE//\//:}"
             VERSION_FILE="$MODULE/gradle.properties"
           fi
           VERSION=$(grep '^VERSION_NAME=' "$VERSION_FILE" | cut -d= -f2)
