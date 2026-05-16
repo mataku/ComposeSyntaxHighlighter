@@ -45,3 +45,13 @@ include(":languages:markdown")
 include(":languages:javascript")
 include(":languages:typescript")
 include(":benchmark")
+
+gradle.allprojects {
+  configurations.all {
+    resolutionStrategy.dependencySubstitution {
+      substitute(module("io.github.mataku:compose-syntax-highlight-api"))
+        .using(project(":core-api"))
+        .because("local development: use the :core-api project, not Maven Central")
+    }
+  }
+}
