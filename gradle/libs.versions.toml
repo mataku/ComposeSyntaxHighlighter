@@ -24,6 +24,11 @@ ktreesitterPlugin = "0.25.0"
 # `tree-sitter generate --abi=<N>` (currently only tree-sitter-swift). Restore
 # to 15 once upstream ktreesitter bumps its Kotlin constants.
 treesitterAbi = "14"
+# build-logic が言語モジュールと :core の compose-syntax-highlight-api 依存に注入する
+# strict version 範囲。ktreesitter の range 運用に同期し、ktreesitter が受理窓を
+# 狭めるリリース(古い ABI を切り捨てる)を major で出したら、こちらも major に上げる。
+# ルールは docs/specs/2026-05-16-independent-language-versioning-design.md 参照。
+coreApiCompatibleRange = "[0.6, 1.0)"
 material3 = "1.9.0"
 vanniktechPublish = "0.34.0"
 dokka = "2.2.0"
@@ -53,6 +58,7 @@ compose-components-resources = { module = "org.jetbrains.compose.components:comp
 compose-uiToolingPreview = { module = "org.jetbrains.compose.ui:ui-tooling-preview", version.ref = "composeMultiplatform" }
 compose-uiTest = { module = "org.jetbrains.compose.ui:ui-test", version.ref = "composeMultiplatform" }
 ktreesitter = { module = "io.github.tree-sitter:ktreesitter", version.ref = "ktreesitter" }
+coreApi = { module = "io.github.mataku:compose-syntax-highlight-api" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
