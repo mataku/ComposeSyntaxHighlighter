@@ -803,9 +803,14 @@ afterEvaluate {
     }
     tasks.matching {
       it.name.startsWith("configureCMake") || it.name.startsWith("buildCMake") ||
+        it.name.startsWith("configureAndroidCMake") || it.name.startsWith("buildAndroidCMake") ||
         it.name == "configureHostCMake" || it.name == "buildHostCMake"
     }.configureEach {
       dependsOn(genBindingTask, genParserTask)
+    }
+
+    tasks.matching { it.name == "prepareAndroidMainArtProfile" }.configureEach {
+      mustRunAfter(genKotlinTask, genHighlightsTask)
     }
   }
 }
