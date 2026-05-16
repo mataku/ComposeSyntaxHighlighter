@@ -29,12 +29,13 @@ dependencyResolutionManagement {
   }
 }
 
-// :composeApp, :benchmark, and :languages:* are temporarily excluded during AGP 9
-// Stage 1 / Stage 2. They will be re-included in Stage 3 (convention plugin
-// migration) and Stage 4 (composeApp / benchmark split). See
-// docs/plans/2026-05-16-agp-9-phase1-plan.md Task 2.5.
+// :composeApp and :benchmark are temporarily excluded until Tasks 15 / 19 migrate
+// them under com.android.kotlin.multiplatform.library and split their layouts.
+// :androidApp and :benchmark-android are NEW modules added in Stage 4 (Tasks 16 / 20).
+// See docs/plans/2026-05-16-agp-9-phase1-plan.md.
 //
-// include(":composeApp")
+// include(":composeApp")    // re-included by Task 15
+include(":androidApp")       // new in Stage 4 (Task 16)
 include(":core-api")
 include(":core")
 include(":material3")
@@ -49,7 +50,8 @@ include(":languages:java")
 include(":languages:markdown")
 include(":languages:javascript")
 include(":languages:typescript")
-// include(":benchmark")
+// include(":benchmark")     // re-included by Task 19
+include(":benchmark-android") // new in Stage 4 (Task 20)
 
 gradle.allprojects {
   configurations.all {
