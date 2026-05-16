@@ -18,6 +18,8 @@ dependencies {
   implementation(libs.plugins.vanniktechPublish.toGradle())
   implementation(libs.plugins.dokka.toGradle())
   implementation(libs.plugins.spotless.toGradle())
+  testImplementation(embeddedKotlin("test"))
+  testImplementation(embeddedKotlin("test-junit"))
 }
 
 fun org.gradle.plugin.use.PluginDependency.toGradle(): String = "$pluginId:$pluginId.gradle.plugin:${version.requiredVersion}"
