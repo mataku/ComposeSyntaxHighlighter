@@ -94,6 +94,3 @@ records the coordinate and the strict range as designed.
 
 The strict range moves whenever ktreesitter narrows its accept window — we
 follow ktreesitter's range semantics and major-bump `:core-api` in lockstep.
-See
-[`docs/specs/2026-05-16-independent-language-versioning-design.md`](specs/2026-05-16-independent-language-versioning-design.md)
-for the bump rules.

@@ -12,13 +12,16 @@ the events that produce conflicts.
 
 ## Versioning rules
 
-The release-management rules — when each version bumps in response to a change
-event — live in
-[docs/specs/2026-05-16-independent-language-versioning-design.md](specs/2026-05-16-independent-language-versioning-design.md).
-That spec is the authoritative source for "what kind of bump does this change
-warrant". One-sentence summary: we follow ktreesitter's range semantics — when
-ktreesitter narrows its accept window we major-bump `:core-api` and re-publish
-every language module so each artefact carries the new strict range.
+Each language module carries its own `VERSION_NAME` in
+`languages/<lang>/gradle.properties` and moves independently from the core
+stack (`:core-api`, `:core`, `:material3`, `:material3-text-field`), which
+shares the root `gradle.properties` `VERSION_NAME`. Bump and release each axis
+on its own change drivers; see [docs/publishing.md](publishing.md) for the
+per-axis release flow.
+
+We follow ktreesitter's range semantics — when ktreesitter narrows its accept
+window we major-bump `:core-api` and re-publish every language module so each
+artefact carries the new strict range.
 
 ## Compatibility table
 

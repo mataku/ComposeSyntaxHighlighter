@@ -1,6 +1,6 @@
 ---
 name: decide-publish-version
-description: Decide which version(s) to bump and which catalog values to update before publishing. Encodes the two-axis versioning rules from docs/specs/2026-05-16-independent-language-versioning-design.md. Run only when invoked explicitly via slash command.
+description: Decide which version(s) to bump and which catalog values to update before publishing. Encodes the two-axis versioning rules for the core stack and language modules. Run only when invoked explicitly via slash command.
 disable-model-invocation: true
 allowed-tools:
   - Read
@@ -25,7 +25,7 @@ This skill walks the maintainer through the two-axis versioning rules and output
 - Whether other language modules need a compat re-publish (window-narrowing case).
 - The publish workflow inputs to use (`module=` and the tag the workflow will produce).
 
-The authoritative source for the rules is `docs/specs/2026-05-16-independent-language-versioning-design.md` (the "ABI update rules" event table and the "Release operations" section). This skill is a decision aid built on top of that spec — when something feels ambiguous, re-read the spec rather than guessing.
+The event table in section 2 is the authoritative encoding of the rules. When a change does not fit any row cleanly, stop and ask the maintainer rather than guessing — the choice between "minor X" and "major core stack" has different downstream cost.
 
 ## 1. Identify the change event
 
