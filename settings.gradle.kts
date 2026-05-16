@@ -36,9 +36,11 @@ dependencyResolutionManagement {
 //
 // include(":composeApp")
 include(":core-api")
-include(":core")
-include(":material3")
-include(":material3-text-field")
+// :core, :material3, :material3-text-field temporarily excluded — re-included by
+// Tasks 6 / 7 / 8 as each migrates to com.android.kotlin.multiplatform.library.
+// include(":core")
+// include(":material3")
+// include(":material3-text-field")
 // include(":languages:kotlin")
 // include(":languages:swift")
 // include(":languages:ruby")

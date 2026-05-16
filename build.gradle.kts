@@ -21,10 +21,10 @@ apiValidation {
 }
 
 dependencies {
-  dokka(project(":core"))
+  // dokka(project(":core"))  // re-enabled by Task 6
   dokka(project(":core-api"))
-  dokka(project(":material3"))
-  dokka(project(":material3-text-field"))
+  // dokka(project(":material3"))  // re-enabled by Task 8
+  // dokka(project(":material3-text-field"))  // re-enabled by Task 7
   // :languages:* are temporarily excluded during AGP 9 Stage 1 / Stage 2.
   // Re-add when modules are restored. See
   // docs/plans/2026-05-16-agp-9-phase1-plan.md Task 2.5.
