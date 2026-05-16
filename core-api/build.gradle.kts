@@ -15,6 +15,12 @@ kotlin {
     minSdk = libs.versions.android.minSdk.get().toInt()
     compilerOptions { jvmTarget.set(JvmTarget.JVM_17) }
     androidResources { enable = true }
+    packaging {
+      resources {
+        excludes -= setOf("/META-INF/NOTICE", "/META-INF/NOTICE.txt", "/META-INF/NOTICE.md")
+        pickFirsts += "/META-INF/NOTICE"
+      }
+    }
   }
 
   jvm()
@@ -22,9 +28,12 @@ kotlin {
   applyDefaultHierarchyTemplate()
 
   sourceSets {
-    commonMain.dependencies {
-      api(libs.ktreesitter)
-      compileOnly(libs.compose.runtime)
+    commonMain {
+      resources.srcDirs("src/commonMain/resources")
+      dependencies {
+        api(libs.ktreesitter)
+        compileOnly(libs.compose.runtime)
+      }
     }
   }
 }
