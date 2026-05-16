@@ -1,5 +1,3 @@
-import com.android.build.api.variant.LibraryAndroidComponentsExtension
-import com.android.build.gradle.LibraryExtension
 import io.github.mataku.compose.highlight.buildlogic.ComposeSyntaxHighlightLanguageExtension
 import io.github.mataku.compose.highlight.buildlogic.GrammarSpec
 import io.github.mataku.compose.highlight.buildlogic.extractParserAbi
@@ -18,7 +16,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
 
 plugins {
   id("org.jetbrains.kotlin.multiplatform")
-  id("com.android.library")
+  id("com.android.kotlin.multiplatform.library")
   id("io.github.tree-sitter.ktreesitter-plugin")
   id("com.vanniktech.maven.publish")
   id("compose-syntax-highlight-kdoc")
@@ -33,6 +31,13 @@ fun catalogVersionInt(alias: String): Int = versionCatalog.findVersion(alias).ge
 
 val highlightsQueryDir = layout.buildDirectory.dir("generated/highlights")
 val hostCMakeWorkDir = layout.buildDirectory.dir("host-cmake")
+
+// Used by Task 12 (Android NDK CMake task chain). Mirrors the value from the
+// pre-AGP-9 `android { ndkVersion = ... }` block. When the project bumps NDK,
+// update both this value and the version pinned in CI's setup-android-deps action.
+@Suppress("UnusedPrivateProperty")
+private val androidNdkVersion = "26.3.11579264"
+
 val noticeOutDir = layout.buildDirectory.dir("notice")
 val iosHeaderDirProvider = layout.buildDirectory.dir("generated/iosHeaders")
 val iosStaticLibsDirProvider = layout.buildDirectory.dir("libs")
@@ -231,11 +236,22 @@ val buildHostCMake = tasks.register<Exec>("buildHostCMake") {
 }
 
 extensions.configure<KotlinMultiplatformExtension>("kotlin") {
-  androidTarget {
+  android {
+    namespace = composeSyntaxHighlightLanguage.languageName.map { "io.github.mataku.compose.highlight.$it" }.get()
+    compileSdk = catalogVersionInt("android-compileSdk")
+    minSdk = catalogVersionInt("android-minSdk")
     compilerOptions {
       jvmTarget.set(JvmTarget.JVM_17)
     }
-    publishLibraryVariants("release")
+    androidResources {
+      enable = true
+    }
+    packaging {
+      resources {
+        excludes -= setOf("/META-INF/NOTICE", "/META-INF/NOTICE.txt", "/META-INF/NOTICE.md")
+        pickFirsts += "/META-INF/NOTICE"
+      }
+    }
   }
 
   jvm()
@@ -266,48 +282,12 @@ extensions.configure<KotlinMultiplatformExtension>("kotlin") {
     }
   }
 
+  sourceSets.named("androidMain") {
+    resources.srcDir(noticeOutDir)
+  }
+
   sourceSets.all {
     languageSettings.optIn("io.github.mataku.compose.highlight.api.InternalSyntaxHighlightApi")
-  }
-}
-
-extensions.configure<LibraryExtension>("android") {
-  compileSdk = catalogVersionInt("android-compileSdk")
-  ndkVersion = "26.3.11579264"
-
-  defaultConfig {
-    minSdk = catalogVersionInt("android-minSdk")
-    ndk {
-      abiFilters += setOf("x86_64", "arm64-v8a", "armeabi-v7a")
-    }
-  }
-  externalNativeBuild {
-    cmake {
-      path = file("CMakeLists.txt")
-      buildStagingDirectory = file(".cmake")
-      version = "3.22.1"
-    }
-  }
-  compileOptions {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
-  }
-  sourceSets.named("main") {
-    resources.srcDirs(noticeOutDir)
-  }
-  packaging {
-    resources {
-      excludes -= setOf("/META-INF/NOTICE", "/META-INF/NOTICE.txt", "/META-INF/NOTICE.md")
-      pickFirsts += "/META-INF/NOTICE"
-    }
-  }
-}
-
-extensions.configure<LibraryAndroidComponentsExtension>("androidComponents") {
-  finalizeDsl { dsl ->
-    val name = composeSyntaxHighlightLanguage.languageName.orNull
-      ?: error("composeSyntaxHighlightLanguage.languageName must be set in the consumer build script")
-    dsl.namespace = "io.github.mataku.compose.highlight.$name"
   }
 }
 
