@@ -4,9 +4,12 @@ import java.io.File
 
 /**
  * Writes a CMakeLists.txt for an Android NDK toolchain invocation that produces
- * libtree-sitter-<languageName>.so. The CMakeLists is placed under
- * <module>/android-cmake/<abi>/ and invoked via direct `cmake` calls with
- * -DCMAKE_TOOLCHAIN_FILE pointing at the NDK's android.toolchain.cmake.
+ * libktreesitter-<languageName>.so. The library name matches the convention plugin's
+ * `grammar { libraryName = "ktreesitter-$languageName" }` setting, which in turn matches
+ * `System.loadLibrary("ktreesitter-$languageName")` in the ktreesitter-plugin-generated
+ * Kotlin bindings. The CMakeLists is placed under <module>/android-cmake/<abi>/ and
+ * invoked via direct `cmake` calls with -DCMAKE_TOOLCHAIN_FILE pointing at the NDK's
+ * android.toolchain.cmake.
  *
  * Mirrors the body of writeHostCMakeLists / writeAndroidCMakeLists from
  * CMakeListsTemplate.kt: the source files are the per-grammar parser.c
@@ -30,10 +33,11 @@ fun writeAndroidNdkCmakeLists(
   val primaryName = grammars.first().name
   val headerSymbol = "TREE_SITTER_${primaryName.uppercase()}_H_"
   val headerFileName = "tree-sitter-$primaryName.h"
+  val cmakeTargetName = "ktreesitter-$languageName"
   target.parentFile.mkdirs()
   target.writeText(buildString {
     appendLine("cmake_minimum_required(VERSION 3.22.1)")
-    appendLine("project(tree-sitter-$languageName C)")
+    appendLine("project($cmakeTargetName C)")
     appendLine()
     appendLine("set(CMAKE_C_STANDARD 11)")
     appendLine("set(CMAKE_C_VISIBILITY_PRESET hidden)")
@@ -67,15 +71,15 @@ fun writeAndroidNdkCmakeLists(
         add("../../${spec.bindingCPath}")
       }
     }
-    appendLine("add_library(tree-sitter-$languageName SHARED")
+    appendLine("add_library($cmakeTargetName SHARED")
     for (src in sources) appendLine("  $src")
     appendLine(")")
     appendLine()
-    appendLine("target_include_directories(tree-sitter-$languageName PRIVATE \${LANGUAGE_HEADER_DIR})")
+    appendLine("target_include_directories($cmakeTargetName PRIVATE \${LANGUAGE_HEADER_DIR})")
     for (spec in grammars) {
-      appendLine("target_include_directories(tree-sitter-$languageName PRIVATE ../../${spec.submodulePath}/src)")
+      appendLine("target_include_directories($cmakeTargetName PRIVATE ../../${spec.submodulePath}/src)")
     }
-    appendLine("target_compile_definitions(tree-sitter-$languageName PRIVATE TREE_SITTER_HIDE_SYMBOLS)")
+    appendLine("target_compile_definitions($cmakeTargetName PRIVATE TREE_SITTER_HIDE_SYMBOLS)")
   })
 }
 

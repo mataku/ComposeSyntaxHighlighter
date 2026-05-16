@@ -251,7 +251,7 @@ val androidCopyToJniLibsTasks: Map<String, TaskProvider<Copy>> = androidAbis.ass
   }
   val cmakeListsFileProvider = cmakeListsSrcDirProvider.map { File(it, "CMakeLists.txt") }
   val soFileProvider: Provider<File> = workDirProvider.map { workDir ->
-    File(workDir, "libtree-sitter-${composeSyntaxHighlightLanguage.languageName.get()}.so")
+    File(workDir, "libktreesitter-${composeSyntaxHighlightLanguage.languageName.get()}.so")
   }
   val jniLibsDestDirProvider: Provider<File> = androidJniLibsDir.map { it.dir(abi).asFile }
 
