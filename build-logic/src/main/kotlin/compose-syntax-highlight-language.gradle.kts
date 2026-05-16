@@ -2,6 +2,7 @@ import com.android.build.api.variant.LibraryAndroidComponentsExtension
 import com.android.build.gradle.LibraryExtension
 import io.github.mataku.compose.highlight.buildlogic.ComposeSyntaxHighlightLanguageExtension
 import io.github.mataku.compose.highlight.buildlogic.GrammarSpec
+import io.github.mataku.compose.highlight.buildlogic.extractParserAbi
 import io.github.mataku.compose.highlight.buildlogic.writeAndroidCMakeLists
 import io.github.mataku.compose.highlight.buildlogic.writeHostCMakeLists
 import io.github.mataku.compose.highlight.buildlogic.writeIosHeader
@@ -41,6 +42,21 @@ val primaryGrammarProvider: Provider<GrammarSpec> = providers.provider {
   require(grammars.isNotEmpty()) { "composeSyntaxHighlightLanguage.grammars must contain at least one entry" }
   grammars.first()
 }
+
+val grammarAbisProvider: Provider<List<Pair<String, Int>>> = providers.provider {
+  composeSyntaxHighlightLanguage.grammars.map { spec ->
+    val grammarDir = projectDir.resolve(spec.submodulePath.get())
+    val parserC = grammarDir.resolve("src/parser.c")
+    require(parserC.exists()) {
+      "parser.c not found for grammar '${spec.name}' at ${parserC.absolutePath}. " +
+        "Ensure the submodule is checked out, or run :generateParserSource first."
+    }
+    spec.name to extractParserAbi(parserC)
+  }
+}
+
+val primaryGrammarAbiProvider: Provider<Int> =
+  grammarAbisProvider.map { it.first().second }
 
 val grammarDirProvider: Provider<File> = primaryGrammarProvider.flatMap { spec ->
   spec.submodulePath.map { projectDir.resolve(it) }
@@ -514,6 +530,16 @@ afterEvaluate {
   mavenPublishing.pom {
     name.set("Compose Syntax Highlight $languageName")
     description.set("$languageName syntax highlighting for Compose Multiplatform powered by tree-sitter")
+  }
+  mavenPublishing.pom {
+    properties.put("tree-sitter-abi", primaryGrammarAbiProvider.map { it.toString() })
+    for (secondary in secondaryGrammars) {
+      val name = secondary.name
+      properties.put(
+        "tree-sitter-abi-$name",
+        grammarAbisProvider.map { abis -> abis.first { it.first == name }.second.toString() },
+      )
+    }
   }
 
   // Secondary grammars (entries 2..N in grammars container). The primary entry is wired
