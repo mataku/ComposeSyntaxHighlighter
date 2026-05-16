@@ -23,6 +23,11 @@ kotlin {
         pickFirsts += "/META-INF/NOTICE"
       }
     }
+    @OptIn(org.gradle.api.Incubating::class)
+    optimization.consumerKeepRules.apply {
+      publish = true
+      file("consumer-rules.pro")
+    }
   }
 
   jvm()
