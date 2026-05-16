@@ -67,6 +67,16 @@ For an **editable** code surface, depend on `:material3-text-field` instead of (
 implementation("io.github.mataku:compose-syntax-highlight-material3-text-field:$latestVersion")
 ```
 
+### Compatible versions
+
+Each language module is published with its own version, independent from the
+core stack. When the versions on your classpath are incompatible — for example,
+upgrading the core stack across a major bump without also upgrading language
+modules — Gradle reports a `strictly` conflict on
+`compose-syntax-highlight-api`. See
+[`docs/compatibility.md`](docs/compatibility.md) for the matrix of compatible
+versions per artefact.
+
 ### Without a Material binding
 
 If you build your own `Text` on top of the produced `AnnotatedString`, or you only need `highlight()` to feed an existing UI, depend on `:core` directly:
