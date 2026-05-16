@@ -1,0 +1,11 @@
+Compose Syntax Highlight
+Copyright (c) Takuma Homma
+
+This artifact provides a Material3 BasicTextField wrapper with a syntax-
+highlighted overlay for Compose Syntax Highlight. It does not bundle
+third-party source code; runtime dependencies (Jetpack Compose Material3,
+KTreeSitter, tree-sitter grammars) are resolved via their own coordinates
+and ship their own NOTICE/LICENSE files. Theme attributions (Solarized,
+GitHub Primer, Atom One, Dracula) ride with the compose-syntax-highlight-core
+artifact, which this module depends on transitively via
+compose-syntax-highlight-core.
