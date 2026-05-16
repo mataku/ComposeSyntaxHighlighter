@@ -24,6 +24,11 @@ ktreesitterPlugin = "0.25.0"
 # `tree-sitter generate --abi=<N>` (currently only tree-sitter-swift). Restore
 # to 15 once upstream ktreesitter bumps its Kotlin constants.
 treesitterAbi = "14"
+# The strict version range injected by build-logic into each language module's
+# and :core's dependency on compose-syntax-highlight-api. Kept in sync with
+# ktreesitter's accept window: when ktreesitter narrows the window (drops an
+# old ABI) with a major release, this range gets a corresponding major bump.
+coreApiCompatibleRange = "[0.6, 1.0)"
 material3 = "1.9.0"
 vanniktechPublish = "0.34.0"
 dokka = "2.2.0"
@@ -53,6 +58,7 @@ compose-components-resources = { module = "org.jetbrains.compose.components:comp
 compose-uiToolingPreview = { module = "org.jetbrains.compose.ui:ui-tooling-preview", version.ref = "composeMultiplatform" }
 compose-uiTest = { module = "org.jetbrains.compose.ui:ui-test", version.ref = "composeMultiplatform" }
 ktreesitter = { module = "io.github.tree-sitter:ktreesitter", version.ref = "ktreesitter" }
+coreApi = { module = "io.github.mataku:compose-syntax-highlight-api" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
