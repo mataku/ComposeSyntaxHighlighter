@@ -29,10 +29,13 @@ dependencies {
   // Re-add when modules are restored. See
   // docs/plans/2026-05-16-agp-9-phase1-plan.md Task 2.5.
   dokka(project(":languages:kotlin"))
-  // dokka(project(":languages:swift"))
-  // dokka(project(":languages:ruby"))
-  // dokka(project(":languages:rust"))
-  // dokka(project(":languages:python"))
-  // dokka(project(":languages:go"))
-  // dokka(project(":languages:java"))
+  dokka(project(":languages:swift"))
+  dokka(project(":languages:ruby"))
+  dokka(project(":languages:rust"))
+  dokka(project(":languages:python"))
+  dokka(project(":languages:go"))
+  dokka(project(":languages:java"))
+  dokka(project(":languages:markdown"))
+  dokka(project(":languages:javascript"))
+  dokka(project(":languages:typescript"))
 }
