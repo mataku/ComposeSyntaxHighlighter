@@ -232,100 +232,34 @@ val myTheme = SyntaxTheme(
 
 ## Performance
 
-### Large inputs
+`SyntaxHighlightedText` is synchronous by default — fine up to a few
+hundred lines. For larger inputs, opt into the async path or
+`IncrementalHighlighter`; see [`docs/performance.md`](docs/performance.md)
+for behaviour, code examples, and benchmark methodology.
 
-`SyntaxHighlightedText` is synchronous by default: when the composition recomputes, `highlight()` runs on the calling thread. For typical inline code (a few dozen lines) that is the right choice — the work is sub-millisecond and adding a coroutine round-trip would only introduce a one-frame plain-text flicker.
+### Large input scaling
 
-For larger blocks, opt in to the async path:
+`full highlight` medians (warm), Kotlin:
 
-```kotlin
-SyntaxHighlightedText(
-  code = code,
-  language = Languages.Kotlin,
-  async = true,
-)
-```
+| Runtime                      | 100 lines | 1k lines | 5k lines  |
+|------------------------------|-----------|----------|-----------|
+| Host JVM (heap 2g)           | 5.0 ms    | 48.8 ms  | 239.8 ms  |
+| Android (BenchmarkRule, FTL) | 3.1 ms    | 30.3 ms  | 143.1 ms¹ |
 
-When `async = true`, the rendered text starts as plain `code` styled with `theme.baseStyle` and updates to the highlighted form once `highlight()` completes on `Dispatchers.Default` (override via `asyncContext` if you have your own pool). On `code` change, the state immediately resets to the new plain text so the displayed code never lags behind the request.
+Environment:
 
-The async path is targeted at static code blocks. Each `code` change cancels the previous coroutine, but the in-flight native parse (JNI-side, via tree-sitter) cannot be cancelled mid-flight — it runs to completion before the next parse starts. Live-editor usage where `code` changes on every keystroke is **not** the intended scenario for this library.
+- Host JVM: Apple M3 Pro, OpenJDK 21, heap 2g
+- Android: Pixel 10 (Tensor G5, Android 16), Firebase Test Lab
 
-As a guideline, the synchronous path is fine up to a few hundred lines. Indicative `full highlight` medians (warm):
+¹ Flagship-class only — see [`docs/performance.md`](docs/performance.md#benchmark-environment-full).
 
-| Runtime                      | 100 lines | 1k lines | 5k lines      |
-|------------------------------|-----------|----------|---------------|
-| Host JVM (heap 2g)           | 5.0 ms    | 48.8 ms  | 239.8 ms      |
-| Android (BenchmarkRule, FTL) | 3.1 ms    | 30.3 ms  | 143.1ms¹ |
+### Per-language cost
 
-Hardware:
+Realistic code samples (~75–150 lines, single machine). First use
+includes one-time tree-sitter query compilation; subsequent use
+reflects normal app cost.
 
-- Host JVM: Apple M3 Pro, OpenJDK 21
-- Android: Pixel 10 (Tensor G5, Android 16)
-
-¹ Flagship-class only — see [docs/large_input_profiling.md](docs/large_input_profiling.md#android-device-measurements-firebase-test-lab) for the on-device measurement caveat (BenchmarkRule's tight allocation loop crashes Scudo on lower-spec devices until ktreesitter exposes explicit native cleanup; `LargeInput5kSmokeTest` covers on-device functional verification).
-
-`rememberHighlightedString` caches the parsed tree per `(code, language)`, so toggling between Light and Dark themes on the same code re-applies styles without re-parsing — Light↔Dark on a 5k-line file skips the parse cost. The async wrapper (`rememberHighlightedStringAsync`) does not cache the tree, so theme changes there re-trigger a full async parse.
-
-For non-Composable contexts (e.g. precomputing in a `ViewModel` and exposing the `AnnotatedString` as state), call `highlight()` directly off the main thread:
-
-```kotlin
-val annotated = withContext(Dispatchers.Default) {
-  highlight(code, Languages.Kotlin, theme)
-}
-```
-
-This is the same primitive `rememberHighlightedStringAsync` uses internally, exposed for callers that own their own state machine.
-
-Per-stage profiling and optimisation history live in [docs/large_input_profiling.md](docs/large_input_profiling.md).
-
-For editor-style scenarios where the same source string changes incrementally
-(typing, paste, undo), prefer the `:material3-text-field` module — it packages
-this pattern as `SyntaxHighlightedTextField` and `rememberSyntaxHighlightedString`
-(see "Editing code" in Usage). If you need to wire `IncrementalHighlighter` from
-`:core` manually (custom dispatcher, non-Compose state machine, etc.):
-
-```kotlin
-val engine = remember(language) { IncrementalHighlighter(language) }
-DisposableEffect(engine) { onDispose { engine.close() } }
-val annotated by produceState(initialValue = AnnotatedString(code), code, theme) {
-  value = withContext(Dispatchers.Default) { engine.update(code, theme) }
-}
-```
-
-`IncrementalHighlighter` is single-threaded; route every `update` call through
-one background dispatcher. Boundary edits (appending a new top-level declaration,
-prepending at byte 0) degrade to ≈ baseline cost by design — interior edits and
-theme-only re-calls are 40×+ faster than a full re-highlight at 5k lines on the
-host JVM. See `docs/large_input_profiling.md` for the per-size acceptance numbers.
-
-### What is measured?
-
-The benchmark targets the `highlight()` function, which is the same call used internally by `SyntaxHighlightedText`. It covers the full end-to-end pipeline: tree-sitter parsing, highlight-query matching, UTF-8 byte-to-char index mapping, and building the final `AnnotatedString` with `SpanStyle` applied. The returned `AnnotatedString` is ready to be passed directly to Compose `Text`.
-
-`Language` instances pre-compile the tree-sitter highlights query on first access, so repeated highlighting of different code snippets with the same language is fast. The benchmark measures two distinct scenarios from the perspective of a Compose app:
-
-- First use: the first time you display a code block with a given language.
-  This triggers one-time tree-sitter query compilation under the hood, so it is
-  slower.
-- Subsequent use: displaying another code block with the same language after
-  the first. The query is already compiled, so this reflects the actual per-call
-  cost during normal app usage.
-
-Both values are shown below so you can judge the one-time initial impact and the ongoing per-call cost. The reported numbers come from a single machine on realistic code samples (~75–150 lines) and illustrate relative differences between languages, not absolute guarantees.
-
-```
-OS: Mac OS X (26.4.1)
-Arch: aarch64
-JVM: OpenJDK 64-Bit Server VM 21.0.11
-Processors: 12
-Max heap: 2048 MB
-Total heap: 2048 MB
-JVM args: [-XX:+AlwaysPreTouch, -Xms2g, -Xmx2g, -Dfile.encoding=UTF-8, -ea]
-Warmup iterations: 100
-Measure iterations: 50
-```
-
-### First use [Cold] (includes query compilation)
+#### First use [Cold]
 
 | Language | Lines | Min (ms) | Median (ms) | Max (ms) |
 |----------|-------|---------:|------------:|---------:|
@@ -337,7 +271,7 @@ Measure iterations: 50
 | Go       | 100   | 320.408 | 325.528 | 355.918 |
 | Java     | 100   | 341.338 | 362.281 | 408.819 |
 
-### Subsequent use [Warm] (query already compiled)
+#### Subsequent use [Warm]
 
 | Language | Lines | Min (ms) | Median (ms) | Max (ms) |
 |----------|-------|---------:|------------:|---------:|
@@ -348,6 +282,9 @@ Measure iterations: 50
 | Python   | 100   | 3.390 | 3.471 | 3.474 |
 | Go       | 100   | 2.341 | 2.346 | 2.353 |
 | Java     | 100   | 3.040 | 3.153 | 3.205 |
+
+Environment: Apple M3 Pro, OpenJDK 21, heap 2g, warmup 100 / measure 50.
+Full config and methodology: [`docs/performance.md`](docs/performance.md#what-the-benchmarks-measure).
 
 Run `./gradlew :benchmarks:jvm:jvmTest` to reproduce on your own machine.
 
