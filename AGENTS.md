@@ -14,15 +14,18 @@ ComposeSyntaxHighlighter is a **Kotlin Multiplatform (KMP)** library that produc
 ```
 root
 ├── build-logic/                # Custom Gradle plugin for language modules
-├── composeApp/                 # Demo composables (KMP shared library: Android + iOS framework)
-├── androidApp/                 # Android demo APK (com.android.application, consumes :composeApp)
+├── samples/
+│   ├── composeApp/             # Demo composables (KMP shared library: Android + iOS framework)
+│   ├── androidApp/             # Android demo APK (com.android.application, consumes :samples:composeApp)
+│   └── iosApp/                 # Swift Xcode project consuming the ComposeApp framework
 ├── core-api/                   # Cross-module SPI (Language, Languages)
 ├── core/                       # Highlighter engine, IncrementalHighlighter, SyntaxTheme, themes
 ├── material3/                  # SyntaxHighlightedText (read-only viewer)
 ├── material3-text-field/       # SyntaxHighlightedTextField + rememberSyntaxHighlightedString (editable)
 ├── languages/<name>/           # Per-language grammar + Language value
-├── benchmark/                  # JVM benchmarks (excluded from default jvmTest)
-├── benchmark-android/          # Android instrumented benchmarks (FTL target)
+├── benchmarks/
+│   ├── jvm/                    # JVM benchmarks (excluded from default jvmTest)
+│   └── android/                # Android instrumented benchmarks (FTL target)
 └── gradle/libs.versions.toml   # Version catalog
 ```
 
@@ -49,10 +52,10 @@ End-to-end workflow lives in `.claude/skills/add-tree-sitter-language/SKILL.md`.
 ## Running tests
 
 ```bash
-./gradlew jvmTest -x :benchmark:jvmTest
+./gradlew jvmTest -x :benchmarks:jvm:jvmTest
 ```
 
-JVM tests depend on `buildHostCMake`, which compiles the parser into a host shared library and is automatically wired into `tasks.named<Test>("jvmTest")`. Benchmarks (`:benchmark`) are intentionally excluded from this default and should be run separately when needed.
+JVM tests depend on `buildHostCMake`, which compiles the parser into a host shared library and is automatically wired into `tasks.named<Test>("jvmTest")`. Benchmarks (`:benchmarks:jvm`) are intentionally excluded from this default and should be run separately when needed.
 
 After running tests, run `./gradlew spotlessApply` to keep the working tree formatted (Spotless ktlint is wired via the `compose-syntax-highlight-spotless` build-logic plugin) and `./gradlew apiCheck` for binary-compatibility validation.
 

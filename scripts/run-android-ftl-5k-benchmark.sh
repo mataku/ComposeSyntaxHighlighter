@@ -40,11 +40,11 @@ fi
 
 echo "==> Building host and androidTest APKs"
 ./gradlew \
-  :androidApp:assembleBenchmark \
-  :benchmark-android:assembleBenchmarkAndroidTest
+  :samples:androidApp:assembleBenchmark \
+  :benchmarks:android:assembleBenchmarkAndroidTest
 
-app_apk=$(find androidApp/build/outputs/apk/benchmark -name '*.apk' | head -1)
-test_apk=$(find benchmark-android/build/outputs/apk/androidTest/benchmark -name '*.apk' | head -1)
+app_apk=$(find samples/androidApp/build/outputs/apk/benchmark -name '*.apk' | head -1)
+test_apk=$(find benchmarks/android/build/outputs/apk/androidTest/benchmark -name '*.apk' | head -1)
 
 if [ -z "$app_apk" ] || [ -z "$test_apk" ]; then
   echo "Could not locate built APKs" >&2

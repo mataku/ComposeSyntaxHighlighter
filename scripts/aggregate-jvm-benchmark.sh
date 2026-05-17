@@ -2,7 +2,7 @@
 #
 # aggregate-jvm-benchmark.sh
 #
-# Runs :benchmark:jvmTest 3 times, parses the per-stage Min/Median/Max
+# Runs :benchmarks:jvm:jvmTest 3 times, parses the per-stage Min/Median/Max
 # markdown tables emitted by BenchmarkConfig.printMarkdown, and writes an
 # aggregated report:
 #   - per stage group: a "main" table copied from the run whose median values
@@ -22,7 +22,7 @@ SKIP_RUNS="${SKIP_RUNS:-false}"
 mkdir -p "$OUT_DIR"
 
 GRADLE_ARGS=(
-  ":benchmark:jvmTest"
+  ":benchmarks:jvm:jvmTest"
   "--tests" "*LargeInputBenchmark"
   "--tests" "*IncrementalHighlighterBenchmark"
   "--tests" "*BenchmarkSuite"

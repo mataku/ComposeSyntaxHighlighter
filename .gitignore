@@ -91,4 +91,4 @@ ftl-output.log
 ftl-results/
 
 # Local iOS signing overrides (TEAM_ID, DEVELOPMENT_TEAM, etc.)
-iosApp/Configuration/Config.local.xcconfig
+samples/iosApp/Configuration/Config.local.xcconfig

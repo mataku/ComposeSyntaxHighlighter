@@ -61,7 +61,7 @@ class IncrementalHighlighterAndroidBenchmark {
   @Test fun sameTextX5_1kLines() = sameTextX5(BenchmarkSamples.KotlinLarge1k)
 
   // 5k-line variants are intentionally omitted on Android — see LargeInputAndroidBenchmark
-  // for the rationale. 5k stays host-JVM only (see :benchmark jvmTest
+  // for the rationale. 5k stays host-JVM only (see :benchmarks:jvm jvmTest
   // IncrementalHighlighterBenchmark).
 
   // --- pattern helpers ---

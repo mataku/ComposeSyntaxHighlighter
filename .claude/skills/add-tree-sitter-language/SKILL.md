@@ -207,25 +207,25 @@ You don't have to fight the ordering — just be aware when reading CMakeLists o
 
 ## 5. Wire into the demo (`composeApp`)
 
-`composeApp/build.gradle.kts` — extend the existing `commonMain.dependencies` block, after the last `projects.languages.*` line:
+`samples/composeApp/build.gradle.kts` — extend the existing `commonMain.dependencies` block, after the last `projects.languages.*` line:
 
 ```kotlin
 implementation(projects.languages.<lang>)
 ```
 
-`composeApp/src/commonMain/kotlin/com/mataku/composesyntaxhighlighter/SampleCode.kt` — add a `val <lang>: String` property containing a 15–20 line snippet that exercises the language's distinctive constructs (keywords, strings, comments, numbers, plus 1–2 idiomatic features so the highlight result is visibly different from base text).
+`samples/composeApp/src/commonMain/kotlin/com/mataku/composesyntaxhighlighter/SampleCode.kt` — add a `val <lang>: String` property containing a 15–20 line snippet that exercises the language's distinctive constructs (keywords, strings, comments, numbers, plus 1–2 idiomatic features so the highlight result is visibly different from base text).
 
-`composeApp/src/commonMain/kotlin/com/mataku/composesyntaxhighlighter/HighlighterDemo.kt`:
+`samples/composeApp/src/commonMain/kotlin/com/mataku/composesyntaxhighlighter/HighlighterDemo.kt`:
 
 - Add the import: `import io.github.mataku.compose.highlight.<lang>.<Lang>` (the `Languages.<Lang>` extension property).
 - Extend the `DemoLanguage` enum with a new entry.
 - Extend the `when (selectedLang)` branch to map the new enum entry to `SampleCode.<lang> to Languages.<Lang>`.
 
-Run `./gradlew :androidApp:assembleDebug` to verify the build (`:composeApp` is the shared KMP library demo; `:androidApp` is the launchable APK consuming it). Commit composeApp changes as one atomic commit.
+Run `./gradlew :samples:androidApp:assembleDebug` to verify the build (`:samples:composeApp` is the shared KMP library demo; `:samples:androidApp` is the launchable APK consuming it). Commit composeApp changes as one atomic commit.
 
 ## 6. Update the NOTICE module list
 
-The CI workflow (`.github/workflows/build.yml`) runs project-wide `./gradlew jvmTest -x :benchmark:jvmTest` and `./gradlew apiCheck`, so there is no hardcoded module list to update there.
+The CI workflow (`.github/workflows/build.yml`) runs project-wide `./gradlew jvmTest -x :benchmarks:jvm:jvmTest` and `./gradlew apiCheck`, so there is no hardcoded module list to update there.
 
 **`scripts/verify-notice.sh`** does still have a hardcoded `modules=( … )` array; append the new artifact name:
 
@@ -243,9 +243,9 @@ Commit as `ci(verify-notice): include <lang> module`.
 Run the full pipeline before declaring done:
 
 ```bash
-./gradlew jvmTest -x :benchmark:jvmTest
+./gradlew jvmTest -x :benchmarks:jvm:jvmTest
 ./gradlew apiCheck
-./gradlew :androidApp:assembleDebug
+./gradlew :samples:androidApp:assembleDebug
 ./gradlew publishToMavenLocal -PRELEASE_SIGNING_ENABLED=false --no-configuration-cache
 bash scripts/verify-notice.sh
 ```

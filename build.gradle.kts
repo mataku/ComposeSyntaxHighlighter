@@ -13,7 +13,7 @@ plugins {
 }
 
 apiValidation {
-  ignoredProjects += listOf("composeApp", "androidApp", "benchmark", "benchmark-android")
+  ignoredProjects += listOf("composeApp", "androidApp", "jvm", "android")
   nonPublicMarkers += "io.github.mataku.compose.highlight.api.InternalSyntaxHighlightApi"
 }
 

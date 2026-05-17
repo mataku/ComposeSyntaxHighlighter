@@ -1,7 +1,7 @@
 # Large input profiling
 
 Internal reference for `:core` highlight-path optimisation. Numbers
-are produced by `LargeInputBenchmark` in `:benchmark` and updated
+are produced by `LargeInputBenchmark` in `:benchmarks:jvm` and updated
 whenever a relevant change ships.
 
 ## Environment
@@ -289,7 +289,7 @@ that finding is itself worth surfacing.
   query execution via `Query.byteRange`, an enclosing-node fallback for
   partial-overlap captures, and a maintained `MutableList<CaptureSpan>`
   whose entries are reused across updates.
-- `IncrementalHighlighterBenchmark` (`:benchmark/src/jvmTest`) reports six
+- `IncrementalHighlighterBenchmark` (`:benchmarks:jvm/src/jvmTest`) reports six
   patterns per size and asserts CI-enforced acceptance gates.
 
 #### Acceptance gates (asserted in CI)

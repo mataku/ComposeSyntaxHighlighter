@@ -34,7 +34,7 @@ android {
     targetCompatibility = JavaVersion.VERSION_17
   }
 
-  // Share helpers (BenchmarkSamples, BenchmarkConfig) with :benchmark's commonTest tree.
+  // Share helpers (BenchmarkSamples, BenchmarkConfig) with :benchmarks:jvm's commonTest tree.
   // Use the new com.android.build.api.dsl types directly to avoid the legacy Kotlin DSL
   // accessor that downcasts to com.android.build.gradle.api.AndroidLibrarySourceSet,
   // which fails at runtime in AGP 9 (the runtime instance only implements the new dsl
@@ -43,9 +43,9 @@ android {
     (sourceSets as org.gradle.api.NamedDomainObjectContainer<com.android.build.api.dsl.AndroidSourceSet>)
       .getByName("androidTest")
   @Suppress("DEPRECATION")
-  androidTestSourceSet.kotlin.srcDirs("../benchmark/src/commonTest/kotlin")
+  androidTestSourceSet.kotlin.srcDirs("../jvm/src/commonTest/kotlin")
   @Suppress("DEPRECATION")
-  androidTestSourceSet.resources.srcDirs("../benchmark/src/commonTest/resources")
+  androidTestSourceSet.resources.srcDirs("../jvm/src/commonTest/resources")
   // AGP's source-set filter excludes `**/*.kt` / `**/*.java` from resources by default
   // (treated as sources). Clear that filter so BenchmarkSamples can load Kotlin.kt and
   // Java.java at runtime from the test resources directory.

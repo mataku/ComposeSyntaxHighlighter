@@ -113,14 +113,14 @@ Run `./gradlew :core:jvmTest` and confirm the new tests pass. Failure shapes:
 
 ## 6. Wire into the demo (`composeApp`)
 
-Edit `composeApp/src/commonMain/kotlin/com/mataku/composesyntaxhighlighter/HighlighterDemo.kt`:
+Edit `samples/composeApp/src/commonMain/kotlin/com/mataku/composesyntaxhighlighter/HighlighterDemo.kt`:
 
 - Extend the `DemoTheme` enum with a new entry. Pick a human-friendly `label` (e.g. `"Solarized Dark"`).
 - Extend the `when (selectedTheme) { ... }` branch to map the new enum entry to `SyntaxTheme.<Name>`.
 
 No new import is needed — `SyntaxTheme` is already imported.
 
-Run `./gradlew :androidApp:assembleDebug` to verify the build (`:composeApp` is the shared KMP library demo; `:androidApp` is the launchable APK consuming it). The dropdown will list the new theme and the surface backdrop will pick up `theme.background` automatically.
+Run `./gradlew :samples:androidApp:assembleDebug` to verify the build (`:samples:composeApp` is the shared KMP library demo; `:samples:androidApp` is the launchable APK consuming it). The dropdown will list the new theme and the surface backdrop will pick up `theme.background` automatically.
 
 ## 7. Update CHANGELOG.md
 
@@ -140,7 +140,7 @@ Run the full pipeline before declaring done:
 
 ```bash
 ./gradlew :core:jvmTest
-./gradlew :androidApp:assembleDebug
+./gradlew :samples:androidApp:assembleDebug
 ./gradlew publishToMavenLocal -PRELEASE_SIGNING_ENABLED=false --no-configuration-cache
 bash scripts/verify-notice.sh
 ```

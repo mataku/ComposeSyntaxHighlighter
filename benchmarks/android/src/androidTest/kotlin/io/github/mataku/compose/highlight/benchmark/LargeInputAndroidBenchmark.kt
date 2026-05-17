@@ -50,7 +50,7 @@ class LargeInputAndroidBenchmark {
   // the per-iteration Parser/Tree wrappers stay below JVM heap-pressure thresholds, so
   // ktreesitter's Cleaner-based native cleanup never fires and Scudo eventually rejects
   // malloc on physical devices. 5k is treated as an outlier for mobile and stays
-  // host-JVM only (see :benchmark jvmTest LargeInputBenchmark).
+  // host-JVM only (see :benchmarks:jvm jvmTest LargeInputBenchmark).
   //
   // The `parse` decomposition stage is split out into LargeInputAndroidParseBenchmark
   // (excluded from FTL --test-targets) because its tight loop allocates Parser/Tree per
