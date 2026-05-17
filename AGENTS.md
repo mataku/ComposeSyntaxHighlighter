@@ -14,13 +14,15 @@ ComposeSyntaxHighlighter is a **Kotlin Multiplatform (KMP)** library that produc
 ```
 root
 ├── build-logic/                # Custom Gradle plugin for language modules
-├── composeApp/                 # Demo app (Android only)
+├── composeApp/                 # Demo composables (KMP shared library: Android + iOS framework)
+├── androidApp/                 # Android demo APK (com.android.application, consumes :composeApp)
 ├── core-api/                   # Cross-module SPI (Language, Languages)
 ├── core/                       # Highlighter engine, IncrementalHighlighter, SyntaxTheme, themes
 ├── material3/                  # SyntaxHighlightedText (read-only viewer)
 ├── material3-text-field/       # SyntaxHighlightedTextField + rememberSyntaxHighlightedString (editable)
 ├── languages/<name>/           # Per-language grammar + Language value
-├── benchmark/                  # JVM + Android instrumented benchmarks (excluded from default jvmTest)
+├── benchmark/                  # JVM benchmarks (excluded from default jvmTest)
+├── benchmark-android/          # Android instrumented benchmarks (FTL target)
 └── gradle/libs.versions.toml   # Version catalog
 ```
 

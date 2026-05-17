@@ -13,7 +13,7 @@ plugins {
 }
 
 apiValidation {
-  ignoredProjects += listOf("composeApp", "benchmark")
+  ignoredProjects += listOf("composeApp", "androidApp", "benchmark", "benchmark-android")
   nonPublicMarkers += "io.github.mataku.compose.highlight.api.InternalSyntaxHighlightApi"
 }
 
@@ -29,4 +29,7 @@ dependencies {
   dokka(project(":languages:python"))
   dokka(project(":languages:go"))
   dokka(project(":languages:java"))
+  dokka(project(":languages:markdown"))
+  dokka(project(":languages:javascript"))
+  dokka(project(":languages:typescript"))
 }

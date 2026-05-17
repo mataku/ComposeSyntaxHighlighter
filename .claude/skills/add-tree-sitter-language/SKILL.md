@@ -221,7 +221,7 @@ implementation(projects.languages.<lang>)
 - Extend the `DemoLanguage` enum with a new entry.
 - Extend the `when (selectedLang)` branch to map the new enum entry to `SampleCode.<lang> to Languages.<Lang>`.
 
-Run `./gradlew :composeApp:assembleDebug` to verify the build. Commit composeApp changes as one atomic commit.
+Run `./gradlew :androidApp:assembleDebug` to verify the build (`:composeApp` is the shared KMP library demo; `:androidApp` is the launchable APK consuming it). Commit composeApp changes as one atomic commit.
 
 ## 6. Update the NOTICE module list
 
@@ -245,7 +245,7 @@ Run the full pipeline before declaring done:
 ```bash
 ./gradlew jvmTest -x :benchmark:jvmTest
 ./gradlew apiCheck
-./gradlew :composeApp:assembleDebug
+./gradlew :androidApp:assembleDebug
 ./gradlew publishToMavenLocal -PRELEASE_SIGNING_ENABLED=false --no-configuration-cache
 bash scripts/verify-notice.sh
 ```

@@ -41,7 +41,7 @@ jobs:
           submodules: recursive
       - uses: ./.github/actions/setup-android-deps
       - uses: ./.github/actions/setup-tree-sitter
-      - run: ./gradlew :composeApp:assembleDebug
+      - run: ./gradlew :androidApp:assembleDebug
 
   verify-notice:
     name: Verify NOTICE in language artifacts
