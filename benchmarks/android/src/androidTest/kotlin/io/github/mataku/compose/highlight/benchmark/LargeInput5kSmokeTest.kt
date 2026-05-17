@@ -21,7 +21,7 @@ import org.junit.runner.RunWith
 // **Excluded from FTL `--test-targets`** in both the workflow and the local script.
 // Run manually on an emulator or connected device:
 //
-//     ./gradlew :benchmark:connectedBenchmarkAndroidTest \
+//     ./gradlew :benchmarks:android:connectedBenchmarkAndroidTest \
 //         -Pandroid.testInstrumentationRunnerArguments.class=\
 //         io.github.mataku.compose.highlight.benchmark.LargeInput5kSmokeTest
 //
