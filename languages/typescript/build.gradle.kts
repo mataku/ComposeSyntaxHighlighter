@@ -31,4 +31,5 @@ composeSyntaxHighlightLanguage {
   }
   licenseSpdx.set("MIT")
   licenseSource.set("tree-sitter/tree-sitter-typescript (MIT); upstream queries also draw from tree-sitter/tree-sitter-javascript (MIT)")
+  licenseCopyright.set("Copyright (c) 2017 Max Brunsfeld (tree-sitter-typescript); Copyright (c) 2014 Max Brunsfeld (tree-sitter-javascript)")
 }

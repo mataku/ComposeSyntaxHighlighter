@@ -14,4 +14,5 @@ composeSyntaxHighlightLanguage {
   }
   licenseSpdx.set("MIT")
   licenseSource.set("tree-sitter/tree-sitter-ruby (MIT)")
+  licenseCopyright.set("Copyright (c) 2016 Rob Rix")
 }
