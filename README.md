@@ -307,8 +307,8 @@ MIT. Bundled grammars are all MIT-licensed:
 The built-in `SyntaxTheme` palettes shipped in `compose-syntax-highlight-core` derive their colors from the following third-party themes (all MIT-licensed):
 
 - [Solarized](https://github.com/altercation/solarized) — Copyright (c) 2011 Ethan Schoonover
-- [GitHub Primer Syntax Themes](https://github.com/primer/primer-primitives) — Copyright (c) GitHub, Inc.
-- [Atom One Dark / One Light](https://github.com/atom/atom) — Copyright (c) 2011-present GitHub, Inc.
-- [Dracula](https://github.com/dracula/dracula-theme) — Copyright (c) 2016 Dracula Theme, LLC
+- [GitHub Primer Syntax Themes](https://github.com/primer/primer-primitives) — Copyright (c) 2018 GitHub Inc.
+- [Atom One Dark / One Light](https://github.com/atom/atom) — Copyright (c) 2011-2022 GitHub Inc.
+- [Dracula](https://github.com/dracula/dracula-theme) — Copyright (c) 2023 Dracula Theme
 
 Full attributions are in the published `META-INF/NOTICE` of each language artifact and of `compose-syntax-highlight-core`.
