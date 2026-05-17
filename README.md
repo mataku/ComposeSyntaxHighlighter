@@ -1,6 +1,6 @@
 # Compose Syntax Highlight
 
-Compose Multiplatform syntax highlighter for Android (and any JVM-based Compose target). Built on tree-sitter for accurate, fast incremental highlighting.
+Compose Multiplatform syntax highlighter for Android (and any JVM-based Compose target). Built on tree-sitter for accurate, fast highlighting — with an incremental engine for editor scenarios.
 
 This is still an experimental project. Android is supported via the published AAR; the JVM artifact ships for Compose Desktop interop; iOS is in preview (iosArm64 klibs only — Apple Silicon devices; simulator publishing waits on the next ktreesitter release). For browser apps prefer a JS-side highlighter (e.g. highlight.js, Shiki) and keep this library on JVM-based targets.
 
@@ -300,6 +300,9 @@ MIT. Bundled grammars are all MIT-licensed:
 - tree-sitter/tree-sitter-python
 - tree-sitter/tree-sitter-go
 - tree-sitter/tree-sitter-java
+- tree-sitter-grammars/tree-sitter-markdown
+- tree-sitter/tree-sitter-javascript
+- tree-sitter/tree-sitter-typescript
 
 The built-in `SyntaxTheme` palettes shipped in `compose-syntax-highlight-core` derive their colors from the following third-party themes (all MIT-licensed):
 
