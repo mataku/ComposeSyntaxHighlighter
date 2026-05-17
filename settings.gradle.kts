@@ -29,10 +29,8 @@ dependencyResolutionManagement {
   }
 }
 
-// :androidApp and :benchmark-android are NEW modules added in Stage 4 (Tasks 16 / 20).
-// See docs/plans/2026-05-16-agp-9-phase1-plan.md.
-include(":composeApp")
-include(":androidApp") // new in Stage 4 (Task 16)
+include(":samples:composeApp")
+include(":samples:androidApp")
 include(":core-api")
 include(":core")
 include(":material3")
@@ -47,8 +45,8 @@ include(":languages:java")
 include(":languages:markdown")
 include(":languages:javascript")
 include(":languages:typescript")
-include(":benchmark") // KMP+JVM only after Task 19
-include(":benchmark-android") // new in Stage 4 (Task 20)
+include(":benchmarks:jvm")
+include(":benchmarks:android")
 
 gradle.allprojects {
   configurations.all {
