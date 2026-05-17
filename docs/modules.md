@@ -61,13 +61,24 @@ Build internals (plugin DSL, generated tasks, KMP source-set layout, NDK/CMake s
 
 ## `:benchmark`
 
-JVM and Android instrumented benchmarks for the highlight pipeline. Excluded from `./gradlew jvmTest` by default — run `:benchmark:jvmTest` for the host-JVM suite, or the Android instrumented variant from a connected device.
+Host-JVM benchmarks for the highlight pipeline (KMP, JVM target only). Excluded from `./gradlew jvmTest` by default — run `:benchmark:jvmTest` to execute.
 
-- `commonTest` / `jvmTest` — host-JVM benchmarks (`HighlightBenchmark`, `LargeInputBenchmark`, `IncrementalHighlighterBenchmark`). Numbers feeding `README.md` and [`large_input_profiling.md`](large_input_profiling.md) come from these.
-- `androidInstrumentedTest` — Android benchmarks driven by `androidx.benchmark:benchmark-junit4` with `AndroidBenchmarkRunner` (`testBuildType = "benchmark"`).
+- `commonTest` / `jvmTest` — `HighlightBenchmark`, `LargeInputBenchmark`, `IncrementalHighlighterBenchmark`. Numbers feeding `README.md` and [`large_input_profiling.md`](large_input_profiling.md) come from these.
 
-KMP forbids `dependsOn` between source sets in different test trees, so `androidInstrumentedTest` shares `BenchmarkSamples` / `BenchmarkConfig` with `commonTest` by physically including its Kotlin srcDir (see `benchmark/build.gradle.kts`).
+The Android instrumented variants live in [`:benchmark-android`](#benchmark-android).
+
+## `:benchmark-android`
+
+Android instrumented benchmarks driven by `androidx.benchmark:benchmark-junit4` with `AndroidBenchmarkRunner` (`testBuildType = "benchmark"`). Pure `com.android.library` — no KMP. Run from Firebase Test Lab (`scripts/run-android-ftl-benchmark.sh`) or a connected device; the host APK comes from [`:androidApp`](#androidapp) (`:androidApp:assembleBenchmark`). Not published.
+
+`androidTest` source set physically references `:benchmark/src/commonTest/kotlin` and `:benchmark/src/commonTest/resources` to share `BenchmarkSamples` and `BenchmarkConfig` with the JVM benchmarks.
 
 ## `:composeApp`
 
-Demo app (Android only). Wires every shipped language and theme for manual smoke testing; not published.
+Demo composables shared between Android and iOS. KMP shared library applying `com.android.kotlin.multiplatform.library` (Android target) and `iosArm64 { binaries.framework { baseName = "ComposeApp" } }` (iOS framework). Wires every shipped language and theme for manual smoke testing; not published.
+
+Android consumers depend on this via [`:androidApp`](#androidapp); iOS consumers via the `ComposeApp.framework` produced by `:composeApp:embedAndSignAppleFrameworkForXcode`.
+
+## `:androidApp`
+
+Android demo APK (`com.android.application`, no KMP). Holds the `MainActivity`, `AndroidManifest.xml`, and `res/` for the launchable app, and consumes [`:composeApp`](#composeapp) for the actual UI. Carries the `benchmark` build type used by Firebase Test Lab (`:androidApp:assembleBenchmark`). Not published.

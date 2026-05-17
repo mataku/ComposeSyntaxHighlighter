@@ -120,7 +120,7 @@ Edit `composeApp/src/commonMain/kotlin/com/mataku/composesyntaxhighlighter/Highl
 
 No new import is needed — `SyntaxTheme` is already imported.
 
-Run `./gradlew :composeApp:assembleDebug` to verify the build. The dropdown will list the new theme and the surface backdrop will pick up `theme.background` automatically.
+Run `./gradlew :androidApp:assembleDebug` to verify the build (`:composeApp` is the shared KMP library demo; `:androidApp` is the launchable APK consuming it). The dropdown will list the new theme and the surface backdrop will pick up `theme.background` automatically.
 
 ## 7. Update CHANGELOG.md
 
@@ -140,7 +140,7 @@ Run the full pipeline before declaring done:
 
 ```bash
 ./gradlew :core:jvmTest
-./gradlew :composeApp:assembleDebug
+./gradlew :androidApp:assembleDebug
 ./gradlew publishToMavenLocal -PRELEASE_SIGNING_ENABLED=false --no-configuration-cache
 bash scripts/verify-notice.sh
 ```
