@@ -21,4 +21,5 @@ composeSyntaxHighlightLanguage {
   }
   licenseSpdx.set("MIT")
   licenseSource.set("tree-sitter-grammars/tree-sitter-markdown (MIT)")
+  licenseCopyright.set("Copyright (c) 2021 Matthias Deiml")
 }

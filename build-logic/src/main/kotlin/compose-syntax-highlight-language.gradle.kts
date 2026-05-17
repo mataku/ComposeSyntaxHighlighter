@@ -119,21 +119,54 @@ val generateNotice = tasks.register("generateNotice") {
   val grammarsProvider = providers.provider { composeSyntaxHighlightLanguage.grammars.map { it.name } }
   val licenseSpdxProvider = composeSyntaxHighlightLanguage.licenseSpdx
   val licenseSourceProvider = composeSyntaxHighlightLanguage.licenseSource
+  val licenseCopyrightProvider = composeSyntaxHighlightLanguage.licenseCopyright
   inputs.file(tplFile)
   inputs.property("grammars", grammarsProvider)
   inputs.property("licenseSpdx", licenseSpdxProvider)
   inputs.property("licenseSource", licenseSourceProvider)
+  inputs.property("licenseCopyright", licenseCopyrightProvider)
   outputs.dir(outDirProvider)
   doLast {
     val baseTpl = tplFile.readText()
+    val copyright = licenseCopyrightProvider.orNull
+      ?: error(
+        "composeSyntaxHighlightLanguage.licenseCopyright is required. " +
+          "Set it to the verbatim 'Copyright (c) ...' line from the upstream grammar's LICENSE file " +
+          "(MIT requires the original copyright notice to be redistributed with the bundled parser code). " +
+          "For modules deriving from multiple upstream repos, semicolon-separate the copyrights with a " +
+          "parenthesised repo tag, mirroring the licenseSource convention.",
+      )
     val entry = buildString {
       for (grammarName in grammarsProvider.get()) {
         appendLine()
         appendLine("Bundled grammar:")
         appendLine("  Component: tree-sitter-$grammarName")
         appendLine("  License: ${licenseSpdxProvider.get()}")
+        appendLine("  Copyright: $copyright")
         appendLine("  Source: ${licenseSourceProvider.get()}")
       }
+      appendLine()
+      appendLine("================================================================")
+      appendLine("MIT License")
+      appendLine("================================================================")
+      appendLine()
+      appendLine("Permission is hereby granted, free of charge, to any person obtaining a copy")
+      appendLine("of this software and associated documentation files (the \"Software\"), to deal")
+      appendLine("in the Software without restriction, including without limitation the rights")
+      appendLine("to use, copy, modify, merge, publish, distribute, sublicense, and/or sell")
+      appendLine("copies of the Software, and to permit persons to whom the Software is")
+      appendLine("furnished to do so, subject to the following conditions:")
+      appendLine()
+      appendLine("The above copyright notice and this permission notice shall be included in all")
+      appendLine("copies or substantial portions of the Software.")
+      appendLine()
+      appendLine("THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR")
+      appendLine("IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,")
+      appendLine("FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE")
+      appendLine("AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER")
+      appendLine("LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,")
+      appendLine("OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE")
+      appendLine("SOFTWARE.")
     }
     val outFile = File(outDirProvider.get(), "META-INF/NOTICE")
     outFile.parentFile.mkdirs()

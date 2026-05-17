@@ -293,16 +293,16 @@ Run `./gradlew :benchmarks:jvm:jvmTest` to reproduce on your own machine.
 MIT. Bundled grammars are all MIT-licensed:
 
 - tree-sitter, KTreeSitter
-- fwcd/tree-sitter-kotlin
-- alex-pinkus/tree-sitter-swift
-- tree-sitter/tree-sitter-ruby
-- tree-sitter/tree-sitter-rust
-- tree-sitter/tree-sitter-python
-- tree-sitter/tree-sitter-go
-- tree-sitter/tree-sitter-java
-- tree-sitter-grammars/tree-sitter-markdown
-- tree-sitter/tree-sitter-javascript
-- tree-sitter/tree-sitter-typescript
+- [fwcd/tree-sitter-kotlin](https://github.com/fwcd/tree-sitter-kotlin) — Copyright (c) 2019 fwcd
+- [alex-pinkus/tree-sitter-swift](https://github.com/alex-pinkus/tree-sitter-swift) — Copyright (c) 2021 alex-pinkus
+- [tree-sitter/tree-sitter-ruby](https://github.com/tree-sitter/tree-sitter-ruby) — Copyright (c) 2016 Rob Rix
+- [tree-sitter/tree-sitter-rust](https://github.com/tree-sitter/tree-sitter-rust) — Copyright (c) 2017 Maxim Sokolov
+- [tree-sitter/tree-sitter-python](https://github.com/tree-sitter/tree-sitter-python) — Copyright (c) 2016 Max Brunsfeld
+- [tree-sitter/tree-sitter-go](https://github.com/tree-sitter/tree-sitter-go) — Copyright (c) 2014 Max Brunsfeld
+- [tree-sitter/tree-sitter-java](https://github.com/tree-sitter/tree-sitter-java) — Copyright (c) 2017 Ayman Nadeem
+- [tree-sitter-grammars/tree-sitter-markdown](https://github.com/tree-sitter-grammars/tree-sitter-markdown) — Copyright (c) 2021 Matthias Deiml
+- [tree-sitter/tree-sitter-javascript](https://github.com/tree-sitter/tree-sitter-javascript) — Copyright (c) 2014 Max Brunsfeld
+- [tree-sitter/tree-sitter-typescript](https://github.com/tree-sitter/tree-sitter-typescript) — Copyright (c) 2017 Max Brunsfeld
 
 The built-in `SyntaxTheme` palettes shipped in `compose-syntax-highlight-core` derive their colors from the following third-party themes (all MIT-licensed):
 

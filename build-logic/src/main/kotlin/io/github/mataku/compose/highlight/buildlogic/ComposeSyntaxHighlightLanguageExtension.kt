@@ -8,4 +8,5 @@ abstract class ComposeSyntaxHighlightLanguageExtension {
   abstract val grammars: NamedDomainObjectContainer<GrammarSpec>
   abstract val licenseSpdx: Property<String>
   abstract val licenseSource: Property<String>
+  abstract val licenseCopyright: Property<String>
 }

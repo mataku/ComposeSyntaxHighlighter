@@ -14,4 +14,5 @@ composeSyntaxHighlightLanguage {
   }
   licenseSpdx.set("MIT")
   licenseSource.set("alex-pinkus/tree-sitter-swift (MIT)")
+  licenseCopyright.set("Copyright (c) 2021 alex-pinkus")
 }

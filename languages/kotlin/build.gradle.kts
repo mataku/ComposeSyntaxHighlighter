@@ -14,4 +14,5 @@ composeSyntaxHighlightLanguage {
   }
   licenseSpdx.set("MIT")
   licenseSource.set("fwcd/tree-sitter-kotlin (MIT)")
+  licenseCopyright.set("Copyright (c) 2019 fwcd")
 }
