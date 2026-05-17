@@ -111,10 +111,19 @@ composeSyntaxHighlightLanguage {
   }
   licenseSpdx.set("MIT")
   licenseSource.set("<owner>/tree-sitter-<lang> (MIT)")
+  licenseCopyright.set("Copyright (c) <year> <holder>")
 }
 ```
 
 The grammar's `name` (here `"<lang>"`) **must equal** `languageName` for single-grammar modules. Both are used in the package path `io.github.mataku.compose.highlight.<name>` and in the native library / header naming, and the convention plugin only matches them up when they're identical.
+
+`licenseCopyright` is **required** by the convention plugin — `generateNotice` fails the build if it is not set. Copy the upstream copyright line verbatim from the submodule's LICENSE file (e.g. `grep -m1 'Copyright' languages/<lang>/tree-sitter-<lang>/LICENSE`); do not paraphrase, abbreviate, or substitute a year range. The string is reproduced in the published `META-INF/NOTICE` to satisfy MIT's requirement that the original copyright notice travel with redistributed binaries.
+
+For modules deriving from multiple upstream repos (e.g. typescript bundles tree-sitter-typescript parser code plus tree-sitter-javascript queries), semicolon-separate the copyrights with a parenthesised repo tag, mirroring the `licenseSource` convention:
+
+```kotlin
+licenseCopyright.set("Copyright (c) 2017 Max Brunsfeld (tree-sitter-typescript); Copyright (c) 2014 Max Brunsfeld (tree-sitter-javascript)")
+```
 
 Append to `settings.gradle.kts` after the existing `:languages:<...>` includes:
 
