@@ -65,7 +65,7 @@ val <Name>: SyntaxTheme by lazy {
 
 Order new entries by family (Default → Solarized → GitHub → One → Dracula → your new family) so the file's grouping stays readable.
 
-## 3. Append the NOTICE attribution
+## 3. Append the NOTICE attribution and update the README license list
 
 Edit `core/src/commonMain/resources/META-INF/NOTICE`. Add a 2-line block above the `=== MIT License ===` divider, after the last existing third-party block:
 
@@ -77,6 +77,8 @@ Edit `core/src/commonMain/resources/META-INF/NOTICE`. Add a 2-line block above t
 The MIT license body block at the bottom is shared and unchanged. Leave it.
 
 If the new palette is a non-MIT permissive license, append a separate license body block under a clearly-labeled divider — do not silently mix licenses.
+
+**`README.md`** — append a bullet to the `## License` section's third-party theme list (the block that begins with `The built-in SyntaxTheme palettes shipped in compose-syntax-highlight-core derive their colors from…`), matching the existing `- [<Family>](<repo-url>) — Copyright (c) <year(s)> <owner>` format. For multi-variant families (Solarized Dark + Light, GitHub Dark + Light, One Dark + One Light) the family gets one bullet, not one per variant — see the existing entries for the precedent. This list is documentation hygiene only; it is not checked by `verify-notice.sh`, so an omission here will not fail CI but will silently drift from the bundled NOTICE.
 
 ## 4. Pin the keyword in `verify-notice.sh`
 

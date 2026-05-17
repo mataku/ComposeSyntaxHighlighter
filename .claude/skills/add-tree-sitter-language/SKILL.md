@@ -223,7 +223,7 @@ implementation(projects.languages.<lang>)
 
 Run `./gradlew :samples:androidApp:assembleDebug` to verify the build (`:samples:composeApp` is the shared KMP library demo; `:samples:androidApp` is the launchable APK consuming it). Commit composeApp changes as one atomic commit.
 
-## 6. Update the NOTICE module list
+## 6. Update the NOTICE module list and README license list
 
 The CI workflow (`.github/workflows/build.yml`) runs project-wide `./gradlew jvmTest -x :benchmarks:jvm:jvmTest` and `./gradlew apiCheck`, so there is no hardcoded module list to update there.
 
@@ -236,7 +236,9 @@ modules=(
 )
 ```
 
-Commit as `ci(verify-notice): include <lang> module`.
+**`README.md`** — append the new submodule to the bundled-grammar list inside the `## License` section, matching the existing `<owner>/tree-sitter-<repo>` bullet format. For multi-grammar modules (e.g. typescript ships `typescript` + `tsx`, markdown ships `markdown` + `markdown-inline`), one bullet per upstream submodule is enough — they share the same repo. This list is documentation hygiene only; it is not enforced by `verify-notice.sh`, so an omission here will not fail CI but will silently drift from the published NOTICE.
+
+Commit as `ci(verify-notice): include <lang> module` (fold the README edit into the same commit, or split as `docs(readme): list <lang> grammar in license section` — match the closest precedent).
 
 ## 7. End-to-end local verification
 
