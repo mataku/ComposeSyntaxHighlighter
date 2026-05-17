@@ -139,7 +139,7 @@ A binary-incompatible `:core-api` SPI change implies all consumers must rebuild 
 
 Before recommending the maintainer trigger the workflow:
 
-- Run `./gradlew jvmTest -x :benchmark:jvmTest` — must pass.
+- Run `./gradlew jvmTest -x :benchmarks:jvm:jvmTest` — must pass.
 - Run `./gradlew apiCheck` — must pass (or the change is intentional and the user has run `apiDump` and reviewed the diff).
 - Run `./gradlew publishToMavenLocal -PRELEASE_SIGNING_ENABLED=false` and inspect:
   - Each affected POM has the expected `tree-sitter-abi` property.

@@ -349,7 +349,7 @@ Measure iterations: 50
 | Go       | 100   | 2.341 | 2.346 | 2.353 |
 | Java     | 100   | 3.040 | 3.153 | 3.205 |
 
-Run `./gradlew :benchmark:jvmTest` to reproduce on your own machine.
+Run `./gradlew :benchmarks:jvm:jvmTest` to reproduce on your own machine.
 
 ## License
 
