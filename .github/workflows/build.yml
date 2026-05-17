@@ -19,7 +19,7 @@ jobs:
           submodules: recursive
       - uses: ./.github/actions/setup-android-deps
       - uses: ./.github/actions/setup-tree-sitter
-      - run: ./gradlew jvmTest -x :benchmark:jvmTest
+      - run: ./gradlew jvmTest -x :benchmarks:jvm:jvmTest
 
   api-check:
     name: Public API check
@@ -41,7 +41,7 @@ jobs:
           submodules: recursive
       - uses: ./.github/actions/setup-android-deps
       - uses: ./.github/actions/setup-tree-sitter
-      - run: ./gradlew :androidApp:assembleDebug
+      - run: ./gradlew :samples:androidApp:assembleDebug
 
   verify-notice:
     name: Verify NOTICE in language artifacts
@@ -82,4 +82,4 @@ jobs:
           path: ~/.konan
           key: konan-${{ runner.os }}-kotlin-2.3.20
       - name: Compile iOS targets
-        run: ./gradlew compileKotlinIosArm64 :composeApp:linkDebugFrameworkIosArm64
+        run: ./gradlew compileKotlinIosArm64 :samples:composeApp:linkDebugFrameworkIosArm64
