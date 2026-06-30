@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## v0.6.0
+
+- New language modules: JavaScript, TypeScript (with TSX), and Markdown (with inline highlighting).
+- Support iOS.
+- tree-sitter ABI 15: bundled go/javascript/python/rust/markdown grammars move to ABI 15; ktreesitter 0.25.1 accepts ABI 13–15 across all targets.
+
 ## v0.5.0
 Rename project from "Compose Highlight" to "Compose Syntax Highlight" for clarity.
 
