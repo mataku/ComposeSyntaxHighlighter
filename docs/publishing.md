@@ -11,7 +11,7 @@ bash scripts/verify-notice.sh
 
 ## CI
 
-`.github/workflows/build.yml` runs JVM tests, the Android demo build, and NOTICE verification on every PR / push to main / develop. `.github/workflows/publish.yml` runs `publishToMavenCentral` on manual dispatch from the GitHub Actions UI, scoped to a single module per run, using vanniktech with in-memory signing keys from repository secrets.
+`.github/workflows/build.yml` runs JVM tests, the Android demo build, and NOTICE verification on every PR / push to main / develop. `.github/workflows/publish.yml` runs `publishToMavenCentral` on manual dispatch from the GitHub Actions UI, scoped to a single module per run, using vanniktech with in-memory signing keys from repository secrets. `.github/workflows/publish-all.yml` does the same for every module in one run (see "Publishing all modules at once").
 
 ## Local Maven Central publishing
 
@@ -51,6 +51,24 @@ and publishes only the chosen scope.
 
 The `dry-run` input runs every step except the Maven Central upload and the
 tag push, which is useful for verifying configuration changes.
+
+## Publishing all modules at once
+
+`.github/workflows/publish-all.yml` publishes every module in one run — the core
+stack plus all language modules — for a coordinated release where many modules
+move together (e.g. a new platform target added across the board).
+
+1. Bump `VERSION_NAME` for every module being released and update the matching
+   CHANGELOGs / `docs/compatibility.md` rows.
+2. Open and merge the PR.
+3. From the GitHub Actions UI, run **Publish all**.
+4. The workflow refuses any `-SNAPSHOT` version, publishes the whole reactor via
+   `publishToMavenCentral`, then tags `core-stack-v<version>` and
+   `<lang>-v<version>` per module (existing tags are skipped).
+
+Each module's version is read from its own `gradle.properties`. Run this only
+when the versions you intend to release are fresh; for incremental single-module
+bumps use the per-module workflow above.
 
 ## Runbook: ktreesitter accept window narrows
 
