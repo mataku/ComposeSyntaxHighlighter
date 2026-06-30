@@ -82,4 +82,9 @@ jobs:
           path: ~/.konan
           key: konan-${{ runner.os }}-kotlin-2.3.20
       - name: Compile iOS targets
-        run: ./gradlew compileKotlinIosArm64 :samples:composeApp:linkDebugFrameworkIosArm64
+        run: |
+          ./gradlew \
+            compileKotlinIosArm64 \
+            compileKotlinIosSimulatorArm64 \
+            :samples:composeApp:linkDebugFrameworkIosArm64 \
+            :samples:composeApp:linkDebugFrameworkIosSimulatorArm64

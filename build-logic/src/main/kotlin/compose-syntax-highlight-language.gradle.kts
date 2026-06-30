@@ -399,6 +399,7 @@ extensions.configure<KotlinMultiplatformExtension>("kotlin") {
   jvm()
 
   iosArm64()
+  iosSimulatorArm64()
 
   applyDefaultHierarchyTemplate()
 

@@ -1,6 +1,6 @@
 ---
 name: add-tree-sitter-language
-description: End-to-end workflow for adding a new tree-sitter-backed language module (grammar selection with ABI-14 pin check, submodule add, Gradle wiring, Language object, golden tests, demo wiring, CI updates). Run only when invoked explicitly via slash command.
+description: End-to-end workflow for adding a new tree-sitter-backed language module (grammar selection with ABI accept-window check, submodule add, Gradle wiring, Language object, golden tests, demo wiring, CI updates). Run only when invoked explicitly via slash command.
 disable-model-invocation: true
 allowed-tools:
   - Read
@@ -44,19 +44,15 @@ The workflow is rigid — follow the order. Most steps are obvious, but several 
 
 **License:** All grammars in the repo today are MIT. If you pick something non-MIT, stop and ask the user before going further — it changes how the NOTICE bundling looks and the `licenseSpdx` / `licenseSource` DSL values.
 
-**Pin selection — the ABI-14 trap:**
+**Pin selection — keep the bundled parser.c inside the accept window:**
 
-The repo pins `treesitterAbi = "14"` in `gradle/libs.versions.toml` because ktreesitter 0.25.0's Kotlin/Native loader asserts the parser's `LANGUAGE_VERSION` is in `13..14`. `generateParserSource` (in `build-logic/src/main/kotlin/compose-syntax-highlight-language.gradle.kts`) only regenerates `src/parser.c` when it is missing — it does **not** detect ABI mismatch. An upstream parser.c at ABI 15 reaches `Language(...)` and throws `IllegalArgumentException: Incompatible language version 15` at runtime.
+The repo pins `treesitterAbi = "15"` in `gradle/libs.versions.toml`, and ktreesitter 0.25.1's loader accepts a parser's `LANGUAGE_VERSION` in `13..15` on every target (including Kotlin/Native). `generateParserSource` (in `build-logic/src/main/kotlin/compose-syntax-highlight-language.gradle.kts`) only regenerates `src/parser.c` when it is missing — it does **not** detect ABI mismatch. An upstream parser.c whose ABI falls outside the window reaches `Language(...)` and throws `IllegalArgumentException: Incompatible language version <N>` at runtime.
 
-Verification happens *after* `git submodule add` (step 2) but *before* you record the gitlink in a commit. If the default-checked-out commit ships parser.c at ABI 15, walk back tags with `git -C <submodule> checkout <older-tag>` until the bundled parser.c reads `#define LANGUAGE_VERSION 14`, then commit *that* gitlink. Concrete precedents on `develop`:
+Verification happens *after* `git submodule add` (step 2) but *before* you record the gitlink in a commit. Inspect the default-checked-out parser.c: if its `LANGUAGE_VERSION` is inside `13..15`, the pin is fine — prefer the newest such tag so you ride the latest grammar. If it is outside the window (e.g. a future ABI 16), walk back tags with `git -C <submodule> checkout <older-tag>` until the bundled parser.c reads a `LANGUAGE_VERSION` within the window, then commit *that* gitlink. As of this writing every released upstream grammar ships ABI ≤ 15, so default HEAD is normally fine. Some bundled modules sit at ABI 15 and others remain at ABI 14 purely because their upstream has not yet cut an ABI-15 release — ABI 14 is in-window and perfectly fine; do not downgrade a working pin to chase a particular ABI.
 
-- `tree-sitter-rust` main bundles ABI 15; pin to `v0.23.3` (last ABI-14 tag).
-- `tree-sitter-javascript` main bundles ABI 15; pin to `v0.23.1` (last ABI-14 tag).
-- `tree-sitter-typescript` main currently bundles ABI 14, so default HEAD is fine.
+If the grammar ships *no* `parser.c` at all (e.g. `tree-sitter-swift` at the pinned commit), that's fine — `generateParserSource`'s `!parserC.exists()` branch regenerates it at the configured `treesitterAbi` (currently 15) on every fresh checkout.
 
-If the grammar ships *no* `parser.c` at all (e.g. `tree-sitter-swift` at the pinned commit), that's fine — `generateParserSource`'s `!parserC.exists()` branch triggers regeneration with the configured ABI on every fresh checkout.
-
-If no tag is at ABI 14, stop and tell the user — bumping ktreesitter and `treesitterAbi = "15"` is a separate, repo-wide change that has to land first.
+If a grammar's only in-window tags are unacceptably old, stop and tell the user — widening the accept window (bumping `ktreesitter`, and `treesitterAbi` for regenerated grammars) is a separate, repo-wide change that has to land first.
 
 ## 2. Add the submodule, verify ABI, and create the module skeleton
 
@@ -70,7 +66,7 @@ git submodule add https://github.com/<owner>/tree-sitter-<lang>.git languages/<l
 grep '#define LANGUAGE_VERSION' languages/<lang>/tree-sitter-<lang>/src/parser.c
 ```
 
-If it reports `14`, you're done with verification. If it reports `15` (or anything other than 14), list available tags and pick the newest tag whose tree contains parser.c at ABI 14:
+If it reports a value in `13..15`, you're done with verification. If it reports something outside the window (e.g. `16`), list available tags and pick the newest tag whose tree contains parser.c inside `13..15`:
 
 ```bash
 git -C languages/<lang>/tree-sitter-<lang> tag --sort=-version:refname
