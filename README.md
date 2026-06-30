@@ -2,7 +2,7 @@
 
 Compose Multiplatform syntax highlighter for Android (and any JVM-based Compose target). Built on tree-sitter for accurate, fast highlighting — with an incremental engine for editor scenarios.
 
-This is still an experimental project. Android is supported via the published AAR; the JVM artifact ships for Compose Desktop interop; iOS is in preview (iosArm64 klibs only — Apple Silicon devices; simulator publishing waits on the next ktreesitter release). For browser apps prefer a JS-side highlighter (e.g. highlight.js, Shiki) and keep this library on JVM-based targets.
+This is still an experimental project. Android is supported via the published AAR; the JVM artifact ships for Compose Desktop interop; iOS is in preview (iosArm64 + iosSimulatorArm64 klibs — Apple Silicon only, no iosX64). For browser apps prefer a JS-side highlighter (e.g. highlight.js, Shiki) and keep this library on JVM-based targets.
 
 **API documentation:** https://mataku.github.io/ComposeSyntaxHighlighter/ (latest release)
 
@@ -18,7 +18,7 @@ This is still an experimental project. Android is supported via the published AA
 |--------------|--------------|-------------------------------------------------------|
 | Android      | available    | minSdk 26                                             |
 | Desktop JVM  | available    | KTreeSitter native lib must be on `java.library.path` |
-| iOS          | preview      | iosArm64 klibs; device only (simulator blocked on ktreesitter) |
+| iOS          | preview      | iosArm64 + iosSimulatorArm64 klibs; Apple Silicon only (no iosX64) |
 | Web (wasmJs) | not in scope | use highlight.js / Shiki on the JS side               |
 
 | Module                  | Artifact                                        | Latest                                                                                                                                                                                                                       |
