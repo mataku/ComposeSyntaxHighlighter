@@ -1,0 +1,92 @@
+name: Publish all
+
+on:
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: macos-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          submodules: recursive
+
+      - uses: ./.github/actions/setup-android-deps
+      - uses: ./.github/actions/setup-tree-sitter
+
+      - name: Refuse SNAPSHOT versions
+        run: |
+          FAIL=0
+          for f in gradle.properties languages/*/gradle.properties; do
+            VERSION=$(grep '^VERSION_NAME=' "$f" | cut -d= -f2)
+            if [ -z "$VERSION" ]; then
+              echo "VERSION_NAME not found in $f" >&2
+              FAIL=1
+            elif [[ "$VERSION" == *SNAPSHOT* ]]; then
+              echo "Refusing to publish SNAPSHOT version $VERSION ($f)" >&2
+              FAIL=1
+            fi
+          done
+          exit "$FAIL"
+
+      - name: Build & publish to Maven Local (pre-flight)
+        run: ./gradlew publishToMavenLocal -PRELEASE_SIGNING_ENABLED=false --no-configuration-cache
+
+      - name: Verify META-INF/NOTICE in published artefacts
+        run: bash scripts/verify-notice.sh
+
+      - name: Publish to Maven Central
+        env:
+          ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.ORG_GRADLE_PROJECT_MAVENCENTRALUSERNAME }}
+          ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.ORG_GRADLE_PROJECT_MAVENCENTRALPASSWORD }}
+          ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGINMEMORYKEY }}
+          ORG_GRADLE_PROJECT_signingInMemoryKeyId: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGINMEMORYKEYID }}
+          ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGINMEMORYKEYPASSWORD }}
+        run: ./gradlew publishToMavenCentral --no-configuration-cache
+
+      - name: Tag releases on success
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          tag_if_absent() {
+            local tag="$1"
+            if git rev-parse -q --verify "refs/tags/$tag" >/dev/null; then
+              echo "Tag $tag already exists, skipping"
+              return
+            fi
+            git tag "$tag"
+            git push origin "$tag"
+            echo "Tagged $tag"
+          }
+
+          CORE_VERSION=$(grep '^VERSION_NAME=' gradle.properties | cut -d= -f2)
+          tag_if_absent "core-stack-v$CORE_VERSION"
+
+          for f in languages/*/gradle.properties; do
+            LANG_NAME=$(basename "$(dirname "$f")")
+            LANG_VERSION=$(grep '^VERSION_NAME=' "$f" | cut -d= -f2)
+            tag_if_absent "$LANG_NAME-v$LANG_VERSION"
+          done
+
+  deploy-docs:
+    needs: publish
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          submodules: recursive
+      - uses: ./.github/actions/setup-android-deps
+      - run: ./gradlew dokkaGenerate
+      - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          path: build/dokka/html
+      - id: deployment
+        uses: actions/deploy-pages@cd2ce8fcbc39b97be8ca5fce6e763baed58fa128 # v5.0.0
