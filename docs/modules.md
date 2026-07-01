@@ -1,6 +1,6 @@
 # Module reference
 
-Per-module Maven coordinates, public API, and source-set notes. Every target is JVM-based — there is no `expect/actual`; production code lives in `commonMain`. Versions live in `gradle/libs.versions.toml`.
+Per-module Maven coordinates, public API, and source-set notes. Production code lives in `commonMain`; the parser binding uses `expect/actual` (JVM/Android `actual` via `System.loadLibrary`; native `actual` via cinterop). Targets are Android, JVM, iosArm64, iosSimulatorArm64. Versions live in `gradle/libs.versions.toml`.
 
 ## `:core-api`
 

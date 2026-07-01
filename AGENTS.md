@@ -4,8 +4,8 @@
 
 ComposeSyntaxHighlighter is a **Kotlin Multiplatform (KMP)** library that produces an `AnnotatedString` from `tree-sitter` query captures and renders it with Compose `Text`.
 
-- **Targets**: Android (published AAR) and JVM (published JAR for Compose Desktop interop). Every target is JVM-based — no `expect/actual`; production code lives in `commonMain`.
-- **Languages**: Kotlin, Swift, Ruby, Rust, Python, Go, Java (more can be added as separate modules).
+- **Targets**: Android (published AAR), JVM (published JAR for Compose Desktop interop), iosArm64, iosSimulatorArm64 (iOS framework). Production code lives in `commonMain`; the parser binding uses `expect/actual` (JVM/Android `actual` via `System.loadLibrary`; native `actual` via cinterop).
+- **Languages**: Kotlin, Swift, Ruby, Rust, Python, Go, Java, JavaScript, TypeScript (with TSX), Markdown (more can be added as separate modules).
 - **UI target**: Material3 only (`minSdk = 26`).
 - **Browser**: out of scope — use a JS-side highlighter (highlight.js, Shiki) for web apps.
 
