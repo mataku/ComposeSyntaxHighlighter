@@ -46,29 +46,19 @@ jobs:
           ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGINMEMORYKEYPASSWORD }}
         run: ./gradlew publishToMavenCentral --no-configuration-cache
 
-      - name: Tag releases on success
+      - name: Tag release on success
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          tag_if_absent() {
-            local tag="$1"
-            if git rev-parse -q --verify "refs/tags/$tag" >/dev/null; then
-              echo "Tag $tag already exists, skipping"
-              return
-            fi
-            git tag "$tag"
-            git push origin "$tag"
-            echo "Tagged $tag"
-          }
-
-          CORE_VERSION=$(grep '^VERSION_NAME=' gradle.properties | cut -d= -f2)
-          tag_if_absent "core-stack-v$CORE_VERSION"
-
-          for f in languages/*/gradle.properties; do
-            LANG_NAME=$(basename "$(dirname "$f")")
-            LANG_VERSION=$(grep '^VERSION_NAME=' "$f" | cut -d= -f2)
-            tag_if_absent "$LANG_NAME-v$LANG_VERSION"
-          done
+          VERSION=$(grep '^VERSION_NAME=' gradle.properties | cut -d= -f2)
+          TAG="v$VERSION"
+          if git rev-parse -q --verify "refs/tags/$TAG" >/dev/null; then
+            echo "Tag $TAG already exists, skipping"
+            exit 0
+          fi
+          git tag "$TAG"
+          git push origin "$TAG"
+          echo "Tagged $TAG"
 
   deploy-docs:
     needs: publish
@@ -84,6 +74,7 @@ jobs:
         with:
           submodules: recursive
       - uses: ./.github/actions/setup-android-deps
+      - uses: ./.github/actions/setup-tree-sitter
       - run: ./gradlew dokkaGenerate
       - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with:
