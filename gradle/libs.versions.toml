@@ -27,7 +27,7 @@ treesitterAbi = "15"
 # and :core's dependency on compose-syntax-highlight-api. Kept in sync with
 # ktreesitter's accept window: when ktreesitter narrows the window (drops an
 # old ABI) with a major release, this range gets a corresponding major bump.
-coreApiCompatibleRange = "[0.6, 1.0)"
+coreApiCompatibleRange = "[1.0, 2.0)"
 material3 = "1.9.0"
 vanniktechPublish = "0.34.0"
 dokka = "2.2.0"
