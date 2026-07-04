@@ -42,8 +42,8 @@ Maven coordinates: `io.github.mataku:compose-syntax-highlight-material3-text-fie
 
 Public API in `commonMain`:
 
-- `SyntaxHighlightedTextField(state, language, ...)` — editable composable that layers a transparent `BasicTextField` beneath a `Text` painting the highlighted form. Both children share `TextStyle` and `ScrollState` so glyphs sit at identical positions; the `BasicTextField` owns cursor/selection/IME, the overlay `Text` owns colour.
-- `rememberSyntaxHighlightedString(state, language, theme)` — `State<AnnotatedString>` driven by an `IncrementalHighlighter` whose lifetime tracks `(state, language)`. Theme changes do not rebuild the engine.
+- `SyntaxHighlightedTextField(value, onValueChange, language, ...)` — editable composable rendering a single `BasicTextField` whose one text layout is highlighted inline via a `VisualTransformation`. That single layout owns cursor/selection/IME and colour, so caret position and highlighting cannot drift; the highlight is computed asynchronously and may lag the caret by a few frames.
+- `rememberSyntaxHighlightVisualTransformation(text, language, theme)` — returns a `VisualTransformation` that paints highlighting onto a legacy `BasicTextField` whose text equals `text`, driven by an `IncrementalHighlighter` owned per `language`. Span offsets are clamped to the live text length, so a lagging highlight never mis-positions the caret. Theme changes do not rebuild the engine.
 
 Depends on `:core` for `IncrementalHighlighter`, `SyntaxTheme`, and `LocalSyntaxTheme`.
 

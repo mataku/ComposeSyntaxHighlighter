@@ -171,9 +171,12 @@ SyntaxHighlightedText(
 For an **editable** syntax-highlighted text surface, use `SyntaxHighlightedTextField` from `:material3-text-field`:
 
 ```kotlin
-val state = remember { TextFieldState(initialText = "val greeting = \"Hello\"") }
+var value by rememberSaveable(stateSaver = TextFieldValue.Saver) {
+  mutableStateOf(TextFieldValue("val greeting = \"Hello\""))
+}
 SyntaxHighlightedTextField(
-  state = state,
+  value = value,
+  onValueChange = { value = it },
   language = Languages.Kotlin,
   theme = SyntaxTheme.DarkDefault,
   modifier = Modifier.fillMaxSize(),
@@ -182,12 +185,14 @@ SyntaxHighlightedTextField(
 
 The Composable is backed by `IncrementalHighlighter` from `:core`: typing
 recomputes only the edited byte range, so highlighting stays interactive on
-multi-thousand-line files. For non-Material3 chrome or custom layouts, use
-`rememberSyntaxHighlightedString` directly:
+multi-thousand-line files. Highlighting is painted onto the single
+`BasicTextField` text layout by a `VisualTransformation`, so the caret and the
+colour never drift. For non-Material3 chrome or custom layouts, use
+`rememberSyntaxHighlightVisualTransformation` directly:
 
 ```kotlin
-val highlighted = rememberSyntaxHighlightedString(state, Languages.Kotlin)
-// drop `highlighted.value` into your own overlay / Text composition.
+val transformation = rememberSyntaxHighlightVisualTransformation(value.text, Languages.Kotlin)
+// pass `transformation` to your own BasicTextField(visualTransformation = ...).
 ```
 
 ## Built-in themes
