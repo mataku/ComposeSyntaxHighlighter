@@ -15,6 +15,10 @@ plugins {
 apiValidation {
   ignoredProjects += listOf("composeApp", "androidApp", "jvm", "android")
   nonPublicMarkers += "io.github.mataku.compose.highlight.api.InternalSyntaxHighlightApi"
+  @OptIn(kotlinx.validation.ExperimentalBCVApi::class)
+  klib {
+    enabled = true
+  }
 }
 
 dependencies {

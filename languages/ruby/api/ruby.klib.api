@@ -1,0 +1,14 @@
+// Klib ABI Dump
+// Targets: [iosArm64, iosSimulatorArm64]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <ComposeSyntaxHighlighter.languages:ruby>
+final object io.github.mataku.compose.highlight.ruby.internal/TreeSitterRuby { // io.github.mataku.compose.highlight.ruby.internal/TreeSitterRuby|null[0]
+    final fun language(): kotlin/Any // io.github.mataku.compose.highlight.ruby.internal/TreeSitterRuby.language|language(){}[0]
+}
+
+final val io.github.mataku.compose.highlight.ruby/Ruby // io.github.mataku.compose.highlight.ruby/Ruby|@io.github.mataku.compose.highlight.api.Languages{}Ruby[0]
+    final fun (io.github.mataku.compose.highlight.api/Languages).<get-Ruby>(): io.github.mataku.compose.highlight.api/Language // io.github.mataku.compose.highlight.ruby/Ruby.<get-Ruby>|<get-Ruby>@io.github.mataku.compose.highlight.api.Languages(){}[0]

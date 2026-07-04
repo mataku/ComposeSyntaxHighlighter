@@ -1,0 +1,14 @@
+// Klib ABI Dump
+// Targets: [iosArm64, iosSimulatorArm64]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <ComposeSyntaxHighlighter.languages:kotlin>
+final object io.github.mataku.compose.highlight.kotlin.internal/TreeSitterKotlin { // io.github.mataku.compose.highlight.kotlin.internal/TreeSitterKotlin|null[0]
+    final fun language(): kotlin/Any // io.github.mataku.compose.highlight.kotlin.internal/TreeSitterKotlin.language|language(){}[0]
+}
+
+final val io.github.mataku.compose.highlight.kotlin/Kotlin // io.github.mataku.compose.highlight.kotlin/Kotlin|@io.github.mataku.compose.highlight.api.Languages{}Kotlin[0]
+    final fun (io.github.mataku.compose.highlight.api/Languages).<get-Kotlin>(): io.github.mataku.compose.highlight.api/Language // io.github.mataku.compose.highlight.kotlin/Kotlin.<get-Kotlin>|<get-Kotlin>@io.github.mataku.compose.highlight.api.Languages(){}[0]

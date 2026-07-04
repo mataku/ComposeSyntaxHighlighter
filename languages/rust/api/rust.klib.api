@@ -1,0 +1,14 @@
+// Klib ABI Dump
+// Targets: [iosArm64, iosSimulatorArm64]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <ComposeSyntaxHighlighter.languages:rust>
+final object io.github.mataku.compose.highlight.rust.internal/TreeSitterRust { // io.github.mataku.compose.highlight.rust.internal/TreeSitterRust|null[0]
+    final fun language(): kotlin/Any // io.github.mataku.compose.highlight.rust.internal/TreeSitterRust.language|language(){}[0]
+}
+
+final val io.github.mataku.compose.highlight.rust/Rust // io.github.mataku.compose.highlight.rust/Rust|@io.github.mataku.compose.highlight.api.Languages{}Rust[0]
+    final fun (io.github.mataku.compose.highlight.api/Languages).<get-Rust>(): io.github.mataku.compose.highlight.api/Language // io.github.mataku.compose.highlight.rust/Rust.<get-Rust>|<get-Rust>@io.github.mataku.compose.highlight.api.Languages(){}[0]
