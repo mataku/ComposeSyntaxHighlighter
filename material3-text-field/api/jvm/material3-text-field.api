@@ -1,8 +1,14 @@
-public final class io/github/mataku/compose/highlight/material3/textfield/RememberSyntaxHighlightedStringKt {
-	public static final fun rememberSyntaxHighlightedString (Landroidx/compose/foundation/text/input/TextFieldState;Lio/github/mataku/compose/highlight/api/Language;Lio/github/mataku/compose/highlight/core/SyntaxTheme;Landroidx/compose/runtime/Composer;II)Landroidx/compose/runtime/State;
+public final class io/github/mataku/compose/highlight/material3/textfield/ClampingSyntaxVisualTransformation : androidx/compose/ui/text/input/VisualTransformation {
+	public static final field $stable I
+	public fun <init> (Landroidx/compose/ui/text/AnnotatedString;)V
+	public fun filter (Landroidx/compose/ui/text/AnnotatedString;)Landroidx/compose/ui/text/input/TransformedText;
+}
+
+public final class io/github/mataku/compose/highlight/material3/textfield/SyntaxHighlightVisualTransformationKt {
+	public static final fun rememberSyntaxHighlightVisualTransformation (Ljava/lang/String;Lio/github/mataku/compose/highlight/api/Language;Lio/github/mataku/compose/highlight/core/SyntaxTheme;Landroidx/compose/runtime/Composer;II)Landroidx/compose/ui/text/input/VisualTransformation;
 }
 
 public final class io/github/mataku/compose/highlight/material3/textfield/SyntaxHighlightedTextFieldKt {
-	public static final fun SyntaxHighlightedTextField (Landroidx/compose/foundation/text/input/TextFieldState;Lio/github/mataku/compose/highlight/api/Language;Landroidx/compose/ui/Modifier;Lio/github/mataku/compose/highlight/core/SyntaxTheme;Landroidx/compose/ui/text/TextStyle;ZZLandroidx/compose/ui/graphics/Brush;Landroidx/compose/foundation/text/input/TextFieldLineLimits;Landroidx/compose/foundation/ScrollState;Landroidx/compose/foundation/text/KeyboardOptions;Landroidx/compose/foundation/text/input/KeyboardActionHandler;Landroidx/compose/foundation/interaction/MutableInteractionSource;Landroidx/compose/runtime/Composer;III)V
+	public static final fun SyntaxHighlightedTextField (Landroidx/compose/ui/text/input/TextFieldValue;Lkotlin/jvm/functions/Function1;Lio/github/mataku/compose/highlight/api/Language;Landroidx/compose/ui/Modifier;Lio/github/mataku/compose/highlight/core/SyntaxTheme;Landroidx/compose/ui/text/TextStyle;ZZLandroidx/compose/ui/graphics/Brush;ZIILandroidx/compose/foundation/text/KeyboardOptions;Landroidx/compose/foundation/text/KeyboardActions;Landroidx/compose/foundation/interaction/MutableInteractionSource;Landroidx/compose/runtime/Composer;III)V
 }
 
