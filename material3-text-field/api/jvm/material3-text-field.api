@@ -1,9 +1,3 @@
-public final class io/github/mataku/compose/highlight/material3/textfield/ClampingSyntaxVisualTransformation : androidx/compose/ui/text/input/VisualTransformation {
-	public static final field $stable I
-	public fun <init> (Landroidx/compose/ui/text/AnnotatedString;)V
-	public fun filter (Landroidx/compose/ui/text/AnnotatedString;)Landroidx/compose/ui/text/input/TransformedText;
-}
-
 public final class io/github/mataku/compose/highlight/material3/textfield/SyntaxHighlightVisualTransformationKt {
 	public static final fun rememberSyntaxHighlightVisualTransformation (Ljava/lang/String;Lio/github/mataku/compose/highlight/api/Language;Lio/github/mataku/compose/highlight/core/SyntaxTheme;Landroidx/compose/runtime/Composer;II)Landroidx/compose/ui/text/input/VisualTransformation;
 }

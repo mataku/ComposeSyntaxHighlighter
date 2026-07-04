@@ -35,9 +35,13 @@ import io.github.mataku.compose.highlight.core.SyntaxTheme
  * @param theme        Maps capture names to [androidx.compose.ui.text.SpanStyle]s. Defaults to
  *                     the value of [LocalSyntaxTheme].
  * @param textStyle    Base text style; applied to the field and inherited by the highlight spans.
+ * @param enabled      Whether the field accepts input. Defaults to `true`.
+ * @param readOnly     Whether the field's contents can be modified. Defaults to `false`.
  * @param cursorBrush  Caret brush. Defaults to the Material3 primary colour.
  * @param singleLine   Defaults to `false` — code-editor flow.
  * @param maxLines     Defaults to unbounded.
+ * @param minLines     Defaults to `1`.
+ * @param keyboardActions Callbacks invoked for IME actions (e.g. Done, Next). Defaults to none.
  */
 @Composable
 fun SyntaxHighlightedTextField(

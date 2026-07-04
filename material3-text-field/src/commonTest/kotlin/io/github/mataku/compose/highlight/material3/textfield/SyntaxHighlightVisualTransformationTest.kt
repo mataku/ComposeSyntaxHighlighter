@@ -48,6 +48,21 @@ class SyntaxHighlightVisualTransformationTest {
   }
 
   @Test
+  fun spanFullyPastShorterCurrentTextIsDropped() {
+    // cached span is 5..8, entirely beyond the current text's length of 2
+    val stale = AnnotatedString(
+      text = "val a = 1",
+      spanStyles = listOf(
+        AnnotatedString.Range(SpanStyle(color = Color.Red), 5, 8),
+      ),
+    )
+    val transformation = ClampingSyntaxVisualTransformation(stale)
+    val result = transformation.filter(AnnotatedString("va"))
+    assertEquals("va", result.text.text)
+    assertTrue(result.text.spanStyles.isEmpty(), "span fully past current text must be dropped")
+  }
+
+  @Test
   fun longerCurrentTextLeavesTailUnstyled() {
     val transformation = ClampingSyntaxVisualTransformation(highlighted("val"))
     val result = transformation.filter(AnnotatedString("val a = 1"))

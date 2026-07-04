@@ -28,7 +28,7 @@ import kotlinx.coroutines.withContext
  * empty ranges are dropped, and the character count is preserved so [OffsetMapping.Identity]
  * keeps caret and selection geometry exact even while the highlight lags.
  */
-class ClampingSyntaxVisualTransformation(
+internal class ClampingSyntaxVisualTransformation(
   private val highlighted: AnnotatedString,
 ) : VisualTransformation {
   override fun filter(text: AnnotatedString): TransformedText {
