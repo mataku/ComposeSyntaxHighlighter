@@ -17,8 +17,9 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           submodules: recursive
-      - uses: ./.github/actions/setup-android-deps
-      - uses: ./.github/actions/setup-tree-sitter
+      - parallel:
+          - uses: ./.github/actions/setup-android-deps
+          - uses: ./.github/actions/setup-tree-sitter
       - run: ./gradlew jvmTest -x :benchmarks:jvm:jvmTest
 
   api-check:
@@ -28,13 +29,14 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           submodules: recursive
-      - uses: ./.github/actions/setup-android-deps
-      - uses: ./.github/actions/setup-tree-sitter
-      - name: Cache Konan toolchain
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
-        with:
-          path: ~/.konan
-          key: konan-${{ runner.os }}-kotlin-2.3.20
+      - parallel:
+          - uses: ./.github/actions/setup-android-deps
+          - uses: ./.github/actions/setup-tree-sitter
+          - name: Cache Konan toolchain
+            uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+            with:
+              path: ~/.konan
+              key: konan-${{ runner.os }}-kotlin-2.3.20
       - run: ./gradlew apiCheck
 
   android:
@@ -44,8 +46,9 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           submodules: recursive
-      - uses: ./.github/actions/setup-android-deps
-      - uses: ./.github/actions/setup-tree-sitter
+      - parallel:
+          - uses: ./.github/actions/setup-android-deps
+          - uses: ./.github/actions/setup-tree-sitter
       - run: ./gradlew :samples:androidApp:assembleDebug
 
   verify-notice:
@@ -55,8 +58,9 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           submodules: recursive
-      - uses: ./.github/actions/setup-android-deps
-      - uses: ./.github/actions/setup-tree-sitter
+      - parallel:
+          - uses: ./.github/actions/setup-android-deps
+          - uses: ./.github/actions/setup-tree-sitter
       - name: Publish to Maven Local
         run: ./gradlew publishToMavenLocal -PRELEASE_SIGNING_ENABLED=false --no-configuration-cache
       - name: Verify META-INF/NOTICE in published artifacts
@@ -69,8 +73,9 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           submodules: recursive
-      - uses: ./.github/actions/setup-android-deps
-      - uses: ./.github/actions/setup-tree-sitter
+      - parallel:
+          - uses: ./.github/actions/setup-android-deps
+          - uses: ./.github/actions/setup-tree-sitter
       - run: ./gradlew dokkaGenerate
 
   ios:
@@ -79,13 +84,14 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           submodules: recursive
-      - uses: ./.github/actions/setup-android-deps
-      - uses: ./.github/actions/setup-tree-sitter
-      - name: Cache Konan toolchain
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
-        with:
-          path: ~/.konan
-          key: konan-${{ runner.os }}-kotlin-2.3.20
+      - parallel:
+          - uses: ./.github/actions/setup-android-deps
+          - uses: ./.github/actions/setup-tree-sitter
+          - name: Cache Konan toolchain
+            uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+            with:
+              path: ~/.konan
+              key: konan-${{ runner.os }}-kotlin-2.3.20
       - name: Compile iOS targets
         run: |
           ./gradlew \

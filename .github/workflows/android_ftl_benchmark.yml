@@ -23,10 +23,13 @@ jobs:
         with:
           submodules: recursive
 
-      - uses: ./.github/actions/setup-android-deps
-      - uses: ./.github/actions/setup-tree-sitter
+      - parallel:
+          - uses: ./.github/actions/setup-android-deps
+          - uses: ./.github/actions/setup-tree-sitter
 
       - name: Assemble host APK and androidTest APK
+        id: assemble
+        background: true
         run: |
           ./gradlew \
             :samples:androidApp:assembleBenchmark \
@@ -41,6 +44,8 @@ jobs:
           project_id: ${{ secrets.GCP_PROJECT_ID }}
 
       - uses: google-github-actions/setup-gcloud@aa5489c8933f4cc7a4f7d45035b3b1440c9c10db # v3.0.1
+
+      - wait: assemble
 
       - name: Run benchmarks on Firebase Test Lab
         id: ftl
