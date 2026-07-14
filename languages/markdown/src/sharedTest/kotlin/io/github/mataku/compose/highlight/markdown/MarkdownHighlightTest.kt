@@ -2,10 +2,14 @@ package io.github.mataku.compose.highlight.markdown
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import io.github.mataku.compose.highlight.api.Languages
 import io.github.mataku.compose.highlight.core.SyntaxTheme
 import io.github.mataku.compose.highlight.core.highlight
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class MarkdownHighlightTest {
@@ -130,5 +134,30 @@ class MarkdownHighlightTest {
       it.start == 0 && it.end == code.length && it.item.color == baseColor
     }
     assertTrue(baseSpan != null, "expected base style covering 0..${code.length}; spans=${annotated.spanStyles}")
+  }
+
+  @Test
+  fun bundled_theme_styles_markdown_without_hand_rolled_extras() {
+    val bundled = SyntaxTheme.DarkDefault
+    val code = "# Head\n\na **b** *c* `d` and <https://example.com>\n"
+    val annotated = highlight(code, Languages.Markdown, bundled)
+
+    fun styleOver(substring: String): SpanStyle? {
+      val start = code.indexOf(substring)
+      val end = start + substring.length
+      return annotated.spanStyles
+        .firstOrNull { it.start == start && it.end == end && it.item != bundled.baseStyle }
+        ?.item
+    }
+
+    assertEquals(FontWeight.Bold, styleOver("Head")?.fontWeight, "heading; spans=${annotated.spanStyles}")
+    assertEquals(FontWeight.Bold, styleOver("**b**")?.fontWeight, "strong; spans=${annotated.spanStyles}")
+    assertEquals(FontStyle.Italic, styleOver("*c*")?.fontStyle, "emphasis; spans=${annotated.spanStyles}")
+    assertEquals(bundled.string?.color, styleOver("`d`")?.color, "code span; spans=${annotated.spanStyles}")
+    assertEquals(
+      TextDecoration.Underline,
+      styleOver("<https://example.com>")?.textDecoration,
+      "autolink; spans=${annotated.spanStyles}",
+    )
   }
 }
