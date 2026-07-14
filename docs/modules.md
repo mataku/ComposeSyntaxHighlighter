@@ -16,7 +16,7 @@ Maven coordinates: `io.github.mataku:compose-syntax-highlight-core:<version>`.
 
 Public API in `commonMain`:
 
-- `SyntaxTheme(baseStyle, background, keyword, function, ..., extras)` — typed `SpanStyle?` fields per tree-sitter capture (the 14 used by every built-in theme), plus `extras: Map<String, SpanStyle>` for grammar-specific captures. Provides `SyntaxTheme.DarkDefault` / `SyntaxTheme.LightDefault` and the named built-in palettes.
+- `SyntaxTheme(baseStyle, background, keyword, function, ..., extras)` — typed `SpanStyle?` fields per tree-sitter capture (the 14 used by every built-in theme), plus `extras: Map<String, SpanStyle>` for grammar-specific captures. Provides `SyntaxTheme.DarkDefault` / `SyntaxTheme.LightDefault` and the named built-in palettes. Not a `data class`: `copy` is hand-written so a future capture field can keep the previous overload as `@Deprecated(level = DeprecationLevel.HIDDEN)` and stay binary compatible. Built-in themes ship markdown's `text.*` captures pre-populated in `extras`, so `copy(extras = ...)` must merge rather than replace.
 - `LocalSyntaxTheme` — composition local that defaults to `SyntaxTheme.DarkDefault`.
 - `highlight(code, language, theme)` / `rememberHighlightedString(...)` — one-shot highlighting.
 - `IncrementalHighlighter(language)` — single-threaded incremental engine. `AutoCloseable`; route every `update`/`close` call through one coroutine. Drives editable surfaces.

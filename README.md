@@ -224,16 +224,53 @@ val myTheme = SyntaxTheme(
 )
 ```
 
-Unset fields fall back to a parent prefix — setting `keyword` covers `keyword.return`, `keyword.function`, etc., and `string.escape` falls back to `string` when `stringEscape` is unset. For grammar-specific captures not covered by a field (e.g. `keyword.return`, `variable.member`), use `extras`:
+Unset fields fall back to a parent prefix — setting `keyword` covers `keyword.return`, `keyword.function`, etc., and `string.escape` falls back to `string` when `stringEscape` is unset. A handful of capture names that some grammars emit as bare synonyms of a typed field (`escape`, `float`, `conditional`, `repeat`, `include`, `exception`, `parameter`, `character`) resolve to that field too, even though they share no prefix with it.
+
+For grammar-specific captures with no typed field (e.g. `attribute`, `constructor`, `variable.member`), use `extras`:
 
 ```kotlin
 val myTheme = SyntaxTheme(
   keyword = SpanStyle(color = Color.Magenta),
-  extras = mapOf("keyword.return" to SpanStyle(color = Color.Red)),
+  extras = mapOf("attribute" to SpanStyle(color = Color.Green)),
 )
 ```
 
 `extras` wins over typed fields for the same name.
+
+### Markdown captures and `extras`
+
+`tree-sitter-markdown` expresses every markdown construct as a `text.*` capture (`text.title`, `text.strong`, `text.emphasis`, `text.literal`, `text.uri`, `text.reference`), none of which has a typed field. Each built-in theme therefore ships these pre-populated in its `extras`, so markdown highlights out of the box.
+
+Two consequences:
+
+**`copy(extras = ...)` replaces the whole map.** Merge into the existing entries, or a built-in theme loses its markdown styling:
+
+```kotlin
+// Wrong — drops every text.* entry the theme shipped with.
+SyntaxTheme.DarkDefault.copy(extras = mapOf("attribute" to attributeStyle))
+
+// Right
+SyntaxTheme.DarkDefault.let {
+  it.copy(extras = it.extras + mapOf("attribute" to attributeStyle))
+}
+```
+
+**A theme built from scratch gets no markdown defaults.** If you construct your own `SyntaxTheme(...)` and want markdown to highlight, supply the `text.*` entries yourself:
+
+```kotlin
+val myTheme = SyntaxTheme(
+  baseStyle = SpanStyle(color = Color.White),
+  keyword = SpanStyle(color = Color.Magenta),
+  extras = mapOf(
+    "text.title" to SpanStyle(color = Color.Magenta, fontWeight = FontWeight.Bold),
+    "text.strong" to SpanStyle(fontWeight = FontWeight.Bold),
+    "text.emphasis" to SpanStyle(fontStyle = FontStyle.Italic),
+    "text.literal" to SpanStyle(color = Color.Yellow),
+    "text.uri" to SpanStyle(color = Color.Cyan, textDecoration = TextDecoration.Underline),
+    "text.reference" to SpanStyle(color = Color.Cyan),
+  ),
+)
+```
 
 ## Performance
 
