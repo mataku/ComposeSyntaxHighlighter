@@ -46,7 +46,7 @@ The workflow is rigid — follow the order. Most steps are obvious, but several 
 
 **Pin selection — keep the bundled parser.c inside the accept window:**
 
-The repo pins `treesitterAbi = "15"` in `gradle/libs.versions.toml`, and ktreesitter 0.25.1's loader accepts a parser's `LANGUAGE_VERSION` in `13..15` on every target (including Kotlin/Native). `generateParserSource` (in `build-logic/src/main/kotlin/compose-syntax-highlight-language.gradle.kts`) only regenerates `src/parser.c` when it is missing — it does **not** detect ABI mismatch. An upstream parser.c whose ABI falls outside the window reaches `Language(...)` and throws `IllegalArgumentException: Incompatible language version <N>` at runtime.
+`gradle/libs.versions.toml` is the single source of truth: it pins `treesitterAbi` (currently `15`) and the `ktreesitter` loader, whose accept window for a parser's `LANGUAGE_VERSION` is currently `13..15` on every target (including Kotlin/Native). Re-read the catalog rather than trusting these numbers — they move when ktreesitter is bumped. `generateParserSource` (in `build-logic/src/main/kotlin/compose-syntax-highlight-language.gradle.kts`) only regenerates `src/parser.c` when it is missing — it does **not** detect ABI mismatch. An upstream parser.c whose ABI falls outside the window reaches `Language(...)` and throws `IllegalArgumentException: Incompatible language version <N>` at runtime.
 
 Verification happens *after* `git submodule add` (step 2) but *before* you record the gitlink in a commit. Inspect the default-checked-out parser.c: if its `LANGUAGE_VERSION` is inside `13..15`, the pin is fine — prefer the newest such tag so you ride the latest grammar. If it is outside the window (e.g. a future ABI 16), walk back tags with `git -C <submodule> checkout <older-tag>` until the bundled parser.c reads a `LANGUAGE_VERSION` within the window, then commit *that* gitlink. As of this writing every released upstream grammar ships ABI ≤ 15, so default HEAD is normally fine. Some bundled modules sit at ABI 15 and others remain at ABI 14 purely because their upstream has not yet cut an ABI-15 release — ABI 14 is in-window and perfectly fine; do not downgrade a working pin to chase a particular ABI.
 
@@ -127,6 +127,27 @@ Append to `settings.gradle.kts` after the existing `:languages:<...>` includes:
 include(":languages:<lang>")
 ```
 
+**Exclude the generated parser object from the public ABI.** The ktreesitter plugin generates `TreeSitter<Lang>` (exposing `fun language(): Any`) into `io.github.mataku.compose.highlight.<name>.internal`. It is `public`, carries no `@InternalSyntaxHighlightApi`, and is consumed only from within its own module — so unless it is excluded, BCV records it in the module's jvm **and** klib dumps and the 1.0 stability guarantee pins that untyped accessor forever. The generator belongs to ktreesitter, so its visibility cannot be changed here; the exclusion is a BCV setting.
+
+Add the new package to `ignoredPackages` in the root `build.gradle.kts`:
+
+```kotlin
+apiValidation {
+  ignoredPackages += listOf(
+    …,
+    "<name>",          // one entry per grammar key, not per module
+  ).map { "io.github.mataku.compose.highlight.$it.internal" }
+}
+```
+
+For multi-grammar modules add **one entry per grammar key**, not one per module — the package follows the grammar's `create("<name>")` key. That is why `typescript` contributes both `typescript` and `tsx`, and `markdown` contributes both `markdown` and `markdownInline`.
+
+Verify after the first `apiDump` (step 7) that nothing leaked:
+
+```bash
+grep -rl 'TreeSitter' --include='*.api' --include='*.klib.api' languages/<lang>/api   # must print nothing
+```
+
 Run `./gradlew :languages:<lang>:tasks --quiet`. The plugin's `afterEvaluate` writes `languages/<lang>/CMakeLists.txt` and `languages/<lang>/host-cmake/CMakeLists.txt`. **These files are gitignored** (`languages/*/CMakeLists.txt` and `languages/*/host-cmake/`) — the plugin regenerates them on every configuration. Do **not** add them to the commit.
 
 Commit (one atomic commit per the repo's git-commit skill):
@@ -135,10 +156,13 @@ Commit (one atomic commit per the repo's git-commit skill):
 - `languages/<lang>/tree-sitter-<lang>` (the gitlink)
 - `languages/<lang>/build.gradle.kts`
 - `settings.gradle.kts`
+- `build.gradle.kts` (the `ignoredPackages` entry)
 
 ## 3. Implement `Languages.<Lang>` with golden tests (TDD)
 
 Write the failing test first. Use the template in `references/highlight-test-template.md` and substitute language-specific keywords/comment syntax. Run `./gradlew :languages:<lang>:jvmTest` and confirm the failure is an unresolved reference on `Languages.<Lang>` (compile failure) — that proves the test exercises the right code path.
+
+The test goes in `languages/<lang>/src/sharedTest/`, **not** `src/jvmTest/`. The convention plugin wires `sharedTest` to the `jvmTest`, `iosArm64Test`, and `iosSimulatorArm64Test` compilations (and deliberately not to `androidUnitTest`), so a single test file covers JVM and iOS. Keep it portable — `kotlin.test` + Compose Multiplatform types, no JVM-only APIs.
 
 Then create `languages/<lang>/src/commonMain/kotlin/io/github/mataku/compose/highlight/<lang>/<Lang>Language.kt`:
 
@@ -164,9 +188,9 @@ Re-run `./gradlew :languages:<lang>:jvmTest`. Expect all 5 tests to pass.
 
 **If a test fails at runtime** (not at compile time), inspect the actual spans printed in the failure message before changing anything. Common shapes:
 
-- *Capture-name mismatch*: upstream `highlights.scm` uses a name your test theme doesn't map. Example: Rust integer literals are tagged `@constant.builtin`, not `@number`. Keep the test logic, add the upstream capture key to the test theme. `SyntaxTheme.resolve()` does dotted-prefix fallback, so `constant.builtin` will fall back to `constant` — but the most precise key is the most predictable.
-- *ABI mismatch*: failure says `Incompatible language version <N>. Must be between 13 and 14.` Stop. Go back to step 1 and pick a different submodule pin. Do not patch `build-logic` for this; the project policy is to fix the pin instead.
-- *`QueryError$Predicate: ... must be a string literal`*: ktreesitter 0.25.0's predicate parser miscounts arguments for patterns containing **more than one** predicate (`#match? ... #is-not? local`). It accepts single-predicate `(#is-not? local)` (ruby uses this) but fails on multi-predicate combinations (the JS scm hits this for `@variable.builtin` / `@function.builtin`). Workaround: ship a hand-curated `languages/<lang>/queries/highlights.scm` (outside the submodule) and point `queries.set(listOf("../queries/highlights.scm"))` at that — the javascript module is the precedent. Add a header comment documenting the deviation from upstream.
+- *Capture-name mismatch*: upstream `highlights.scm` uses a name your test theme doesn't map. Example: Rust integer literals are tagged `@constant.builtin`, not `@number`. Keep the test logic, add the upstream capture key to the test theme. `SyntaxTheme.resolve()` does dotted-prefix fallback, so `constant.builtin` will fall back to `constant` — but the most precise key is the most predictable. `resolve()` also carries a `CAPTURE_ALIASES` table for nvim-treesitter-era names that are exact synonyms of a typed field but share no dotted prefix with it (`escape`, `float`, `conditional`, `repeat`, `include`, `exception`, `parameter`, `character`). If the new grammar emits a *further* such synonym, extend that table rather than papering over it in the test theme — an unmapped top-level capture renders unstyled for every consumer, not just the test.
+- *ABI mismatch*: failure says `Incompatible language version <N>. Must be between 13 and 15.` Stop. Go back to step 1 and pick a different submodule pin. Do not patch `build-logic` for this; the project policy is to fix the pin instead.
+- *`QueryError$Predicate: ... must be a string literal`*: ktreesitter's predicate parser miscounts arguments for patterns containing **more than one** predicate (`#match? ... #is-not? local`). It accepts single-predicate `(#is-not? local)` (ruby uses this) but fails on multi-predicate combinations (the JS scm hits this for `@variable.builtin` / `@function.builtin`). Still reproducible on the pinned `ktreesitter` (see the version catalog). Workaround: ship a hand-curated `languages/<lang>/queries/highlights.scm` (outside the submodule) and point `queries.set(listOf("../queries/highlights.scm"))` at that — the javascript module is the precedent. Add a header comment documenting the deviation from upstream.
 
 Commit the Language object and the test as one atomic commit.
 
@@ -257,7 +281,22 @@ Run the full pipeline before declaring done:
 bash scripts/verify-notice.sh
 ```
 
-If `apiCheck` fails for the new module with a "missing api file" error, run `./gradlew :languages:<lang>:apiDump` to record the baseline (commit the resulting `languages/<lang>/api/{android,jvm}/<lang>.api` files).
+If `apiCheck` fails for the new module with a "missing api file" error, run `./gradlew :languages:<lang>:apiDump` to record the baseline. Two files are produced, and both must be committed:
+
+- `languages/<lang>/api/jvm/<lang>.api`
+- `languages/<lang>/api/<lang>.klib.api` — the iOS ABI (`iosArm64` + `iosSimulatorArm64`)
+
+There is no `api/android/` dump: the migration to `com.android.kotlin.multiplatform.library` dropped Android from BCV, and the orphaned android dumps were deleted repo-wide. `apiCheck` runs `jvmApiCheck` + `klibApiCheck` only.
+
+**klib dumps can only be produced on macOS** (Apple targets do not build elsewhere), which is why CI's `api-check` job runs on `macos-latest`. Running `apiDump` on Linux will not generate or update the `.klib.api` file.
+
+Before committing the dumps, confirm the generated parser object was excluded (step 2):
+
+```bash
+grep -rl 'TreeSitter' --include='*.api' --include='*.klib.api' languages/<lang>/api   # must print nothing
+```
+
+If it prints a file, the `ignoredPackages` entry is missing or misspelled — fix that rather than committing the leak.
 
 The verify-notice run must print `OK: ... contains META-INF/NOTICE` for both the new `<lang>-android` AAR and `<lang>-jvm` JAR. Spot-check the NOTICE content:
 

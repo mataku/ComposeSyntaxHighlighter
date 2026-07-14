@@ -1,6 +1,8 @@
 # `<Lang>HighlightTest.kt` template
 
-Place at `languages/<lang>/src/jvmTest/kotlin/io/github/mataku/compose/highlight/<lang>/<Lang>HighlightTest.kt`. Substitute the placeholders and adjust the keyword / comment syntax to the language.
+Place at `languages/<lang>/src/sharedTest/kotlin/io/github/mataku/compose/highlight/<lang>/<Lang>HighlightTest.kt`. Substitute the placeholders and adjust the keyword / comment syntax to the language.
+
+`sharedTest` — not `jvmTest` — is the source set the convention plugin wires to the `jvmTest`, `iosArm64Test`, and `iosSimulatorArm64Test` compilations, so one test file runs on both JVM and iOS. It is deliberately **not** wired to `androidUnitTest` (an Android unit-test JVM cannot load the tree-sitter native library). Keep the test portable: `kotlin.test` + Compose Multiplatform types only, no JVM-only APIs.
 
 ```kotlin
 package io.github.mataku.compose.highlight.<lang>
@@ -96,10 +98,10 @@ class <Lang>HighlightTest {
 
 | Module | File |
 |---|---|
-| Kotlin | `languages/kotlin/src/jvmTest/kotlin/io/github/mataku/compose/highlight/kotlin/KotlinHighlightTest.kt` |
-| Swift | `languages/swift/src/jvmTest/kotlin/io/github/mataku/compose/highlight/swift/SwiftHighlightTest.kt` |
-| Ruby | `languages/ruby/src/jvmTest/kotlin/io/github/mataku/compose/highlight/ruby/RubyHighlightTest.kt` |
-| Rust | `languages/rust/src/jvmTest/kotlin/io/github/mataku/compose/highlight/rust/RustHighlightTest.kt` |
+| Kotlin | `languages/kotlin/src/sharedTest/kotlin/io/github/mataku/compose/highlight/kotlin/KotlinHighlightTest.kt` |
+| Swift | `languages/swift/src/sharedTest/kotlin/io/github/mataku/compose/highlight/swift/SwiftHighlightTest.kt` |
+| Ruby | `languages/ruby/src/sharedTest/kotlin/io/github/mataku/compose/highlight/ruby/RubyHighlightTest.kt` |
+| Rust | `languages/rust/src/sharedTest/kotlin/io/github/mataku/compose/highlight/rust/RustHighlightTest.kt` |
 
 Read whichever existing module is closest to the new language's syntax (curly-brace vs significant-indentation, explicit type annotations vs not, comment marker style) before writing the new test.
 
