@@ -35,8 +35,9 @@ jobs:
         with:
           submodules: recursive
 
-      - uses: ./.github/actions/setup-android-deps
-      - uses: ./.github/actions/setup-tree-sitter
+      - parallel:
+          - uses: ./.github/actions/setup-android-deps
+          - uses: ./.github/actions/setup-tree-sitter
 
       - name: Resolve target projects and version
         id: target
@@ -122,8 +123,9 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           submodules: recursive
-      - uses: ./.github/actions/setup-android-deps
-      - uses: ./.github/actions/setup-tree-sitter
+      - parallel:
+          - uses: ./.github/actions/setup-android-deps
+          - uses: ./.github/actions/setup-tree-sitter
       - run: ./gradlew dokkaGenerate
       - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with:
