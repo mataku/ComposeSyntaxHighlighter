@@ -1,0 +1,10 @@
+// Klib ABI Dump
+// Targets: [iosArm64, iosSimulatorArm64]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <ComposeSyntaxHighlighter.languages:python>
+final val io.github.mataku.compose.highlight.python/Python // io.github.mataku.compose.highlight.python/Python|@io.github.mataku.compose.highlight.api.Languages{}Python[0]
+    final fun (io.github.mataku.compose.highlight.api/Languages).<get-Python>(): io.github.mataku.compose.highlight.api/Language // io.github.mataku.compose.highlight.python/Python.<get-Python>|<get-Python>@io.github.mataku.compose.highlight.api.Languages(){}[0]

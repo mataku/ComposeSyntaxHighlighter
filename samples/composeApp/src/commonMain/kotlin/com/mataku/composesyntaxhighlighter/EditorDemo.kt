@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -16,9 +15,13 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import io.github.mataku.compose.highlight.api.Languages
 import io.github.mataku.compose.highlight.core.SyntaxTheme
@@ -28,7 +31,9 @@ import io.github.mataku.compose.highlight.material3.textfield.SyntaxHighlightedT
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditorDemo(onBack: () -> Unit = {}) {
-  val state = remember { TextFieldState(initialText = SampleCode.kotlin) }
+  var value by rememberSaveable(stateSaver = TextFieldValue.Saver) {
+    mutableStateOf(TextFieldValue(SampleCode.kotlin))
+  }
   MaterialTheme {
     Scaffold(
       topBar = {
@@ -61,7 +66,8 @@ fun EditorDemo(onBack: () -> Unit = {}) {
           )
         }
         SyntaxHighlightedTextField(
-          state = state,
+          value = value,
+          onValueChange = { value = it },
           language = Languages.Kotlin,
           theme = SyntaxTheme.DarkDefault,
           modifier = Modifier

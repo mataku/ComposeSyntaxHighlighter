@@ -416,13 +416,16 @@ extensions.configure<KotlinMultiplatformExtension>("kotlin") {
         api(versionCatalog.findLibrary("ktreesitter").get())
       }
     }
-    getByName("jvmTest") {
+    val sharedTest = create("sharedTest") {
       dependencies {
         implementation(versionCatalog.findLibrary("kotlin-test").get())
         implementation(versionCatalog.findLibrary("compose-ui").get())
         implementation(project(":core"))
       }
     }
+    getByName("jvmTest").dependsOn(sharedTest)
+    getByName("iosArm64Test").dependsOn(sharedTest)
+    getByName("iosSimulatorArm64Test").dependsOn(sharedTest)
   }
 
   sourceSets.named("androidMain") {

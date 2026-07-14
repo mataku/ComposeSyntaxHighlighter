@@ -23,13 +23,18 @@ jobs:
 
   api-check:
     name: Public API check
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           submodules: recursive
       - uses: ./.github/actions/setup-android-deps
       - uses: ./.github/actions/setup-tree-sitter
+      - name: Cache Konan toolchain
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: ~/.konan
+          key: konan-${{ runner.os }}-kotlin-2.3.20
       - run: ./gradlew apiCheck
 
   android:

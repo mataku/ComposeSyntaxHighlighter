@@ -1,0 +1,17 @@
+// Klib ABI Dump
+// Targets: [iosArm64, iosSimulatorArm64]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <ComposeSyntaxHighlighter:core-api>
+open annotation class io.github.mataku.compose.highlight.api/InternalSyntaxHighlightApi : kotlin/Annotation { // io.github.mataku.compose.highlight.api/InternalSyntaxHighlightApi|null[0]
+    constructor <init>() // io.github.mataku.compose.highlight.api/InternalSyntaxHighlightApi.<init>|<init>(){}[0]
+}
+
+final class io.github.mataku.compose.highlight.api/Injection // io.github.mataku.compose.highlight.api/Injection|null[0]
+
+final class io.github.mataku.compose.highlight.api/Language // io.github.mataku.compose.highlight.api/Language|null[0]
+
+final object io.github.mataku.compose.highlight.api/Languages // io.github.mataku.compose.highlight.api/Languages|null[0]

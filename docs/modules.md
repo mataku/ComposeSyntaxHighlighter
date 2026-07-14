@@ -1,6 +1,6 @@
 # Module reference
 
-Per-module Maven coordinates, public API, and source-set notes. Every target is JVM-based — there is no `expect/actual`; production code lives in `commonMain`. Versions live in `gradle/libs.versions.toml`.
+Per-module Maven coordinates, public API, and source-set notes. Production code lives in `commonMain`; the parser binding uses `expect/actual` (JVM/Android `actual` via `System.loadLibrary`; native `actual` via cinterop). Targets are Android, JVM, iosArm64, iosSimulatorArm64. Versions live in `gradle/libs.versions.toml`.
 
 ## `:core-api`
 
@@ -16,7 +16,7 @@ Maven coordinates: `io.github.mataku:compose-syntax-highlight-core:<version>`.
 
 Public API in `commonMain`:
 
-- `SyntaxTheme(baseStyle, background, keyword, function, ..., extras)` — typed `SpanStyle?` fields per tree-sitter capture (the 14 used by every built-in theme), plus `extras: Map<String, SpanStyle>` for grammar-specific captures. Provides `SyntaxTheme.DarkDefault` / `SyntaxTheme.LightDefault` and the named built-in palettes.
+- `SyntaxTheme(baseStyle, background, keyword, function, ..., extras)` — typed `SpanStyle?` fields per tree-sitter capture (the 14 used by every built-in theme), plus `extras: Map<String, SpanStyle>` for grammar-specific captures. Provides `SyntaxTheme.DarkDefault` / `SyntaxTheme.LightDefault` and the named built-in palettes. Not a `data class`: `copy` is hand-written so a future capture field can keep the previous overload as `@Deprecated(level = DeprecationLevel.HIDDEN)` and stay binary compatible. Built-in themes ship markdown's `text.*` captures pre-populated in `extras`, so `copy(extras = ...)` must merge rather than replace.
 - `LocalSyntaxTheme` — composition local that defaults to `SyntaxTheme.DarkDefault`.
 - `highlight(code, language, theme)` / `rememberHighlightedString(...)` — one-shot highlighting.
 - `IncrementalHighlighter(language)` — single-threaded incremental engine. `AutoCloseable`; route every `update`/`close` call through one coroutine. Drives editable surfaces.
@@ -42,8 +42,8 @@ Maven coordinates: `io.github.mataku:compose-syntax-highlight-material3-text-fie
 
 Public API in `commonMain`:
 
-- `SyntaxHighlightedTextField(state, language, ...)` — editable composable that layers a transparent `BasicTextField` beneath a `Text` painting the highlighted form. Both children share `TextStyle` and `ScrollState` so glyphs sit at identical positions; the `BasicTextField` owns cursor/selection/IME, the overlay `Text` owns colour.
-- `rememberSyntaxHighlightedString(state, language, theme)` — `State<AnnotatedString>` driven by an `IncrementalHighlighter` whose lifetime tracks `(state, language)`. Theme changes do not rebuild the engine.
+- `SyntaxHighlightedTextField(value, onValueChange, language, ...)` — editable composable rendering a single `BasicTextField` whose one text layout is highlighted inline via a `VisualTransformation`. That single layout owns cursor/selection/IME and colour, so caret position and highlighting cannot drift; the highlight is computed asynchronously and may lag the caret by a few frames.
+- `rememberSyntaxHighlightVisualTransformation(text, language, theme)` — returns a `VisualTransformation` that paints highlighting onto a legacy `BasicTextField` whose text equals `text`, driven by an `IncrementalHighlighter` owned per `language`. Span offsets are clamped to the live text length, so a lagging highlight never mis-positions the caret. Theme changes do not rebuild the engine.
 
 Depends on `:core` for `IncrementalHighlighter`, `SyntaxTheme`, and `LocalSyntaxTheme`.
 

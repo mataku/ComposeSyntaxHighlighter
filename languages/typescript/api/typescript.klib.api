@@ -1,0 +1,12 @@
+// Klib ABI Dump
+// Targets: [iosArm64, iosSimulatorArm64]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <ComposeSyntaxHighlighter.languages:typescript>
+final val io.github.mataku.compose.highlight.tsx/Tsx // io.github.mataku.compose.highlight.tsx/Tsx|@io.github.mataku.compose.highlight.api.Languages{}Tsx[0]
+    final fun (io.github.mataku.compose.highlight.api/Languages).<get-Tsx>(): io.github.mataku.compose.highlight.api/Language // io.github.mataku.compose.highlight.tsx/Tsx.<get-Tsx>|<get-Tsx>@io.github.mataku.compose.highlight.api.Languages(){}[0]
+final val io.github.mataku.compose.highlight.typescript/Typescript // io.github.mataku.compose.highlight.typescript/Typescript|@io.github.mataku.compose.highlight.api.Languages{}Typescript[0]
+    final fun (io.github.mataku.compose.highlight.api/Languages).<get-Typescript>(): io.github.mataku.compose.highlight.api/Language // io.github.mataku.compose.highlight.typescript/Typescript.<get-Typescript>|<get-Typescript>@io.github.mataku.compose.highlight.api.Languages(){}[0]

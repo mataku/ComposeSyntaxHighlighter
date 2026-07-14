@@ -1,0 +1,9 @@
+// Klib ABI Dump
+// Targets: [iosArm64, iosSimulatorArm64]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <ComposeSyntaxHighlighter:material3>
+final fun io.github.mataku.compose.highlight.material3/SyntaxHighlightedText(kotlin/String, io.github.mataku.compose.highlight.api/Language, androidx.compose.ui/Modifier?, androidx.compose.foundation.layout/PaddingValues?, io.github.mataku.compose.highlight.core/SyntaxTheme?, androidx.compose.ui.text/TextStyle?, kotlin/Boolean, kotlin/Boolean, kotlin.coroutines/CoroutineContext?, androidx.compose.runtime/Composer?, kotlin/Int, kotlin/Int) // io.github.mataku.compose.highlight.material3/SyntaxHighlightedText|SyntaxHighlightedText(kotlin.String;io.github.mataku.compose.highlight.api.Language;androidx.compose.ui.Modifier?;androidx.compose.foundation.layout.PaddingValues?;io.github.mataku.compose.highlight.core.SyntaxTheme?;androidx.compose.ui.text.TextStyle?;kotlin.Boolean;kotlin.Boolean;kotlin.coroutines.CoroutineContext?;androidx.compose.runtime.Composer?;kotlin.Int;kotlin.Int){}[0]

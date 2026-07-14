@@ -3,7 +3,9 @@ package io.github.mataku.compose.highlight.core
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 
 /**
  * Maps tree-sitter highlight captures to [SpanStyle] values.
@@ -17,9 +19,15 @@ import androidx.compose.ui.text.font.FontWeight
  * the same instance is passed. Callers must honor that contract: build a [SyntaxTheme] once
  * (typically as a top-level/companion `val` or hoisted into a [LocalSyntaxTheme]) and never
  * mutate the [extras] map after passing it in.
+ *
+ * Deliberately not a `data class`: a compiler-generated `copy` cannot survive the addition of a
+ * new capture field, because the added parameter changes `copy`'s mangled JVM name and shifts
+ * every `componentN`. Hand-writing [copy] lets a future field keep the previous overload as a
+ * `@Deprecated(level = DeprecationLevel.HIDDEN)` signature, so new captures stay binary
+ * compatible — the same approach `androidx.compose.ui.text.SpanStyle` takes.
  */
 @Immutable
-data class SyntaxTheme(
+class SyntaxTheme(
   /** Applied to the entire string before any capture-specific style. Set the default text color here. */
   val baseStyle: SpanStyle = SpanStyle(),
   /**
@@ -60,6 +68,16 @@ data class SyntaxTheme(
    * the same name. Pass a stable map instance (e.g. an immutable `mapOf(...)` constructed once
    * and reused) — mutating the map after handing it to [SyntaxTheme] breaks the [Immutable]
    * contract and leads to stale recomposition.
+   *
+   * Every bundled theme seeds this with markdown's `text.*` captures, so it is **not** empty on
+   * them. [copy] replaces the map wholesale — merge instead of overwriting, or markdown loses
+   * its styling:
+   *
+   * ```kotlin
+   * val theme = SyntaxTheme.DarkDefault.let {
+   *   it.copy(extras = it.extras + mapOf("attribute" to SpanStyle(color = Color.Green)))
+   * }
+   * ```
    */
   val extras: Map<String, SpanStyle> = emptyMap(),
 ) {
@@ -68,6 +86,8 @@ data class SyntaxTheme(
    *
    * For a capture like `string.escape`, the lookup tries `string.escape`, then `string`, and
    * finally returns `null` if no entry exists. [extras] wins over typed fields for the same name.
+   * A capture that is an exact synonym of a typed field but shares no dotted prefix with it
+   * (e.g. `float`, emitted for a number) is resolved through [CAPTURE_ALIASES].
    */
   fun resolve(captureName: String): SpanStyle? {
     lookup(captureName)?.let { return it }
@@ -80,7 +100,9 @@ data class SyntaxTheme(
     return null
   }
 
-  private fun lookup(name: String): SpanStyle? = extras[name] ?: fieldFor(name)
+  private fun lookup(name: String): SpanStyle? = direct(name) ?: CAPTURE_ALIASES[name]?.let(::direct)
+
+  private fun direct(name: String): SpanStyle? = extras[name] ?: fieldFor(name)
 
   private fun fieldFor(name: String): SpanStyle? = when (name) {
     "keyword" -> keyword
@@ -100,7 +122,143 @@ data class SyntaxTheme(
     else -> null
   }
 
+  fun copy(
+    baseStyle: SpanStyle = this.baseStyle,
+    background: Color? = this.background,
+    keyword: SpanStyle? = this.keyword,
+    function: SpanStyle? = this.function,
+    type: SpanStyle? = this.type,
+    string: SpanStyle? = this.string,
+    stringEscape: SpanStyle? = this.stringEscape,
+    number: SpanStyle? = this.number,
+    boolean: SpanStyle? = this.boolean,
+    comment: SpanStyle? = this.comment,
+    constant: SpanStyle? = this.constant,
+    property: SpanStyle? = this.property,
+    variable: SpanStyle? = this.variable,
+    namespace: SpanStyle? = this.namespace,
+    operator: SpanStyle? = this.operator,
+    punctuation: SpanStyle? = this.punctuation,
+    extras: Map<String, SpanStyle> = this.extras,
+  ): SyntaxTheme = SyntaxTheme(
+    baseStyle = baseStyle,
+    background = background,
+    keyword = keyword,
+    function = function,
+    type = type,
+    string = string,
+    stringEscape = stringEscape,
+    number = number,
+    boolean = boolean,
+    comment = comment,
+    constant = constant,
+    property = property,
+    variable = variable,
+    namespace = namespace,
+    operator = operator,
+    punctuation = punctuation,
+    extras = extras,
+  )
+
+  override fun equals(other: Any?): Boolean {
+    if (this === other) return true
+    if (other !is SyntaxTheme) return false
+    if (baseStyle != other.baseStyle) return false
+    if (background != other.background) return false
+    if (keyword != other.keyword) return false
+    if (function != other.function) return false
+    if (type != other.type) return false
+    if (string != other.string) return false
+    if (stringEscape != other.stringEscape) return false
+    if (number != other.number) return false
+    if (boolean != other.boolean) return false
+    if (comment != other.comment) return false
+    if (constant != other.constant) return false
+    if (property != other.property) return false
+    if (variable != other.variable) return false
+    if (namespace != other.namespace) return false
+    if (operator != other.operator) return false
+    if (punctuation != other.punctuation) return false
+    if (extras != other.extras) return false
+    return true
+  }
+
+  override fun hashCode(): Int {
+    var result = baseStyle.hashCode()
+    result = 31 * result + background.hashCode()
+    result = 31 * result + keyword.hashCode()
+    result = 31 * result + function.hashCode()
+    result = 31 * result + type.hashCode()
+    result = 31 * result + string.hashCode()
+    result = 31 * result + stringEscape.hashCode()
+    result = 31 * result + number.hashCode()
+    result = 31 * result + boolean.hashCode()
+    result = 31 * result + comment.hashCode()
+    result = 31 * result + constant.hashCode()
+    result = 31 * result + property.hashCode()
+    result = 31 * result + variable.hashCode()
+    result = 31 * result + namespace.hashCode()
+    result = 31 * result + operator.hashCode()
+    result = 31 * result + punctuation.hashCode()
+    result = 31 * result + extras.hashCode()
+    return result
+  }
+
+  override fun toString(): String = "SyntaxTheme(" +
+    "baseStyle=$baseStyle, " +
+    "background=$background, " +
+    "keyword=$keyword, " +
+    "function=$function, " +
+    "type=$type, " +
+    "string=$string, " +
+    "stringEscape=$stringEscape, " +
+    "number=$number, " +
+    "boolean=$boolean, " +
+    "comment=$comment, " +
+    "constant=$constant, " +
+    "property=$property, " +
+    "variable=$variable, " +
+    "namespace=$namespace, " +
+    "operator=$operator, " +
+    "punctuation=$punctuation, " +
+    "extras=$extras" +
+    ")"
+
   companion object {
+    /**
+     * Capture names emitted by bundled grammars that are exact synonyms of a typed field but
+     * share no dotted prefix with it, so [resolve]'s prefix walk cannot reach them.
+     */
+    private val CAPTURE_ALIASES = mapOf(
+      "escape" to "string.escape",
+      "float" to "number",
+      "conditional" to "keyword",
+      "repeat" to "keyword",
+      "include" to "keyword",
+      "exception" to "keyword",
+      "parameter" to "variable",
+      "character" to "string",
+    )
+
+    /**
+     * Populates the `text.*` captures that `tree-sitter-markdown` emits for every markdown
+     * construct — none of which has a typed field, so without this a bundled theme colours only
+     * markdown's punctuation and leaves headings, emphasis, links and code spans unstyled.
+     *
+     * Each entry is derived from a colour the receiver already defines, or is purely
+     * typographic, so no theme needs its own markdown palette. Explicit [extras] still win.
+     */
+    private fun SyntaxTheme.withMarkdownDefaults(): SyntaxTheme = copy(
+      extras = mapOf(
+        "text.title" to (keyword ?: baseStyle).copy(fontWeight = FontWeight.Bold),
+        "text.strong" to baseStyle.copy(fontWeight = FontWeight.Bold),
+        "text.emphasis" to baseStyle.copy(fontStyle = FontStyle.Italic),
+        "text.literal" to (string ?: baseStyle),
+        "text.uri" to (constant ?: baseStyle).copy(textDecoration = TextDecoration.Underline),
+        "text.reference" to (function ?: baseStyle),
+      ) + extras,
+    )
+
     /** VSCode-inspired neutral dark theme. Used as the default for [LocalSyntaxTheme]. */
     val DarkDefault: SyntaxTheme by lazy {
       SyntaxTheme(
@@ -120,7 +278,7 @@ data class SyntaxTheme(
         namespace = SpanStyle(color = Color(0xFF4EC9B0)),
         operator = SpanStyle(color = Color(0xFFD4D4D4)),
         punctuation = SpanStyle(color = Color(0xFFD4D4D4)),
-      )
+      ).withMarkdownDefaults()
     }
 
     /** VSCode-inspired neutral light theme. */
@@ -142,7 +300,7 @@ data class SyntaxTheme(
         namespace = SpanStyle(color = Color(0xFF267F99)),
         operator = SpanStyle(color = Color(0xFF000000)),
         punctuation = SpanStyle(color = Color(0xFF000000)),
-      )
+      ).withMarkdownDefaults()
     }
 
     /** Ethan Schoonover's Solarized Dark (base03 background). Attribution in META-INF/NOTICE. */
@@ -164,7 +322,7 @@ data class SyntaxTheme(
         namespace = SpanStyle(color = Color(0xFFB58900)),
         operator = SpanStyle(color = Color(0xFF93A1A1)),
         punctuation = SpanStyle(color = Color(0xFF586E75)),
-      )
+      ).withMarkdownDefaults()
     }
 
     /** Ethan Schoonover's Solarized Light (base3 background). Attribution in META-INF/NOTICE. */
@@ -186,7 +344,7 @@ data class SyntaxTheme(
         namespace = SpanStyle(color = Color(0xFFB58900)),
         operator = SpanStyle(color = Color(0xFF586E75)),
         punctuation = SpanStyle(color = Color(0xFF93A1A1)),
-      )
+      ).withMarkdownDefaults()
     }
 
     /** GitHub Primer Dark syntax tokens. Attribution in META-INF/NOTICE. */
@@ -208,7 +366,7 @@ data class SyntaxTheme(
         namespace = SpanStyle(color = Color(0xFFFF7B72)),
         operator = SpanStyle(color = Color(0xFFFF7B72)),
         punctuation = SpanStyle(color = Color(0xFFC9D1D9)),
-      )
+      ).withMarkdownDefaults()
     }
 
     /** GitHub Primer Light syntax tokens. Attribution in META-INF/NOTICE. */
@@ -230,7 +388,7 @@ data class SyntaxTheme(
         namespace = SpanStyle(color = Color(0xFFCF222E)),
         operator = SpanStyle(color = Color(0xFFCF222E)),
         punctuation = SpanStyle(color = Color(0xFF1F2328)),
-      )
+      ).withMarkdownDefaults()
     }
 
     /** Atom One Dark (atom/atom one-dark-syntax). Attribution in META-INF/NOTICE. */
@@ -252,7 +410,7 @@ data class SyntaxTheme(
         namespace = SpanStyle(color = Color(0xFFE5C07B)),
         operator = SpanStyle(color = Color(0xFFC678DD)),
         punctuation = SpanStyle(color = Color(0xFFABB2BF)),
-      )
+      ).withMarkdownDefaults()
     }
 
     /** Atom One Light (atom/atom one-light-syntax). Attribution in META-INF/NOTICE. */
@@ -274,7 +432,7 @@ data class SyntaxTheme(
         namespace = SpanStyle(color = Color(0xFFC18401)),
         operator = SpanStyle(color = Color(0xFFA626A4)),
         punctuation = SpanStyle(color = Color(0xFF383A42)),
-      )
+      ).withMarkdownDefaults()
     }
 
     /** Dracula (dark only — there is no canonical light variant). Attribution in META-INF/NOTICE. */
@@ -296,7 +454,7 @@ data class SyntaxTheme(
         namespace = SpanStyle(color = Color(0xFF8BE9FD)),
         operator = SpanStyle(color = Color(0xFFFF79C6)),
         punctuation = SpanStyle(color = Color(0xFFF8F8F2)),
-      )
+      ).withMarkdownDefaults()
     }
   }
 }

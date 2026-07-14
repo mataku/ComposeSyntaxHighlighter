@@ -2,8 +2,3 @@ public final class io/github/mataku/compose/highlight/swift/SwiftLanguageKt {
 	public static final fun getSwift (Lio/github/mataku/compose/highlight/api/Languages;)Lio/github/mataku/compose/highlight/api/Language;
 }
 
-public final class io/github/mataku/compose/highlight/swift/internal/TreeSitterSwift {
-	public static final field INSTANCE Lio/github/mataku/compose/highlight/swift/internal/TreeSitterSwift;
-	public final fun language ()Ljava/lang/Object;
-}
-

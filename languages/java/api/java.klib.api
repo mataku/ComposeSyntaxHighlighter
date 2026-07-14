@@ -1,0 +1,10 @@
+// Klib ABI Dump
+// Targets: [iosArm64, iosSimulatorArm64]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <ComposeSyntaxHighlighter.languages:java>
+final val io.github.mataku.compose.highlight.java/Java // io.github.mataku.compose.highlight.java/Java|@io.github.mataku.compose.highlight.api.Languages{}Java[0]
+    final fun (io.github.mataku.compose.highlight.api/Languages).<get-Java>(): io.github.mataku.compose.highlight.api/Language // io.github.mataku.compose.highlight.java/Java.<get-Java>|<get-Java>@io.github.mataku.compose.highlight.api.Languages(){}[0]
