@@ -6,9 +6,5 @@
 // - Show declarations: true
 
 // Library unique name: <ComposeSyntaxHighlighter.languages:python>
-final object io.github.mataku.compose.highlight.python.internal/TreeSitterPython { // io.github.mataku.compose.highlight.python.internal/TreeSitterPython|null[0]
-    final fun language(): kotlin/Any // io.github.mataku.compose.highlight.python.internal/TreeSitterPython.language|language(){}[0]
-}
-
 final val io.github.mataku.compose.highlight.python/Python // io.github.mataku.compose.highlight.python/Python|@io.github.mataku.compose.highlight.api.Languages{}Python[0]
     final fun (io.github.mataku.compose.highlight.api/Languages).<get-Python>(): io.github.mataku.compose.highlight.api/Language // io.github.mataku.compose.highlight.python/Python.<get-Python>|<get-Python>@io.github.mataku.compose.highlight.api.Languages(){}[0]

@@ -6,9 +6,5 @@
 // - Show declarations: true
 
 // Library unique name: <ComposeSyntaxHighlighter.languages:javascript>
-final object io.github.mataku.compose.highlight.javascript.internal/TreeSitterJavascript { // io.github.mataku.compose.highlight.javascript.internal/TreeSitterJavascript|null[0]
-    final fun language(): kotlin/Any // io.github.mataku.compose.highlight.javascript.internal/TreeSitterJavascript.language|language(){}[0]
-}
-
 final val io.github.mataku.compose.highlight.javascript/Javascript // io.github.mataku.compose.highlight.javascript/Javascript|@io.github.mataku.compose.highlight.api.Languages{}Javascript[0]
     final fun (io.github.mataku.compose.highlight.api/Languages).<get-Javascript>(): io.github.mataku.compose.highlight.api/Language // io.github.mataku.compose.highlight.javascript/Javascript.<get-Javascript>|<get-Javascript>@io.github.mataku.compose.highlight.api.Languages(){}[0]

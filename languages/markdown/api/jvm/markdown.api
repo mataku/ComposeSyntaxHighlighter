@@ -2,17 +2,7 @@ public final class io/github/mataku/compose/highlight/markdown/MarkdownLanguageK
 	public static final fun getMarkdown (Lio/github/mataku/compose/highlight/api/Languages;)Lio/github/mataku/compose/highlight/api/Language;
 }
 
-public final class io/github/mataku/compose/highlight/markdown/internal/TreeSitterMarkdown {
-	public static final field INSTANCE Lio/github/mataku/compose/highlight/markdown/internal/TreeSitterMarkdown;
-	public final fun language ()Ljava/lang/Object;
-}
-
 public final class io/github/mataku/compose/highlight/markdownInline/MarkdownInlineLanguageKt {
 	public static final fun getMarkdownInline (Lio/github/mataku/compose/highlight/api/Languages;)Lio/github/mataku/compose/highlight/api/Language;
-}
-
-public final class io/github/mataku/compose/highlight/markdownInline/internal/TreeSitterMarkdownInline {
-	public static final field INSTANCE Lio/github/mataku/compose/highlight/markdownInline/internal/TreeSitterMarkdownInline;
-	public final fun language ()Ljava/lang/Object;
 }
 

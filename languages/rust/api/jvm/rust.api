@@ -2,8 +2,3 @@ public final class io/github/mataku/compose/highlight/rust/RustLanguageKt {
 	public static final fun getRust (Lio/github/mataku/compose/highlight/api/Languages;)Lio/github/mataku/compose/highlight/api/Language;
 }
 
-public final class io/github/mataku/compose/highlight/rust/internal/TreeSitterRust {
-	public static final field INSTANCE Lio/github/mataku/compose/highlight/rust/internal/TreeSitterRust;
-	public final fun language ()Ljava/lang/Object;
-}
-

@@ -6,14 +6,6 @@
 // - Show declarations: true
 
 // Library unique name: <ComposeSyntaxHighlighter.languages:markdown>
-final object io.github.mataku.compose.highlight.markdown.internal/TreeSitterMarkdown { // io.github.mataku.compose.highlight.markdown.internal/TreeSitterMarkdown|null[0]
-    final fun language(): kotlin/Any // io.github.mataku.compose.highlight.markdown.internal/TreeSitterMarkdown.language|language(){}[0]
-}
-
-final object io.github.mataku.compose.highlight.markdownInline.internal/TreeSitterMarkdownInline { // io.github.mataku.compose.highlight.markdownInline.internal/TreeSitterMarkdownInline|null[0]
-    final fun language(): kotlin/Any // io.github.mataku.compose.highlight.markdownInline.internal/TreeSitterMarkdownInline.language|language(){}[0]
-}
-
 final val io.github.mataku.compose.highlight.markdown/Markdown // io.github.mataku.compose.highlight.markdown/Markdown|@io.github.mataku.compose.highlight.api.Languages{}Markdown[0]
     final fun (io.github.mataku.compose.highlight.api/Languages).<get-Markdown>(): io.github.mataku.compose.highlight.api/Language // io.github.mataku.compose.highlight.markdown/Markdown.<get-Markdown>|<get-Markdown>@io.github.mataku.compose.highlight.api.Languages(){}[0]
 final val io.github.mataku.compose.highlight.markdownInline/MarkdownInline // io.github.mataku.compose.highlight.markdownInline/MarkdownInline|@io.github.mataku.compose.highlight.api.Languages{}MarkdownInline[0]

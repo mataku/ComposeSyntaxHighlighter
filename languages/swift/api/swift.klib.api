@@ -6,9 +6,5 @@
 // - Show declarations: true
 
 // Library unique name: <ComposeSyntaxHighlighter.languages:swift>
-final object io.github.mataku.compose.highlight.swift.internal/TreeSitterSwift { // io.github.mataku.compose.highlight.swift.internal/TreeSitterSwift|null[0]
-    final fun language(): kotlin/Any // io.github.mataku.compose.highlight.swift.internal/TreeSitterSwift.language|language(){}[0]
-}
-
 final val io.github.mataku.compose.highlight.swift/Swift // io.github.mataku.compose.highlight.swift/Swift|@io.github.mataku.compose.highlight.api.Languages{}Swift[0]
     final fun (io.github.mataku.compose.highlight.api/Languages).<get-Swift>(): io.github.mataku.compose.highlight.api/Language // io.github.mataku.compose.highlight.swift/Swift.<get-Swift>|<get-Swift>@io.github.mataku.compose.highlight.api.Languages(){}[0]

@@ -6,14 +6,6 @@
 // - Show declarations: true
 
 // Library unique name: <ComposeSyntaxHighlighter.languages:typescript>
-final object io.github.mataku.compose.highlight.tsx.internal/TreeSitterTsx { // io.github.mataku.compose.highlight.tsx.internal/TreeSitterTsx|null[0]
-    final fun language(): kotlin/Any // io.github.mataku.compose.highlight.tsx.internal/TreeSitterTsx.language|language(){}[0]
-}
-
-final object io.github.mataku.compose.highlight.typescript.internal/TreeSitterTypescript { // io.github.mataku.compose.highlight.typescript.internal/TreeSitterTypescript|null[0]
-    final fun language(): kotlin/Any // io.github.mataku.compose.highlight.typescript.internal/TreeSitterTypescript.language|language(){}[0]
-}
-
 final val io.github.mataku.compose.highlight.tsx/Tsx // io.github.mataku.compose.highlight.tsx/Tsx|@io.github.mataku.compose.highlight.api.Languages{}Tsx[0]
     final fun (io.github.mataku.compose.highlight.api/Languages).<get-Tsx>(): io.github.mataku.compose.highlight.api/Language // io.github.mataku.compose.highlight.tsx/Tsx.<get-Tsx>|<get-Tsx>@io.github.mataku.compose.highlight.api.Languages(){}[0]
 final val io.github.mataku.compose.highlight.typescript/Typescript // io.github.mataku.compose.highlight.typescript/Typescript|@io.github.mataku.compose.highlight.api.Languages{}Typescript[0]
