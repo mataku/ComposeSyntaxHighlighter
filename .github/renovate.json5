@@ -1,0 +1,73 @@
+{
+  extends: [
+    'config:recommended',
+  ],
+  minimumReleaseAge: '7 days',
+  prConcurrentLimit: 3,
+  rebaseWhen: 'conflicted',
+  // JVM tests, iOS tests and the sample app build gate every PR, so all updates (major included) automerge once CI is green.
+  automerge: true,
+  platformAutomerge: true,
+  hostRules: [
+    {
+      // Maven Central rate-limits by source IP and the Mend runners share theirs.
+      // Renovate defaults to 16 concurrent requests with no throttle for this host,
+      // and gives up when Retry-After exceeds 60s, which aborts the whole run.
+      matchHost: 'repo.maven.apache.org',
+      concurrentRequestLimit: 4,
+      maxRequestsPerSecond: 4,
+      maxRetryAfter: 180,
+    },
+  ],
+  packageRules: [
+    {
+      matchUpdateTypes: [
+        'major',
+        'patch',
+        'minor',
+      ],
+      groupName: 'github-actions',
+      matchManagers: [
+        'github-actions',
+      ],
+      timezone: 'Asia/Tokyo',
+      schedule: [
+        '* 13-19 * * 5',
+      ],
+    },
+    {
+      groupName: 'gradle-libraries',
+      // A constant title makes Renovate match a previously merged PR and disable automerge,
+      // so append the newest release date. Renovate drops this when the group spans several versions.
+      commitMessageExtra: '{{#if releaseTimestamp}}({{lookup (split releaseTimestamp "T") 0}}){{/if}}',
+      matchManagers: [
+        'gradle',
+        'gradle-wrapper',
+      ],
+      timezone: 'Asia/Tokyo',
+      schedule: [
+        '* 12-17 * * 6',
+      ],
+    },
+    {
+      // Covers the Kotlin Multiplatform and Compose compiler plugins, which share Kotlin's version.
+      groupName: 'kotlin',
+      matchPackageNames: [
+        'org.jetbrains.kotlin{.,:}**',
+      ],
+    },
+    {
+      groupName: 'compose-multiplatform',
+      matchPackageNames: [
+        'org.jetbrains.compose{/,}**',
+        'org.jetbrains.androidx.{/,}**',
+      ],
+    },
+    {
+      matchManagers: [
+        'gradle',
+      ],
+      minimumReleaseAge: null,
+    },
+  ],
+}
