@@ -50,15 +50,9 @@
       ],
     },
     {
-      // Covers the Kotlin Multiplatform and Compose compiler plugins, which share Kotlin's version.
-      groupName: 'kotlin',
+      groupName: 'kotlin-and-compose',
       matchPackageNames: [
         'org.jetbrains.kotlin{.,:}**',
-      ],
-    },
-    {
-      groupName: 'compose-multiplatform',
-      matchPackageNames: [
         'org.jetbrains.compose{/,}**',
         'org.jetbrains.androidx.{/,}**',
       ],
