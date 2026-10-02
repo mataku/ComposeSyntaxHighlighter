@@ -12,10 +12,10 @@
     {
       // Maven Central rate-limits by source IP and the Mend runners share theirs.
       // Renovate defaults to 16 concurrent requests with no throttle for this host,
-      // and gives up when Retry-After exceeds 60s, which aborts the whole run.
+      // and a 429 from Maven Central aborts the whole run with external-host-error, so throttle well below the defaults.
       matchHost: 'repo.maven.apache.org',
-      concurrentRequestLimit: 4,
-      maxRequestsPerSecond: 4,
+      concurrentRequestLimit: 2,
+      maxRequestsPerSecond: 1,
       maxRetryAfter: 180,
     },
   ],
