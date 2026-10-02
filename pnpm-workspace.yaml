@@ -1,0 +1,5 @@
+allowBuilds:
+  tree-sitter-cli: true
+
+minimumReleaseAge: 10080
+minimumReleaseAgeExclude: []
