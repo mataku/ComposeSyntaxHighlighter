@@ -9,16 +9,16 @@ importers:
   .:
     devDependencies:
       tree-sitter-cli:
-        specifier: 0.25.10
-        version: 0.25.10
+        specifier: 0.27.0
+        version: 0.27.0
 
 packages:
 
-  tree-sitter-cli@0.25.10:
-    resolution: {integrity: sha512-KoebQguKMCIghisEOdA372TIbrUl0kdnfZ9YQIBRAeOvNSKe85XbU4LuFW7hduRUwJj0rAG7pX5wo9sZhbBF1g==}
+  tree-sitter-cli@0.27.0:
+    resolution: {integrity: sha512-E42kR0og1mFlZBxPj7K4fBXCTjxPTGe19U9RXGWNq0FQKzXOxIp8bhCYFMKhddiVZUsJwW35MYGU9Q1oVYtpbA==}
     engines: {node: '>=12.0.0'}
     hasBin: true
 
 snapshots:
 
-  tree-sitter-cli@0.25.10: {}
+  tree-sitter-cli@0.27.0: {}
