@@ -3,13 +3,18 @@ rootProject.name = "build-logic"
 dependencyResolutionManagement {
   repositories {
     google {
-      mavenContent {
+      content {
         includeGroupAndSubgroups("androidx")
         includeGroupAndSubgroups("com.android")
         includeGroupAndSubgroups("com.google")
       }
     }
-    mavenCentral()
+    mavenCentral {
+      content {
+        excludeGroupAndSubgroups("androidx")
+        excludeGroupAndSubgroups("com.android")
+      }
+    }
     gradlePluginPortal()
   }
   versionCatalogs {
