@@ -2,7 +2,7 @@
 
 Cross-module versioning rules that govern what ships together. For the
 underlying Maven Central / signing / tag-push mechanics, see the Publishing
-section of `CLAUDE.md`.
+section of `docs/publishing.md`.
 
 ## Versioning policy
 

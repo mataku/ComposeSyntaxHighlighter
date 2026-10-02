@@ -314,6 +314,6 @@ If your grammar pin is missing `parser.c` (case from step 1), `generateParserSou
 ## Reference
 
 - `references/highlight-test-template.md` — full golden-test source you can copy-paste and adjust.
-- `CLAUDE.md` — repo-wide guide; the "Adding a new language" section cross-references this skill.
+- `AGENTS.md` — repo-wide guide; the "Adding a new language" section cross-references this skill.
 - Single-grammar precedent: commits `9bbe87d`..`c54e2b3` on `develop` (Ruby + Rust).
 - Multi-grammar precedent: the `languages/markdown/` module and the `languages/javascript/` + `languages/typescript/` pair (the latter demonstrates cross-module query reuse and the multi-predicate workaround).
