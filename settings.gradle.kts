@@ -5,13 +5,18 @@ pluginManagement {
   includeBuild("build-logic")
   repositories {
     google {
-      mavenContent {
+      content {
         includeGroupAndSubgroups("androidx")
         includeGroupAndSubgroups("com.android")
         includeGroupAndSubgroups("com.google")
       }
     }
-    mavenCentral()
+    mavenCentral {
+      content {
+        excludeGroupAndSubgroups("androidx")
+        excludeGroupAndSubgroups("com.android")
+      }
+    }
     gradlePluginPortal()
   }
 }
@@ -19,13 +24,18 @@ pluginManagement {
 dependencyResolutionManagement {
   repositories {
     google {
-      mavenContent {
+      content {
         includeGroupAndSubgroups("androidx")
         includeGroupAndSubgroups("com.android")
         includeGroupAndSubgroups("com.google")
       }
     }
-    mavenCentral()
+    mavenCentral {
+      content {
+        excludeGroupAndSubgroups("androidx")
+        excludeGroupAndSubgroups("com.android")
+      }
+    }
   }
 }
 
