@@ -64,6 +64,35 @@
       ],
     },
     {
+      groupName: 'gradle-wrapper',
+      matchManagers: [
+        'gradle-wrapper',
+      ],
+    },
+    {
+      groupName: 'test',
+      matchPackageNames: [
+        'androidx.test{.,:}**',
+        'androidx.benchmark{.,:}**',
+        'junit:junit',
+      ],
+    },
+    {
+      groupName: 'ktreesitter',
+      matchPackageNames: [
+        'io.github.tree-sitter{.,:}**',
+      ],
+    },
+    {
+      matchPackageNames: [
+        'io.github.tree-sitter{.,:}**',
+      ],
+      matchUpdateTypes: [
+        'major',
+      ],
+      automerge: false,
+    },
+    {
       matchManagers: [
         'gradle',
       ],
