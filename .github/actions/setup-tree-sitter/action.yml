@@ -11,11 +11,11 @@ description: Install Node, enable corepack, install pnpm deps (with cache), and 
 #   - pnpm version is pinned via the `packageManager` field in package.json
 #     and fetched by corepack, so the toolchain version is reproducible and
 #     auditable from the manifest.
-#   - `pnpm.onlyBuiltDependencies` in package.json is a strict allow-list:
+#   - `allowBuilds` in pnpm-workspace.yaml is a strict allow-list:
 #     only `tree-sitter-cli` may run lifecycle scripts. Any new transitive
 #     dependency that ships an install/postinstall script will be blocked
 #     until explicitly added to this list.
-#   - `pnpm.minimumReleaseAge` (10080 minutes / 7 days) holds back versions
+#   - `minimumReleaseAge` in pnpm-workspace.yaml (10080 minutes / 7 days) holds back versions
 #     published less than a week ago, mitigating "fresh malicious publish"
 #     supply-chain attacks.
 
