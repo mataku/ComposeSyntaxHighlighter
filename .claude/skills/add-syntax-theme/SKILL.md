@@ -172,4 +172,4 @@ If the change is small (single theme, no demo refactor), folding all three into 
 
 - `core/src/commonMain/kotlin/io/github/mataku/compose/highlight/core/SyntaxTheme.kt` — read existing companion `val`s to mirror the exact shape.
 - `core/src/commonMain/resources/META-INF/NOTICE` — read existing attribution blocks for tone and structure.
-- `AGENTS.md` (`CLAUDE.md` symlink) — repo-wide guide; the "Public API usage example" and "License notes" sections cross-reference this skill's output.
+- `AGENTS.md` — repo-wide guide; the "Public API usage example" and "License notes" sections cross-reference this skill's output.
