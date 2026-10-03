@@ -1,0 +1,16 @@
+name: Cache Konan toolchain
+description: Cache ~/.konan keyed by the Kotlin version declared in the version catalog.
+
+runs:
+  using: composite
+  steps:
+    - name: Resolve Kotlin version from version catalog
+      id: kotlin
+      shell: bash
+      run: echo "version=$(sed -nE 's/^kotlin = "(.+)"$/\1/p' gradle/libs.versions.toml)" >> "$GITHUB_OUTPUT"
+
+    - name: Cache Konan toolchain
+      uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+      with:
+        path: ~/.konan
+        key: konan-${{ runner.os }}-kotlin-${{ steps.kotlin.outputs.version }}
