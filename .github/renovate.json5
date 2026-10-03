@@ -58,12 +58,6 @@
       ],
     },
     {
-      groupName: 'gradle-wrapper',
-      matchManagers: [
-        'gradle-wrapper',
-      ],
-    },
-    {
       groupName: 'test',
       matchPackageNames: [
         'androidx.test{.,:}**',
