@@ -36,6 +36,7 @@ val hostCMakeWorkDir = layout.buildDirectory.dir("host-cmake")
 // pre-AGP-9 `android { ndkVersion = ... }` block. When the project bumps NDK,
 // update both this value and the version pinned in CI's setup-android-deps action.
 private val androidNdkVersion = "26.3.11579264"
+private val iosMinVersion = "14.0"
 private val androidAbis = listOf("arm64-v8a", "armeabi-v7a", "x86_64")
 private val androidPlatform = "android-${catalogVersionInt("android-minSdk")}"
 private val androidCMakeRootDir = layout.buildDirectory.dir("android-cmake")
@@ -510,7 +511,7 @@ afterEvaluate {
       val headerDir = iosHeaderDirProvider.map { it.asFile }
       val libsDir = iosStaticLibsDirProvider
       val konanTargetName = konanTarget.name
-      compilations.configureEach {
+      compilations.named("main") {
         cinterops.register(interopName) {
           definitionFile.set(generateGrammarFilesTask.flatMap { it.interopFile })
           includeDirs.allHeaders(headerDir)
@@ -546,7 +547,7 @@ afterEvaluate {
   }
 
   // iOS static library build: compile every grammar's parser.c (+ scanner.c) under the
-  // Konan-bundled clang and archive the per-grammar object files into one
+  // Xcode toolchain (xcrun clang) and archive the per-grammar object files into one
   // libtree-sitter-<primaryGrammarName>.a that cinterop links against (the
   // generated grammar.def references this exact filename). For single-grammar
   // modules the primary name equals languageName. Mirrors the languages/java
@@ -561,12 +562,13 @@ afterEvaluate {
   val secondaryParserTaskNames = secondaryGrammars.map { secondary ->
     "generateParserSource${secondary.name.replaceFirstChar(Char::uppercaseChar)}"
   }
-  @Suppress("DEPRECATION")
   tasks.withType<CInteropProcess>().configureEach {
-    if (name.startsWith("cinteropTest")) return@configureEach
-
-    val konanHomePath = konanHome.get()
     val target = konanTarget
+    val (sdk, clangTarget) = when (target.name) {
+      "ios_arm64" -> "iphoneos" to "arm64-apple-ios$iosMinVersion"
+      "ios_simulator_arm64" -> "iphonesimulator" to "arm64-apple-ios$iosMinVersion-simulator"
+      else -> error("Unsupported cinterop target: ${target.name}")
+    }
     val libFile = iosStaticLibsDirProvider.get()
       .dir(target.name)
       .file("libtree-sitter-${primary.name}.a")
@@ -588,13 +590,14 @@ afterEvaluate {
     outputs.file(libFile)
 
     doFirst {
-      val runKonan = File(konanHomePath, "bin/run_konan").absolutePath
       libFile.parentFile.mkdirs()
 
       for ((grammarDir, sourceFiles, _) in compileInputs) {
         val argsFile = File.createTempFile("args", null)
         argsFile.deleteOnExit()
         argsFile.writer().use { w ->
+          w.write("-target\n")
+          w.write("$clangTarget\n")
           w.write("-I${grammarDir.resolve("src").absolutePath}\n")
           w.write("-DTREE_SITTER_HIDE_SYMBOLS\n")
           w.write("-fvisibility=hidden\n")
@@ -604,21 +607,22 @@ afterEvaluate {
           w.write("-c\n")
           sourceFiles.forEach { w.write("${it.absolutePath}\n") }
         }
-        val clangProc = ProcessBuilder(runKonan, "clang", "clang", target.name, "@${argsFile.path}")
+        val clangProc = ProcessBuilder("xcrun", "--sdk", sdk, "clang", "@${argsFile.path}")
           .directory(grammarDir)
           .redirectErrorStream(true)
           .start()
         val clangOut = clangProc.inputStream.bufferedReader().readText()
         val clangExit = clangProc.waitFor()
         if (clangExit != 0) {
-          error("run_konan clang failed for ${grammarDir.name} (target=${target.name}, exit=$clangExit):\n$clangOut")
+          error("xcrun clang failed for ${grammarDir.name} (target=${target.name}, exit=$clangExit):\n$clangOut")
         }
       }
 
       val arArgs = buildList {
-        add(runKonan)
-        add("llvm")
-        add("llvm-ar")
+        add("xcrun")
+        add("--sdk")
+        add(sdk)
+        add("ar")
         add("rcs")
         add(libFile.absolutePath)
         addAll(allObjectFiles.map { it.absolutePath })
@@ -629,7 +633,7 @@ afterEvaluate {
       val arOut = arProc.inputStream.bufferedReader().readText()
       val arExit = arProc.waitFor()
       if (arExit != 0) {
-        error("run_konan llvm-ar failed (exit=$arExit):\n$arOut")
+        error("xcrun ar failed (exit=$arExit):\n$arOut")
       }
     }
   }
