@@ -29,10 +29,13 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           submodules: recursive
+      # Kept out of the parallel group: cache-konan and setup-tree-sitter both use the same
+      # actions/cache SHA, and concurrent downloads of it race on _actions/ and intermittently
+      # fail with "Can't find 'action.yml'". Running it first pre-fetches actions/cache.
+      - uses: ./.github/actions/cache-konan
       - parallel:
           - uses: ./.github/actions/setup-android-deps
           - uses: ./.github/actions/setup-tree-sitter
-          - uses: ./.github/actions/cache-konan
       - run: ./gradlew apiCheck
 
   android:
@@ -80,10 +83,13 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           submodules: recursive
+      # Kept out of the parallel group: cache-konan and setup-tree-sitter both use the same
+      # actions/cache SHA, and concurrent downloads of it race on _actions/ and intermittently
+      # fail with "Can't find 'action.yml'". Running it first pre-fetches actions/cache.
+      - uses: ./.github/actions/cache-konan
       - parallel:
           - uses: ./.github/actions/setup-android-deps
           - uses: ./.github/actions/setup-tree-sitter
-          - uses: ./.github/actions/cache-konan
       - name: Compile iOS targets
         run: |
           ./gradlew \
