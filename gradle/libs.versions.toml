@@ -31,7 +31,7 @@ coreApiCompatibleRange = "[1.0, 2.0)"
 material3 = "1.9.0"
 vanniktechPublish = "0.37.0"
 dokka = "2.2.0"
-spotless = "8.10.3"
+spotless = "8.10.4"
 binaryCompatibilityValidator = "0.18.2"
 
 [libraries]
