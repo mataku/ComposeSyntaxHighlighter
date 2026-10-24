@@ -135,6 +135,10 @@ A binary-incompatible `:core-api` SPI change implies all consumers must rebuild 
 4. Major-bump every language `gradle.properties` and re-publish each one. The language source code itself may or may not need changes depending on what the SPI break is; the version bump and re-publish are mandatory regardless.
 5. Add rows to `docs/compatibility.md`.
 
+### Coordinated release of every module
+
+When every module moves in the same release (row 6, row 8, or a suite-wide version alignment), use the **Publish all** workflow (`.github/workflows/publish-all.yml`) instead of one per-module run per artefact. It publishes the whole reactor in one run and tags the commit `v<version>` from the root `VERSION_NAME`, not `core-stack-v*` / `<lang>-v*`. Each module's version still comes from its own `gradle.properties`, so bump every one being released first.
+
 ## 4. Sanity checks before publishing
 
 Before recommending the maintainer trigger the workflow:
@@ -158,7 +162,7 @@ After running the skill, summarize for the user:
   - `docs/compatibility.md` — append row.
 - **Catalog updates** (if any): `gradle/libs.versions.toml` entries to change.
 - **Other languages affected**: e.g. for row 6, list every language and which kind of bump it gets.
-- **Publish workflow**: which `module=` value to use, and the resulting tag.
+- **Publish workflow**: **Publish** with a `module=` value (tag `core-stack-v<ver>` / `<lang>-v<ver>`), or **Publish all** for a coordinated release (tag `v<ver>`).
 - **Pre-publish checks**: the four sanity-check commands above.
 
 Do not perform the publish yourself — output the plan and stop. The maintainer triggers the workflow manually via GitHub Actions.

@@ -63,8 +63,8 @@ move together (e.g. a new platform target added across the board).
 2. Open and merge the PR.
 3. From the GitHub Actions UI, run **Publish all**.
 4. The workflow refuses any `-SNAPSHOT` version, publishes the whole reactor via
-   `publishToMavenCentral`, then tags `core-stack-v<version>` and
-   `<lang>-v<version>` per module (existing tags are skipped).
+   `publishToMavenCentral`, then tags the commit `v<version>` using the root
+   `gradle.properties` `VERSION_NAME` (skipped if the tag already exists).
 
 Each module's version is read from its own `gradle.properties`. Run this only
 when the versions you intend to release are fresh; for incremental single-module
