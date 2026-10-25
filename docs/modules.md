@@ -56,6 +56,7 @@ Maven coordinates: `io.github.mataku:compose-syntax-highlight-<name>:<version>`.
 - Applies the custom `compose-syntax-highlight-language` convention plugin.
 - Vendors a `tree-sitter-<lang>` grammar submodule.
 - Exposes a single `val <Lang>Language: Language` from `commonMain` and an extension `Languages.<Name>` forwarder.
+- Bundles the host-built grammar library in the JVM jar under `lib/<os>/<arch>/` (published artifacts carry macOS `aarch64` and `x64`); the generated loader extracts it from the classpath when `System.loadLibrary` fails.
 
 Build internals (plugin DSL, generated tasks, KMP source-set layout, NDK/CMake setup, ABI-14 pin trap, platform notes): see [`build-logic.md`](build-logic.md).
 

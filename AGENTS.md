@@ -55,7 +55,7 @@ End-to-end workflow lives in `.claude/skills/add-tree-sitter-language/SKILL.md`.
 ./gradlew jvmTest -x :benchmarks:jvm:jvmTest
 ```
 
-JVM tests depend on `buildHostCMake`, which compiles the parser into a host shared library and is automatically wired into `tasks.named<Test>("jvmTest")`. Benchmarks (`:benchmarks:jvm`) are intentionally excluded from this default and should be run separately when needed.
+JVM tests depend on `buildHostCMake`, which compiles the parser into a host shared library, and on `stageJvmNativeLibrary`, which places it under `jvmMain` resources at `lib/<os>/<arch>/`; the generated loader picks it up from the classpath, so no `java.library.path` is set. Benchmarks (`:benchmarks:jvm`) are intentionally excluded from this default and should be run separately when needed.
 
 After running tests, run `./gradlew spotlessApply` to keep the working tree formatted (Spotless ktlint is wired via the `compose-syntax-highlight-spotless` build-logic plugin) and `./gradlew apiCheck` for binary-compatibility validation.
 

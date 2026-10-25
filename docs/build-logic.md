@@ -25,10 +25,11 @@ What the plugin does automatically:
 2. **`generateGrammarFiles`** (from the ktreesitter plugin): generates the JNI binding object (`TreeSitter<Lang>`).
 3. **`generateHighlightsQuery`**: embeds `queries/highlights.scm` as `internal const val HIGHLIGHTS_QUERY`.
 4. **`generateNotice`**: writes `META-INF/NOTICE` from `NOTICE.tpl` plus a per-grammar entry, wired into both KMP `commonMain.resources` and AGP `main.resources`.
-5. **CMake configuration**: writes `CMakeLists.txt` (Android NDK) and `host-cmake/CMakeLists.txt` (host JVM tests).
-6. **`buildHostCMake`**: builds the parser `.dylib`/`.so`/`.dll` consumed by `jvmTest`.
-7. **vanniktech maven-publish**: sets POM coordinates `compose-syntax-highlight-<name>` and POM name/description.
-8. **AGP packaging**: drops `META-INF/NOTICE` from the default excludes and pickFirsts it so the AAR's classes.jar retains the file.
+5. **CMake configuration**: writes `CMakeLists.txt` (Android NDK) and `host-cmake/CMakeLists.txt` (host JVM build).
+6. **`buildHostCMake`**: builds the parser `.dylib`/`.so`/`.dll` as `Release`; on macOS as an `arm64;x86_64` universal binary with deployment target `26.0`.
+7. **`stageJvmNativeLibrary`**: thins the universal binary into `lib/macos/aarch64/` and `lib/macos/x64/` and ad-hoc signs each slice (other hosts copy the library to `lib/<os>/<arch>/`) under `build/generated/jvmNatives/`, which is registered as `jvmMain` resources so `jvmJar`, `publishToMavenLocal` and the `jvmTest` runtime classpath carry it.
+8. **vanniktech maven-publish**: sets POM coordinates `compose-syntax-highlight-<name>` and POM name/description.
+9. **AGP packaging**: drops `META-INF/NOTICE` from the default excludes and pickFirsts it so the AAR's classes.jar retains the file.
 
 ## Source set hierarchy
 
@@ -40,7 +41,7 @@ commonMain  (all production code)
 └── jvmMain      (no extra source)
 ```
 
-`commonTest` runs across `androidUnitTest` and `jvmTest`. Parser-using golden tests live in `<module>/src/jvmTest/` so they can run on host JVM with `java.library.path` pointing at the host CMake output.
+`commonTest` runs across `androidUnitTest` and `jvmTest`. Parser-using golden tests live in `<module>/src/jvmTest/` so they can run on host JVM, loading the grammar library from the staged `jvmMain` resources.
 
 ## Platform notes
 
@@ -50,9 +51,9 @@ commonMain  (all production code)
 - ABI filters: `x86_64`, `arm64-v8a`, `armeabi-v7a`.
 
 ### JVM / Desktop
-- At runtime the host OS shared library (`libktreesitter-<lang>.{dylib,so,dll}`) must be on `java.library.path`.
-- `jvmTest` configures this via `systemProperty("java.library.path", ...)`.
-- For Compose Desktop consumers, ship the host library alongside the JAR or document the requirement.
+- The generated loader tries `System.loadLibrary("ktreesitter-<lang>")` first, then falls back to the classpath resource `lib/<os>/<arch>/<prefix>ktreesitter-<lang>.<ext>`, extracted to a temp file and loaded with `System.load`.
+- Published JVM jars include the macOS `aarch64` and `x64` slices; `jvmTest` and Compose Desktop apps on macOS load them with no `java.library.path` configuration.
+- Linux / Windows consumers supply `libktreesitter-<lang>.so` / `ktreesitter-<lang>.dll` on `java.library.path`.
 
 ## Tree-sitter ABI
 

@@ -14,12 +14,12 @@ This is still an experimental project. Android is supported via the published AA
 
 ## Installation
 
-| Platform     | Status       | Notes                                                 |
-|--------------|--------------|-------------------------------------------------------|
-| Android      | available    | minSdk 26                                             |
-| Desktop JVM  | available    | KTreeSitter native lib must be on `java.library.path` |
-| iOS          | preview      | iosArm64 + iosSimulatorArm64 klibs; Apple Silicon only (no iosX64) |
-| Web (wasmJs) | not in scope | use highlight.js / Shiki on the JS side               |
+| Platform     | Status       | Notes                                                                                                                                             |
+|--------------|--------------|---------------------------------------------------------------------------------------------------------------------------------------------------|
+| Android      | available    | minSdk 26                                                                                                                                         |
+| Desktop JVM  | available    | macOS 26+ grammar libraries (arm64 / x86_64) are bundled in each language jar and loaded automatically; Linux / Windows still need the library on `java.library.path` |
+| iOS          | preview      | iosArm64 + iosSimulatorArm64 klibs; Apple Silicon only (no iosX64)                                                                                |
+| Web (wasmJs) | not in scope | use highlight.js / Shiki on the JS side                                                                                                           |
 
 | Module                  | Artifact                                        | Latest                                                                                                                                                                                                                       |
 |-------------------------|-------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|

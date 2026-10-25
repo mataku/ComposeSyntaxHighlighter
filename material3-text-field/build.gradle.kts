@@ -80,17 +80,3 @@ mavenPublishing {
     )
   }
 }
-
-tasks.named<Test>("jvmTest") {
-  val languageProjects = listOf(
-    project(":languages:kotlin"),
-    project(":languages:python"),
-  )
-  languageProjects.forEach { dependsOn(it.tasks.named("buildHostCMake")) }
-  val libPaths = languageProjects.joinToString(":") {
-    it.layout.buildDirectory.dir("host-cmake").get().asFile.absolutePath
-  }
-  doFirst {
-    systemProperty("java.library.path", libPaths)
-  }
-}
