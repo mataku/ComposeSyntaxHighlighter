@@ -37,6 +37,16 @@ artefact carries the new strict range.
 | compose-syntax-highlight-rust | 0.6.0 | 15 | 0.25.1 | 0.6.0 | Android, JVM, iosArm64, iosSimulatorArm64 |
 | compose-syntax-highlight-swift | 0.6.0 | 15 | 0.25.1 | 0.6.0 | Android, JVM, iosArm64, iosSimulatorArm64 |
 | compose-syntax-highlight-typescript | 0.6.0 | 14 | 0.25.1 | 0.6.0 | Android, JVM, iosArm64, iosSimulatorArm64 |
+| compose-syntax-highlight-go | 0.7.0 | 15 | 0.25.1 | 0.7.0 | Android, JVM, iosArm64, iosSimulatorArm64 |
+| compose-syntax-highlight-java | 0.7.0 | 14 | 0.25.1 | 0.7.0 | Android, JVM, iosArm64, iosSimulatorArm64 |
+| compose-syntax-highlight-javascript | 0.7.0 | 15 | 0.25.1 | 0.7.0 | Android, JVM, iosArm64, iosSimulatorArm64 |
+| compose-syntax-highlight-kotlin | 0.7.0 | 14 | 0.25.1 | 0.7.0 | Android, JVM, iosArm64, iosSimulatorArm64 |
+| compose-syntax-highlight-markdown | 0.7.0 | 15 | 0.25.1 | 0.7.0 | Android, JVM, iosArm64, iosSimulatorArm64 |
+| compose-syntax-highlight-python | 0.7.0 | 15 | 0.25.1 | 0.7.0 | Android, JVM, iosArm64, iosSimulatorArm64 |
+| compose-syntax-highlight-ruby | 0.7.0 | 14 | 0.25.1 | 0.7.0 | Android, JVM, iosArm64, iosSimulatorArm64 |
+| compose-syntax-highlight-rust | 0.7.0 | 15 | 0.25.1 | 0.7.0 | Android, JVM, iosArm64, iosSimulatorArm64 |
+| compose-syntax-highlight-swift | 0.7.0 | 15 | 0.25.1 | 0.7.0 | Android, JVM, iosArm64, iosSimulatorArm64 |
+| compose-syntax-highlight-typescript | 0.7.0 | 14 | 0.25.1 | 0.7.0 | Android, JVM, iosArm64, iosSimulatorArm64 |
 
 <!-- Append one row per published artefact. Rows are append-only; do not remove
      entries for older versions. -->
