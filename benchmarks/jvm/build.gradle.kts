@@ -35,28 +35,7 @@ kotlin {
 }
 
 tasks.named<Test>("jvmTest") {
-  val languageProjects =
-    listOf(
-      project(":languages:kotlin"),
-      project(":languages:swift"),
-      project(":languages:ruby"),
-      project(":languages:rust"),
-      project(":languages:python"),
-      project(":languages:go"),
-      project(":languages:java"),
-    )
-  languageProjects.forEach { dependsOn(it.tasks.named("buildHostCMake")) }
-  val libPaths =
-    languageProjects.joinToString(":") {
-      it.layout.buildDirectory
-        .dir("host-cmake")
-        .get()
-        .asFile.absolutePath
-    }
   minHeapSize = "2g"
   maxHeapSize = "2g"
   jvmArgs("-XX:+AlwaysPreTouch")
-  doFirst {
-    systemProperty("java.library.path", libPaths)
-  }
 }
