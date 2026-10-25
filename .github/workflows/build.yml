@@ -65,57 +65,6 @@ jobs:
       - name: Verify META-INF/NOTICE in published artifacts
         run: bash scripts/verify-notice.sh
 
-  linux-jvm-natives:
-    name: Linux JVM natives
-    uses: ./.github/workflows/linux-jvm-natives.yml
-
-  verify-jvm-natives:
-    name: Verify bundled grammar libraries in JVM jars
-    needs: linux-jvm-natives
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          submodules: recursive
-      - parallel:
-          - uses: ./.github/actions/setup-android-deps
-          - uses: ./.github/actions/setup-tree-sitter
-      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
-        with:
-          pattern: linux-jvm-natives-*
-          path: build/linux-jvm-natives
-          merge-multiple: true
-      - run: ./gradlew jvmJar jvmSourcesJar -PprebuiltJvmNativesDir=build/linux-jvm-natives
-      - run: bash scripts/verify-jvm-natives.sh
-      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-        with:
-          name: jvm-jars
-          path: languages/*/build/libs/*-jvm.jar
-          if-no-files-found: error
-
-  verify-jvm-natives-load:
-    name: Load bundled grammar libraries on Linux (${{ matrix.arch }})
-    needs: verify-jvm-natives
-    strategy:
-      matrix:
-        include:
-          - arch: x64
-            runner: ubuntu-24.04
-          - arch: aarch64
-            runner: ubuntu-24.04-arm
-    runs-on: ${{ matrix.runner }}
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
-        with:
-          distribution: temurin
-          java-version: 17
-      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
-        with:
-          name: jvm-jars
-          path: languages
-      - run: bash scripts/verify-jvm-natives-load.sh
-
   dokka:
     name: Dokka
     runs-on: ubuntu-latest

@@ -25,7 +25,7 @@ Environment variables (`ORG_GRADLE_PROJECT_*`) take precedence over `local.prope
 ## SNAPSHOT vs release
 
 - Set `VERSION_NAME=0.1.0-SNAPSHOT` in `gradle.properties` and run `./gradlew publishToMavenCentral --no-configuration-cache` to push to Central Portal's snapshot repository (`https://central.sonatype.com/repository/maven-snapshots/`). Snapshots are auto-published with no manual gate.
-  - A local build only stages the grammar library for its own host. For a language module SNAPSHOT that should load on Linux, download the `linux-jvm-natives-x64` and `linux-jvm-natives-aarch64` artifacts from a **Build** workflow run on the same commit, extract both into one directory (they merge into `lib/linux/<arch>/`), and add `-PprebuiltJvmNativesDir=<dir>`. Then run `bash scripts/verify-jvm-natives.sh` to confirm the jars carry every slice.
+  - A local build only stages the grammar library for its own host. For a language module SNAPSHOT that should load on Linux, download the `linux-jvm-natives-x64` and `linux-jvm-natives-aarch64` artifacts from a **JVM natives** workflow run on the same commit, extract both into one directory (they merge into `lib/linux/<arch>/`), and add `-PprebuiltJvmNativesDir=<dir>`. Then run `bash scripts/verify-jvm-natives.sh` to confirm the jars carry every slice.
 - For a release, set `VERSION_NAME=0.1.0`, run the Publish workflow manually from GitHub Actions (see "Publishing a single module" below), then click **Publish** on the Central Portal Deployments page (the workflow uses `publishToMavenCentral`, which uploads to staging without auto-releasing).
 
 ## Publishing a single module
