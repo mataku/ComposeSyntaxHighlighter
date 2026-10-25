@@ -1,3 +1,8 @@
+public final class io/github/mataku/compose/highlight/core/HighlightLinesKt {
+	public static final fun highlightLines (Ljava/lang/String;Lio/github/mataku/compose/highlight/api/Language;Ljava/util/List;)Ljava/util/List;
+	public static synthetic fun highlightLines$default (Ljava/lang/String;Lio/github/mataku/compose/highlight/api/Language;Ljava/util/List;ILjava/lang/Object;)Ljava/util/List;
+}
+
 public final class io/github/mataku/compose/highlight/core/HighlightSpan {
 	public static final field $stable I
 	public fun <init> (IILjava/lang/String;)V

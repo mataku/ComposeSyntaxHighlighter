@@ -90,4 +90,11 @@ class LineHighlightBuilderTest {
   fun blank_line_has_empty_text_and_no_spans() {
     assertEquals(HighlightedLine(2, "", emptyList()), lines("a\n\nb")[1])
   }
+
+  @Test
+  fun offsets_stay_line_relative_utf16_after_multibyte_text() {
+    val result = lines("// コメント 😀\nval x", null, Triple(0, 10, "comment"), Triple(11, 14, "keyword"))
+    assertEquals(listOf(HighlightSpan(0, 10, "comment")), result[0].spans)
+    assertEquals(listOf(HighlightSpan(0, 3, "keyword")), result[1].spans)
+  }
 }
