@@ -48,6 +48,7 @@ class KotlinHighlightLinesTest {
       assertEquals(i + 1, line.lineNumber)
       val end = start + line.text.length
       assertEquals(code.substring(start, end), line.text)
+      assertTrue(line.spans.all { it.start >= 0 && it.start < it.end && it.end <= line.text.length }, "line ${i + 1} spans=${line.spans}")
       assertEquals(
         effectiveStyles(whole.subSequence(start, end)),
         effectiveStyles(line.toAnnotatedString(theme)),

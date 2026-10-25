@@ -15,6 +15,7 @@ class LineHighlightBuilderTest {
   fun line_count_follows_git() {
     assertEquals(0, LineHighlightBuilder("", null).lineCount)
     assertEquals(1, LineHighlightBuilder("a", null).lineCount)
+    assertEquals(1, LineHighlightBuilder("a b", null).lineCount)
     assertEquals(1, LineHighlightBuilder("a\n", null).lineCount)
     assertEquals(2, LineHighlightBuilder("a\nb\n", null).lineCount)
     assertEquals(1, LineHighlightBuilder("a\rb c", null).lineCount)
@@ -96,5 +97,29 @@ class LineHighlightBuilderTest {
     val result = lines("// コメント 😀\nval x", null, Triple(0, 10, "comment"), Triple(11, 14, "keyword"))
     assertEquals(listOf(HighlightSpan(0, 10, "comment")), result[0].spans)
     assertEquals(listOf(HighlightSpan(0, 3, "keyword")), result[1].spans)
+  }
+
+  @Test
+  fun adversarial_ranges_select_nothing_or_everything() {
+    assertTrue(LineHighlightBuilder("a\nb", listOf(5..3, -7..-2, Int.MAX_VALUE..Int.MAX_VALUE)).isEmptySelection)
+    assertEquals(listOf(1, 2), lines("a\nb", listOf(Int.MIN_VALUE..Int.MAX_VALUE)).map { it.lineNumber })
+  }
+
+  @Test
+  fun empty_or_inverted_span_produces_nothing() {
+    val result = lines("abcdef", null, Triple(3, 3, "x"), Triple(4, 2, "x"))
+    assertEquals(emptyList(), result.single().spans)
+  }
+
+  @Test
+  fun span_beyond_code_end_is_clipped_per_line() {
+    val result = lines("ab\ncd", null, Triple(0, 99, "comment"))
+    assertEquals(listOf(HighlightSpan(0, 2, "comment")), result[0].spans)
+    assertEquals(listOf(HighlightSpan(0, 2, "comment")), result[1].spans)
+  }
+
+  @Test
+  fun span_on_empty_code_is_ignored() {
+    assertEquals(emptyList(), lines("", null, Triple(0, 5, "x")))
   }
 }

@@ -55,6 +55,7 @@ class MarkdownHighlightLinesTest {
       assertEquals(i + 1, line.lineNumber)
       val end = start + line.text.length
       assertEquals(code.substring(start, end), line.text)
+      assertTrue(line.spans.all { it.start >= 0 && it.start < it.end && it.end <= line.text.length }, "line ${i + 1} spans=${line.spans}")
       assertEquals(
         effectiveStyles(whole.subSequence(start, end)),
         effectiveStyles(line.toAnnotatedString(theme)),
@@ -62,5 +63,14 @@ class MarkdownHighlightLinesTest {
       )
       start = end + 1
     }
+  }
+
+  @Test
+  fun multibyte_paragraph_offsets_are_utf16_within_the_line() {
+    val multibyte = "日本語 *x* 末尾\n"
+    val line = highlightLines(multibyte, Languages.Markdown).single()
+    val emphasis = line.spans.first { it.captureName == "text.emphasis" }
+    assertEquals(line.text.indexOf("*x*"), emphasis.start)
+    assertEquals(emphasis.start + "*x*".length, emphasis.end)
   }
 }
