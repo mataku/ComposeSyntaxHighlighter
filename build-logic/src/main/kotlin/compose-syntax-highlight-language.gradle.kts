@@ -38,6 +38,38 @@ val hostCMakeWorkDir = layout.buildDirectory.dir("host-cmake")
 private val androidNdkVersion = "26.3.11579264"
 private val iosMinVersion = "14.0"
 private val androidAbis = listOf("arm64-v8a", "armeabi-v7a", "x86_64")
+// Pinned so `minos` stops tracking the macos-latest SDK. Not lower because
+// ktreesitter-jvm 0.25.1 ships libktreesitter.dylib with minos 26.0, so a lower
+// value here would advertise a floor the stack cannot honour.
+private val macosDeploymentTarget = "26.0"
+
+private val hostOsName = System.getProperty("os.name").lowercase()
+private val hostArchName = System.getProperty("os.arch").lowercase()
+private val hostIsMac = "mac" in hostOsName
+private val hostResourceOs = when {
+  "windows" in hostOsName -> "windows"
+  "linux" in hostOsName -> "linux"
+  hostIsMac -> "macos"
+  else -> error("Unsupported host operating system for grammar library staging: $hostOsName")
+}
+private val hostResourceArch = when {
+  "amd64" in hostArchName || "x86_64" in hostArchName -> "x64"
+  "aarch64" in hostArchName || "arm64" in hostArchName -> "aarch64"
+  else -> error("Unsupported host architecture for grammar library staging: $hostArchName")
+}
+private val hostLibraryPrefix = if (hostResourceOs == "windows") "" else "lib"
+private val hostLibraryExtension = when (hostResourceOs) {
+  "macos" -> "dylib"
+  "linux" -> "so"
+  else -> "dll"
+}
+private val hostCMakeDefines = buildList {
+  add("-DCMAKE_BUILD_TYPE=Release")
+  if (hostIsMac) {
+    add("-DCMAKE_OSX_ARCHITECTURES=arm64;x86_64")
+    add("-DCMAKE_OSX_DEPLOYMENT_TARGET=$macosDeploymentTarget")
+  }
+}
 private val androidPlatform = "android-${catalogVersionInt("android-minSdk")}"
 private val androidCMakeRootDir = layout.buildDirectory.dir("android-cmake")
 private val androidJniLibsDir = layout.buildDirectory.dir("generated/jniLibs")
@@ -254,10 +286,11 @@ val configureHostCMake = tasks.register<Exec>("configureHostCMake") {
   val workDirProvider = hostCMakeWorkDir.map { it.asFile }
   val srcDir = projectDir.resolve("host-cmake")
   inputs.file(srcDir.resolve("CMakeLists.txt"))
+  inputs.property("cmakeDefines", hostCMakeDefines)
   outputs.file(workDirProvider.map { File(it, "CMakeCache.txt") })
   doFirst { workDirProvider.get().mkdirs() }
   workingDir(workDirProvider)
-  commandLine("cmake", srcDir.absolutePath)
+  commandLine(listOf("cmake") + hostCMakeDefines + srcDir.absolutePath)
   dependsOn("generateGrammarFiles")
   dependsOn(generateParserSource)
 }
@@ -268,6 +301,7 @@ val buildHostCMake = tasks.register<Exec>("buildHostCMake") {
   commandLine("cmake", "--build", ".")
   inputs.dir(projectDir.resolve("host-cmake"))
   inputs.dir(grammarDirProvider.map { it.resolve("src") })
+  inputs.files(configureHostCMake)
   outputs.dir(workDirProvider)
   dependsOn(configureHostCMake)
 }
