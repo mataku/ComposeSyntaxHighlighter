@@ -28,6 +28,20 @@ class LineHighlightBuilderTest {
   }
 
   @Test
+  fun unterminated_final_line_strips_one_trailing_cr() {
+    assertEquals(listOf("a"), lines("a\r").map { it.text })
+    assertEquals(listOf("a", "b"), lines("a\r\nb\r").map { it.text })
+    assertEquals(listOf("a\r"), lines("a\r\r").map { it.text })
+    assertEquals(1, LineHighlightBuilder("a\r", null).lineCount)
+  }
+
+  @Test
+  fun span_on_unterminated_final_line_is_clipped_before_trailing_cr() {
+    val result = lines("a\r", null, Triple(0, 2, "comment"))
+    assertEquals(listOf(HighlightSpan(0, 1, "comment")), result[0].spans)
+  }
+
+  @Test
   fun null_selects_all_and_empty_selects_nothing() {
     assertEquals(3, lines("a\nb\nc").size)
     assertTrue(LineHighlightBuilder("a\nb", emptyList()).isEmptySelection)

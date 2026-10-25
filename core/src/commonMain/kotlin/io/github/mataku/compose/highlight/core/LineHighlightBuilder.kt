@@ -88,9 +88,7 @@ internal class LineHighlightBuilder(
 
   private fun textEnd(index: Int): Int {
     val start = lineStarts[index]
-    val isTerminated = index + 1 < lineStarts.size
-    if (!isTerminated) return code.length
-    var end = lineStarts[index + 1] - 1
+    var end = if (index + 1 < lineStarts.size) lineStarts[index + 1] - 1 else code.length
     if (end > start && code[end - 1] == '\r') end--
     return end
   }
