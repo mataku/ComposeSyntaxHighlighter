@@ -7,8 +7,9 @@ import androidx.compose.ui.text.SpanStyle
 /**
  * A theme-independent highlight range within a single [HighlightedLine].
  *
- * [start] and [end] are UTF-16 offsets into [HighlightedLine.text]; [captureName] is the tree-sitter capture name
- * that is resolved against a [SyntaxTheme] only when the line is rendered.
+ * [start] and [end] are UTF-16 offsets into [HighlightedLine.text].
+ * [end] is exclusive, and `start < end` holds for every span the library produces.
+ * [captureName] is the tree-sitter capture name that is resolved against a [SyntaxTheme] only when the line is rendered.
  */
 @Immutable
 class HighlightSpan(
@@ -38,9 +39,9 @@ class HighlightSpan(
 /**
  * One line of source text together with its theme-independent highlight [spans].
  *
- * Span offsets are UTF-16 offsets into [text]. [spans] is in application order: spans may overlap, and a later span
- * merges over an earlier one with Compose `addStyle` semantics, so the order must not be changed. Rendering through
- * [toAnnotatedString] never reads [SyntaxTheme.background].
+ * Span offsets are UTF-16 offsets into [text].
+ * [spans] is in application order: spans may overlap, and a later span merges over an earlier one with Compose `addStyle` semantics, so the order must not be changed.
+ * Rendering through [toAnnotatedString] never reads [SyntaxTheme.background].
  */
 @Immutable
 class HighlightedLine(
@@ -70,9 +71,10 @@ class HighlightedLine(
 /**
  * Resolves this line's spans against [theme] and returns the styled [AnnotatedString].
  *
- * [SyntaxTheme.baseStyle] is applied first over the whole text, then each span in [HighlightedLine.spans] order,
- * so later spans merge over earlier ones (Compose `addStyle` semantics). Offsets are UTF-16. Spans whose capture
- * does not resolve are skipped. [SyntaxTheme.background] is never read.
+ * [SyntaxTheme.baseStyle] is applied first over the whole text, then each span in [HighlightedLine.spans] order, so later spans merge over earlier ones (Compose `addStyle` semantics).
+ * Offsets are UTF-16.
+ * Spans whose capture does not resolve are skipped.
+ * [SyntaxTheme.background] is never read.
  */
 fun HighlightedLine.toAnnotatedString(theme: SyntaxTheme): AnnotatedString {
   val ranges = ArrayList<AnnotatedString.Range<SpanStyle>>(spans.size + 1)

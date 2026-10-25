@@ -16,32 +16,23 @@ internal class LineHighlightBuilder(
     else -> lineStarts.size
   }
 
-  private val selected: BooleanArray = BooleanArray(lineCount)
-
   private val spansByLine: Array<ArrayList<HighlightSpan>?> = arrayOfNulls(lineCount)
 
   val isEmptySelection: Boolean
 
   init {
     if (lineRanges == null) {
-      selected.fill(true)
+      for (index in 0 until lineCount) spansByLine[index] = ArrayList()
     } else {
       for (range in lineRanges) {
         val first = maxOf(range.first, 1)
         val last = minOf(range.last, lineCount)
         for (lineNumber in first..last) {
-          selected[lineNumber - 1] = true
+          spansByLine[lineNumber - 1] = spansByLine[lineNumber - 1] ?: ArrayList()
         }
       }
     }
-    var any = false
-    for (index in 0 until lineCount) {
-      if (selected[index]) {
-        any = true
-        spansByLine[index] = ArrayList()
-      }
-    }
-    isEmptySelection = !any
+    isEmptySelection = spansByLine.none { it != null }
   }
 
   override fun add(charStart: Int, charEnd: Int, captureName: String) {
