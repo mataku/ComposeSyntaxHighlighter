@@ -1,3 +1,29 @@
+public final class io/github/mataku/compose/highlight/core/HighlightSpan {
+	public static final field $stable I
+	public fun <init> (IILjava/lang/String;)V
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getCaptureName ()Ljava/lang/String;
+	public final fun getEnd ()I
+	public final fun getStart ()I
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class io/github/mataku/compose/highlight/core/HighlightedLine {
+	public static final field $stable I
+	public fun <init> (ILjava/lang/String;Ljava/util/List;)V
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getLineNumber ()I
+	public final fun getSpans ()Ljava/util/List;
+	public final fun getText ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class io/github/mataku/compose/highlight/core/HighlightedLineKt {
+	public static final fun toAnnotatedString (Lio/github/mataku/compose/highlight/core/HighlightedLine;Lio/github/mataku/compose/highlight/core/SyntaxTheme;)Landroidx/compose/ui/text/AnnotatedString;
+}
+
 public final class io/github/mataku/compose/highlight/core/HighlighterKt {
 	public static final fun highlight (Ljava/lang/String;Lio/github/mataku/compose/highlight/api/Language;Lio/github/mataku/compose/highlight/core/SyntaxTheme;)Landroidx/compose/ui/text/AnnotatedString;
 }
