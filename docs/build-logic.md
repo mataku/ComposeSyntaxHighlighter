@@ -27,7 +27,7 @@ What the plugin does automatically:
 4. **`generateNotice`**: writes `META-INF/NOTICE` from `NOTICE.tpl` plus a per-grammar entry, wired into both KMP `commonMain.resources` and AGP `main.resources`.
 5. **CMake configuration**: writes `CMakeLists.txt` (Android NDK) and `host-cmake/CMakeLists.txt` (host JVM build).
 6. **`buildHostCMake`**: builds the parser `.dylib`/`.so`/`.dll` as `Release`; on macOS as an `arm64;x86_64` universal binary with deployment target `26.0`.
-7. **`stageJvmNativeLibrary`**: thins the universal binary into `lib/macos/aarch64/` and `lib/macos/x64/` and ad-hoc signs each slice (other hosts copy the library to `lib/<os>/<arch>/`) under `build/generated/jvmNatives/`, which is registered as `jvmMain` resources so `jvmJar`, `publishToMavenLocal` and the `jvmTest` runtime classpath carry it.
+7. **`stageJvmNativeLibrary`**: thins the universal binary into `lib/macos/aarch64/` and `lib/macos/x64/` and ad-hoc signs each slice (other hosts copy the library to `lib/<os>/<arch>/`) under `build/generated/jvmNatives/`, which is registered as `jvmMain` resources so `jvmJar`, `publishToMavenLocal` and the `jvmTest` runtime classpath carry it. With `-PprebuiltJvmNativesDir=<dir>` it also copies this module's libraries from `<dir>/lib/<os>/<arch>/` (built on other hosts; relative paths resolve against the repository root), so one macOS build can ship the Linux libraries too.
 8. **vanniktech maven-publish**: sets POM coordinates `compose-syntax-highlight-<name>` and POM name/description.
 9. **AGP packaging**: drops `META-INF/NOTICE` from the default excludes and pickFirsts it so the AAR's classes.jar retains the file.
 
@@ -52,8 +52,9 @@ commonMain  (all production code)
 
 ### JVM / Desktop
 - The generated loader tries `System.loadLibrary("ktreesitter-<lang>")` first, then falls back to the classpath resource `lib/<os>/<arch>/<prefix>ktreesitter-<lang>.<ext>`, extracted to a temp file and loaded with `System.load`.
-- Published JVM jars include the macOS `aarch64` and `x64` slices; `jvmTest` and Compose Desktop apps on macOS load them with no `java.library.path` configuration.
-- Linux / Windows consumers supply `libktreesitter-<lang>.so` / `ktreesitter-<lang>.dll` on `java.library.path`.
+- Published JVM jars include the macOS and Linux `aarch64` and `x64` libraries; `jvmTest` and Compose Desktop apps on those hosts load them with no `java.library.path` configuration.
+- The Linux libraries are built by `.github/workflows/linux-jvm-natives.yml` on pinned `ubuntu-24.04` / `ubuntu-24.04-arm` runners and passed to the macOS publish job via `-PprebuiltJvmNativesDir`. `scripts/verify-linux-natives.sh` fails if one needs a glibc newer than 2.17, the floor already set by ktreesitter-jvm's own `libktreesitter.so`.
+- Windows consumers supply `ktreesitter-<lang>.dll` on `java.library.path`.
 
 ## Tree-sitter ABI
 

@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- JVM jars of every language module also bundle the Linux grammar library for `x64` and `aarch64` at `lib/linux/<arch>/libktreesitter-<name>.so`, so Compose Desktop apps on Linux need no native setup. The libraries require glibc 2.17 or newer, the same floor as ktreesitter-jvm. Windows still needs the library on `java.library.path`.
+
 ## v0.7.0
 
 - Add `highlightLines(code, language, lineRanges)` to `:core`: parses a file once and returns theme-independent `HighlightedLine` values (`lineNumber`, `text`, `spans` of `HighlightSpan(start, end, captureName)`) for the selected 1-based line ranges, plus `HighlightedLine.toAnnotatedString(theme)`. Line boundaries are `\n` only and numbering matches git, so diff viewers can slice whole-file highlights per hunk line and re-style on theme changes without re-parsing.

@@ -316,6 +316,14 @@ val stageJvmNativeLibrary = tasks.register<StageJvmNativeLibraryTask>("stageJvmN
   builtLibrary.set(hostLibraryFile)
   hostOs.set(hostResourceOs)
   hostArch.set(hostResourceArch)
+  // Directory of libraries built on other hosts (see StageJvmNativeLibraryTask), merged into
+  // the jar so one publish ships every OS. Relative paths resolve against the repository root.
+  prebuiltLibrariesDir.set(
+    layout.dir(
+      providers.gradleProperty("prebuiltJvmNativesDir").map { layout.settingsDirectory.asFile.resolve(it) },
+    ),
+  )
+  libraryBaseName.set(composeSyntaxHighlightLanguage.languageName.map { "ktreesitter-$it" })
   outputDir.set(layout.buildDirectory.dir("generated/jvmNatives"))
   dependsOn(buildHostCMake)
 }

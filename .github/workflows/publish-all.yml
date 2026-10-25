@@ -4,7 +4,11 @@ on:
   workflow_dispatch:
 
 jobs:
+  linux-jvm-natives:
+    uses: ./.github/workflows/linux-jvm-natives.yml
+
   publish:
+    needs: linux-jvm-natives
     runs-on: macos-latest
     permissions:
       contents: write
@@ -32,11 +36,20 @@ jobs:
           done
           exit "$FAIL"
 
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          pattern: linux-jvm-natives-*
+          path: build/linux-jvm-natives
+          merge-multiple: true
+
       - name: Build & publish to Maven Local (pre-flight)
-        run: ./gradlew publishToMavenLocal -PRELEASE_SIGNING_ENABLED=false --no-configuration-cache
+        run: ./gradlew publishToMavenLocal -PprebuiltJvmNativesDir=build/linux-jvm-natives -PRELEASE_SIGNING_ENABLED=false --no-configuration-cache
 
       - name: Verify META-INF/NOTICE in published artefacts
         run: bash scripts/verify-notice.sh
+
+      - name: Verify bundled grammar libraries in JVM jars
+        run: bash scripts/verify-jvm-natives.sh
 
       - name: Publish to Maven Central
         env:
@@ -45,7 +58,7 @@ jobs:
           ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGINMEMORYKEY }}
           ORG_GRADLE_PROJECT_signingInMemoryKeyId: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGINMEMORYKEYID }}
           ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGINMEMORYKEYPASSWORD }}
-        run: ./gradlew publishToMavenCentral --no-configuration-cache
+        run: ./gradlew publishToMavenCentral -PprebuiltJvmNativesDir=build/linux-jvm-natives --no-configuration-cache
 
       - name: Tag release on success
         env:
