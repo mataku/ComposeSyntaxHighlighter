@@ -19,6 +19,7 @@ Public API in `commonMain`:
 - `SyntaxTheme(baseStyle, background, keyword, function, ..., extras)` — typed `SpanStyle?` fields per tree-sitter capture (the 14 used by every built-in theme), plus `extras: Map<String, SpanStyle>` for grammar-specific captures. Provides `SyntaxTheme.DarkDefault` / `SyntaxTheme.LightDefault` and the named built-in palettes. Not a `data class`: `copy` is hand-written so a future capture field can keep the previous overload as `@Deprecated(level = DeprecationLevel.HIDDEN)` and stay binary compatible. Built-in themes ship markdown's `text.*` captures pre-populated in `extras`, so `copy(extras = ...)` must merge rather than replace.
 - `LocalSyntaxTheme` — composition local that defaults to `SyntaxTheme.DarkDefault`.
 - `highlight(code, language, theme)` / `rememberHighlightedString(...)` — one-shot highlighting.
+- `highlightLines(code, language, lineRanges)` — returns `List<HighlightedLine>` (`lineNumber`, `text`, `spans: List<HighlightSpan>`) for 1-based inclusive line ranges (`null` = all lines), independent of any theme. Line boundaries are `\n` only, and `spans` is in application order. `HighlightedLine.toAnnotatedString(theme)` applies a `SyntaxTheme`.
 - `IncrementalHighlighter(language)` — single-threaded incremental engine. `AutoCloseable`; route every `update`/`close` call through one coroutine. Drives editable surfaces.
 - Re-exports `Language` and `kTreeSitterLanguage` from `:core-api`.
 

@@ -86,7 +86,18 @@ implementation("io.github.mataku:compose-syntax-highlight-core:$latestVersion")
 implementation("io.github.mataku:compose-syntax-highlight-kotlin:$latestHighlightKotlinVersion")
 ```
 
-`:core` ships `highlight()`, `rememberHighlightedString()`, the `SyntaxTheme` data class, and `LocalSyntaxTheme`, with only `compose.runtime` and `compose.ui` as dependencies.
+`:core` ships `highlight()`, `highlightLines()`, `rememberHighlightedString()`, the `SyntaxTheme` data class, and `LocalSyntaxTheme`, with only `compose.runtime` and `compose.ui` as dependencies.
+
+### Per-line highlighting
+
+`highlightLines()` parses once and returns theme-independent lines, so you can highlight only the lines you display (for example the changed hunks of a diff) and apply a theme later:
+
+```kotlin
+val lines = highlightLines(newBlob, Languages.Kotlin, listOf(newStart until newStart + newCount))
+val annotated = lines.associate { it.lineNumber to it.toAnnotatedString(theme) }
+```
+
+Line numbers are 1-based and ranges are inclusive; ranges are clipped to the file, and passing `null` selects every line. Each `HighlightedLine.text` has no line terminator, and `spans` must be applied in order because later spans merge over earlier ones. `toAnnotatedString(theme)` does this for you and never applies `SyntaxTheme.background`.
 
 ## Usage
 
