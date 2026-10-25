@@ -5,8 +5,8 @@
 #
 # Usage:
 #   bash scripts/verify-jvm-natives.sh
-#       Check all language modules. Expects `./gradlew jvmJar jvmSourcesJar`
-#       to have run first.
+#       Check every `:languages:<name>` module included in settings.gradle.kts.
+#       Expects `./gradlew jvmJar jvmSourcesJar` to have run first.
 #
 #   bash scripts/verify-jvm-natives.sh kotlin typescript ...
 #       Check only the given language directories under languages/.
@@ -87,18 +87,15 @@ check_module() {
   echo "OK: ${lang}-jvm.jar bundles macos aarch64 + x64 slices"
 }
 
-default_langs=(
-  kotlin
-  swift
-  ruby
-  rust
-  python
-  go
-  java
-  markdown
-  javascript
-  typescript
-)
+default_langs=()
+while IFS= read -r lang; do
+  default_langs+=("${lang}")
+done < <(sed -n 's/^include(":languages:\([^"]*\)")$/\1/p' settings.gradle.kts)
+
+if (( ${#default_langs[@]} == 0 )); then
+  echo "FAIL: no include(\":languages:<name>\") entries found in settings.gradle.kts" >&2
+  exit 1
+fi
 
 langs=("${@:-${default_langs[@]}}")
 
