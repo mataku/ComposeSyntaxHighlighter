@@ -12,6 +12,7 @@ allowed-tools:
   - Bash(git -C *)
   - Bash(./gradlew:*)
   - Bash(bash scripts/verify-notice.sh:*)
+  - Bash(bash scripts/verify-jvm-natives.sh:*)
   - Bash(grep:*)
   - Bash(ls:*)
   - Bash(unzip -p:*)
@@ -254,7 +255,7 @@ Run `./gradlew :samples:androidApp:assembleDebug` to verify the build (`:samples
 
 ## 6. Update the NOTICE module list and README license list
 
-The CI workflow (`.github/workflows/build.yml`) runs project-wide `./gradlew jvmTest -x :benchmarks:jvm:jvmTest` and `./gradlew apiCheck`, so there is no hardcoded module list to update there.
+The CI workflow (`.github/workflows/build.yml`) runs project-wide `./gradlew jvmTest -x :benchmarks:jvm:jvmTest` and `./gradlew apiCheck`, so there is no hardcoded module list to update there. `scripts/verify-jvm-natives.sh` (the macOS bundled-dylib gate) derives its module list from the `include(":languages:<name>")` lines in `settings.gradle.kts`, so the new module is covered as soon as it is included.
 
 **`scripts/verify-notice.sh`** does still have a hardcoded `modules=( … )` array; append the new artifact name:
 
@@ -279,6 +280,8 @@ Run the full pipeline before declaring done:
 ./gradlew :samples:androidApp:assembleDebug
 ./gradlew publishToMavenLocal -PRELEASE_SIGNING_ENABLED=false --no-configuration-cache
 bash scripts/verify-notice.sh
+./gradlew jvmJar jvmSourcesJar
+bash scripts/verify-jvm-natives.sh
 ```
 
 If `apiCheck` fails for the new module with a "missing api file" error, run `./gradlew :languages:<lang>:apiDump` to record the baseline. Two files are produced, and both must be committed:
