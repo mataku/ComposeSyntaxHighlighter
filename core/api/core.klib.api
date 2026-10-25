@@ -6,6 +6,36 @@
 // - Show declarations: true
 
 // Library unique name: <ComposeSyntaxHighlighter:core>
+final class io.github.mataku.compose.highlight.core/HighlightSpan { // io.github.mataku.compose.highlight.core/HighlightSpan|null[0]
+    constructor <init>(kotlin/Int, kotlin/Int, kotlin/String) // io.github.mataku.compose.highlight.core/HighlightSpan.<init>|<init>(kotlin.Int;kotlin.Int;kotlin.String){}[0]
+
+    final val captureName // io.github.mataku.compose.highlight.core/HighlightSpan.captureName|{}captureName[0]
+        final fun <get-captureName>(): kotlin/String // io.github.mataku.compose.highlight.core/HighlightSpan.captureName.<get-captureName>|<get-captureName>(){}[0]
+    final val end // io.github.mataku.compose.highlight.core/HighlightSpan.end|{}end[0]
+        final fun <get-end>(): kotlin/Int // io.github.mataku.compose.highlight.core/HighlightSpan.end.<get-end>|<get-end>(){}[0]
+    final val start // io.github.mataku.compose.highlight.core/HighlightSpan.start|{}start[0]
+        final fun <get-start>(): kotlin/Int // io.github.mataku.compose.highlight.core/HighlightSpan.start.<get-start>|<get-start>(){}[0]
+
+    final fun equals(kotlin/Any?): kotlin/Boolean // io.github.mataku.compose.highlight.core/HighlightSpan.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // io.github.mataku.compose.highlight.core/HighlightSpan.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // io.github.mataku.compose.highlight.core/HighlightSpan.toString|toString(){}[0]
+}
+
+final class io.github.mataku.compose.highlight.core/HighlightedLine { // io.github.mataku.compose.highlight.core/HighlightedLine|null[0]
+    constructor <init>(kotlin/Int, kotlin/String, kotlin.collections/List<io.github.mataku.compose.highlight.core/HighlightSpan>) // io.github.mataku.compose.highlight.core/HighlightedLine.<init>|<init>(kotlin.Int;kotlin.String;kotlin.collections.List<io.github.mataku.compose.highlight.core.HighlightSpan>){}[0]
+
+    final val lineNumber // io.github.mataku.compose.highlight.core/HighlightedLine.lineNumber|{}lineNumber[0]
+        final fun <get-lineNumber>(): kotlin/Int // io.github.mataku.compose.highlight.core/HighlightedLine.lineNumber.<get-lineNumber>|<get-lineNumber>(){}[0]
+    final val spans // io.github.mataku.compose.highlight.core/HighlightedLine.spans|{}spans[0]
+        final fun <get-spans>(): kotlin.collections/List<io.github.mataku.compose.highlight.core/HighlightSpan> // io.github.mataku.compose.highlight.core/HighlightedLine.spans.<get-spans>|<get-spans>(){}[0]
+    final val text // io.github.mataku.compose.highlight.core/HighlightedLine.text|{}text[0]
+        final fun <get-text>(): kotlin/String // io.github.mataku.compose.highlight.core/HighlightedLine.text.<get-text>|<get-text>(){}[0]
+
+    final fun equals(kotlin/Any?): kotlin/Boolean // io.github.mataku.compose.highlight.core/HighlightedLine.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // io.github.mataku.compose.highlight.core/HighlightedLine.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // io.github.mataku.compose.highlight.core/HighlightedLine.toString|toString(){}[0]
+}
+
 final class io.github.mataku.compose.highlight.core/IncrementalHighlighter : kotlin/AutoCloseable { // io.github.mataku.compose.highlight.core/IncrementalHighlighter|null[0]
     constructor <init>(io.github.mataku.compose.highlight.api/Language) // io.github.mataku.compose.highlight.core/IncrementalHighlighter.<init>|<init>(io.github.mataku.compose.highlight.api.Language){}[0]
 
@@ -81,11 +111,17 @@ final class io.github.mataku.compose.highlight.core/SyntaxTheme { // io.github.m
 
 final val io.github.mataku.compose.highlight.core/LocalSyntaxTheme // io.github.mataku.compose.highlight.core/LocalSyntaxTheme|{}LocalSyntaxTheme[0]
     final fun <get-LocalSyntaxTheme>(): androidx.compose.runtime/ProvidableCompositionLocal<io.github.mataku.compose.highlight.core/SyntaxTheme> // io.github.mataku.compose.highlight.core/LocalSyntaxTheme.<get-LocalSyntaxTheme>|<get-LocalSyntaxTheme>(){}[0]
+final val io.github.mataku.compose.highlight.core/io_github_mataku_compose_highlight_core_HighlightSpan$stableprop // io.github.mataku.compose.highlight.core/io_github_mataku_compose_highlight_core_HighlightSpan$stableprop|#static{}io_github_mataku_compose_highlight_core_HighlightSpan$stableprop[0]
+final val io.github.mataku.compose.highlight.core/io_github_mataku_compose_highlight_core_HighlightedLine$stableprop // io.github.mataku.compose.highlight.core/io_github_mataku_compose_highlight_core_HighlightedLine$stableprop|#static{}io_github_mataku_compose_highlight_core_HighlightedLine$stableprop[0]
 final val io.github.mataku.compose.highlight.core/io_github_mataku_compose_highlight_core_IncrementalHighlighter$stableprop // io.github.mataku.compose.highlight.core/io_github_mataku_compose_highlight_core_IncrementalHighlighter$stableprop|#static{}io_github_mataku_compose_highlight_core_IncrementalHighlighter$stableprop[0]
 final val io.github.mataku.compose.highlight.core/io_github_mataku_compose_highlight_core_SyntaxTheme$stableprop // io.github.mataku.compose.highlight.core/io_github_mataku_compose_highlight_core_SyntaxTheme$stableprop|#static{}io_github_mataku_compose_highlight_core_SyntaxTheme$stableprop[0]
 final val io.github.mataku.compose.highlight.core/io_github_mataku_compose_highlight_core_Utf8ByteIndex$stableprop // io.github.mataku.compose.highlight.core/io_github_mataku_compose_highlight_core_Utf8ByteIndex$stableprop|#static{}io_github_mataku_compose_highlight_core_Utf8ByteIndex$stableprop[0]
 
+final fun (io.github.mataku.compose.highlight.core/HighlightedLine).io.github.mataku.compose.highlight.core/toAnnotatedString(io.github.mataku.compose.highlight.core/SyntaxTheme): androidx.compose.ui.text/AnnotatedString // io.github.mataku.compose.highlight.core/toAnnotatedString|toAnnotatedString@io.github.mataku.compose.highlight.core.HighlightedLine(io.github.mataku.compose.highlight.core.SyntaxTheme){}[0]
 final fun io.github.mataku.compose.highlight.core/highlight(kotlin/String, io.github.mataku.compose.highlight.api/Language, io.github.mataku.compose.highlight.core/SyntaxTheme): androidx.compose.ui.text/AnnotatedString // io.github.mataku.compose.highlight.core/highlight|highlight(kotlin.String;io.github.mataku.compose.highlight.api.Language;io.github.mataku.compose.highlight.core.SyntaxTheme){}[0]
+final fun io.github.mataku.compose.highlight.core/highlightLines(kotlin/String, io.github.mataku.compose.highlight.api/Language, kotlin.collections/List<kotlin.ranges/IntRange>? = ...): kotlin.collections/List<io.github.mataku.compose.highlight.core/HighlightedLine> // io.github.mataku.compose.highlight.core/highlightLines|highlightLines(kotlin.String;io.github.mataku.compose.highlight.api.Language;kotlin.collections.List<kotlin.ranges.IntRange>?){}[0]
+final fun io.github.mataku.compose.highlight.core/io_github_mataku_compose_highlight_core_HighlightSpan$stableprop_getter(): kotlin/Int // io.github.mataku.compose.highlight.core/io_github_mataku_compose_highlight_core_HighlightSpan$stableprop_getter|io_github_mataku_compose_highlight_core_HighlightSpan$stableprop_getter(){}[0]
+final fun io.github.mataku.compose.highlight.core/io_github_mataku_compose_highlight_core_HighlightedLine$stableprop_getter(): kotlin/Int // io.github.mataku.compose.highlight.core/io_github_mataku_compose_highlight_core_HighlightedLine$stableprop_getter|io_github_mataku_compose_highlight_core_HighlightedLine$stableprop_getter(){}[0]
 final fun io.github.mataku.compose.highlight.core/io_github_mataku_compose_highlight_core_IncrementalHighlighter$stableprop_getter(): kotlin/Int // io.github.mataku.compose.highlight.core/io_github_mataku_compose_highlight_core_IncrementalHighlighter$stableprop_getter|io_github_mataku_compose_highlight_core_IncrementalHighlighter$stableprop_getter(){}[0]
 final fun io.github.mataku.compose.highlight.core/io_github_mataku_compose_highlight_core_SyntaxTheme$stableprop_getter(): kotlin/Int // io.github.mataku.compose.highlight.core/io_github_mataku_compose_highlight_core_SyntaxTheme$stableprop_getter|io_github_mataku_compose_highlight_core_SyntaxTheme$stableprop_getter(){}[0]
 final fun io.github.mataku.compose.highlight.core/io_github_mataku_compose_highlight_core_Utf8ByteIndex$stableprop_getter(): kotlin/Int // io.github.mataku.compose.highlight.core/io_github_mataku_compose_highlight_core_Utf8ByteIndex$stableprop_getter|io_github_mataku_compose_highlight_core_Utf8ByteIndex$stableprop_getter(){}[0]
