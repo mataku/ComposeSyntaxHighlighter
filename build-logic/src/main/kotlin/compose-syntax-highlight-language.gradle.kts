@@ -1,5 +1,6 @@
 import io.github.mataku.compose.highlight.buildlogic.ComposeSyntaxHighlightLanguageExtension
 import io.github.mataku.compose.highlight.buildlogic.GrammarSpec
+import io.github.mataku.compose.highlight.buildlogic.StageJvmNativeLibraryTask
 import io.github.mataku.compose.highlight.buildlogic.extractParserAbi
 import io.github.mataku.compose.highlight.buildlogic.writeAndroidCMakeLists
 import io.github.mataku.compose.highlight.buildlogic.writeHostCMakeLists
@@ -306,6 +307,19 @@ val buildHostCMake = tasks.register<Exec>("buildHostCMake") {
   dependsOn(configureHostCMake)
 }
 
+val hostLibraryFile: Provider<RegularFile> =
+  composeSyntaxHighlightLanguage.languageName.zip(hostCMakeWorkDir) { name, dir ->
+    dir.file("${hostLibraryPrefix}ktreesitter-$name.$hostLibraryExtension")
+  }
+
+val stageJvmNativeLibrary = tasks.register<StageJvmNativeLibraryTask>("stageJvmNativeLibrary") {
+  builtLibrary.set(hostLibraryFile)
+  hostOs.set(hostResourceOs)
+  hostArch.set(hostResourceArch)
+  outputDir.set(layout.buildDirectory.dir("generated/jvmNatives"))
+  dependsOn(buildHostCMake)
+}
+
 // Per-ABI Android NDK CMake task chain. Mirrors host CMake but invokes cmake via
 // the NDK toolchain file. Outputs land in build/generated/jniLibs/<abi>/, which
 // is wired into androidMain's jniLibs source set so AGP packages the .so files
@@ -450,6 +464,9 @@ extensions.configure<KotlinMultiplatformExtension>("kotlin") {
         }
         api(versionCatalog.findLibrary("ktreesitter").get())
       }
+    }
+    jvmMain {
+      resources.srcDir(stageJvmNativeLibrary.flatMap { it.outputDir })
     }
     val sharedTest = create("sharedTest") {
       dependencies {
@@ -669,14 +686,6 @@ afterEvaluate {
       if (arExit != 0) {
         error("xcrun ar failed (exit=$arExit):\n$arOut")
       }
-    }
-  }
-
-  tasks.named<Test>("jvmTest") {
-    dependsOn(buildHostCMake)
-    val libDirProvider = hostCMakeWorkDir.map { it.asFile.absolutePath }
-    doFirst {
-      systemProperty("java.library.path", libDirProvider.get())
     }
   }
 
