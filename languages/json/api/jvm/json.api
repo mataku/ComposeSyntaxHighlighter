@@ -1,0 +1,4 @@
+public final class io/github/mataku/compose/highlight/json/JsonLanguageKt {
+	public static final fun getJson (Lio/github/mataku/compose/highlight/api/Languages;)Lio/github/mataku/compose/highlight/api/Language;
+}
+
