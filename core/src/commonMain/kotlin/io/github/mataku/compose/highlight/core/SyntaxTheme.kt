@@ -63,6 +63,10 @@ class SyntaxTheme(
   val operator: SpanStyle? = null,
   /** Style for `punctuation` captures. */
   val punctuation: SpanStyle? = null,
+  /** Style for `tag` captures (markup element and selector names). */
+  val tag: SpanStyle? = null,
+  /** Style for `attribute` captures (markup attributes, annotations). */
+  val attribute: SpanStyle? = null,
   /**
    * Overrides for capture names not represented as typed fields. Wins over typed fields for
    * the same name. Pass a stable map instance (e.g. an immutable `mapOf(...)` constructed once
@@ -75,7 +79,7 @@ class SyntaxTheme(
    *
    * ```kotlin
    * val theme = SyntaxTheme.DarkDefault.let {
-   *   it.copy(extras = it.extras + mapOf("attribute" to SpanStyle(color = Color.Green)))
+   *   it.copy(extras = it.extras + mapOf("label" to SpanStyle(color = Color.Green)))
    * }
    * ```
    */
@@ -119,8 +123,51 @@ class SyntaxTheme(
     "namespace" -> namespace
     "operator" -> operator
     "punctuation" -> punctuation
+    "tag" -> tag
+    "attribute" -> attribute
     else -> null
   }
+
+  @Deprecated("Binary compatibility with 0.7.x", level = DeprecationLevel.HIDDEN)
+  constructor(
+    baseStyle: SpanStyle = SpanStyle(),
+    background: Color? = null,
+    keyword: SpanStyle? = null,
+    function: SpanStyle? = null,
+    type: SpanStyle? = null,
+    string: SpanStyle? = null,
+    stringEscape: SpanStyle? = null,
+    number: SpanStyle? = null,
+    boolean: SpanStyle? = null,
+    comment: SpanStyle? = null,
+    constant: SpanStyle? = null,
+    property: SpanStyle? = null,
+    variable: SpanStyle? = null,
+    namespace: SpanStyle? = null,
+    operator: SpanStyle? = null,
+    punctuation: SpanStyle? = null,
+    extras: Map<String, SpanStyle> = emptyMap(),
+  ) : this(
+    baseStyle = baseStyle,
+    background = background,
+    keyword = keyword,
+    function = function,
+    type = type,
+    string = string,
+    stringEscape = stringEscape,
+    number = number,
+    boolean = boolean,
+    comment = comment,
+    constant = constant,
+    property = property,
+    variable = variable,
+    namespace = namespace,
+    operator = operator,
+    punctuation = punctuation,
+    tag = null,
+    attribute = null,
+    extras = extras,
+  )
 
   fun copy(
     baseStyle: SpanStyle = this.baseStyle,
@@ -139,6 +186,8 @@ class SyntaxTheme(
     namespace: SpanStyle? = this.namespace,
     operator: SpanStyle? = this.operator,
     punctuation: SpanStyle? = this.punctuation,
+    tag: SpanStyle? = this.tag,
+    attribute: SpanStyle? = this.attribute,
     extras: Map<String, SpanStyle> = this.extras,
   ): SyntaxTheme = SyntaxTheme(
     baseStyle = baseStyle,
@@ -157,6 +206,49 @@ class SyntaxTheme(
     namespace = namespace,
     operator = operator,
     punctuation = punctuation,
+    tag = tag,
+    attribute = attribute,
+    extras = extras,
+  )
+
+  @Deprecated("Binary compatibility with 0.7.x", level = DeprecationLevel.HIDDEN)
+  fun copy(
+    baseStyle: SpanStyle = this.baseStyle,
+    background: Color? = this.background,
+    keyword: SpanStyle? = this.keyword,
+    function: SpanStyle? = this.function,
+    type: SpanStyle? = this.type,
+    string: SpanStyle? = this.string,
+    stringEscape: SpanStyle? = this.stringEscape,
+    number: SpanStyle? = this.number,
+    boolean: SpanStyle? = this.boolean,
+    comment: SpanStyle? = this.comment,
+    constant: SpanStyle? = this.constant,
+    property: SpanStyle? = this.property,
+    variable: SpanStyle? = this.variable,
+    namespace: SpanStyle? = this.namespace,
+    operator: SpanStyle? = this.operator,
+    punctuation: SpanStyle? = this.punctuation,
+    extras: Map<String, SpanStyle> = this.extras,
+  ): SyntaxTheme = copy(
+    baseStyle = baseStyle,
+    background = background,
+    keyword = keyword,
+    function = function,
+    type = type,
+    string = string,
+    stringEscape = stringEscape,
+    number = number,
+    boolean = boolean,
+    comment = comment,
+    constant = constant,
+    property = property,
+    variable = variable,
+    namespace = namespace,
+    operator = operator,
+    punctuation = punctuation,
+    tag = this.tag,
+    attribute = this.attribute,
     extras = extras,
   )
 
@@ -179,6 +271,8 @@ class SyntaxTheme(
     if (namespace != other.namespace) return false
     if (operator != other.operator) return false
     if (punctuation != other.punctuation) return false
+    if (tag != other.tag) return false
+    if (attribute != other.attribute) return false
     if (extras != other.extras) return false
     return true
   }
@@ -200,6 +294,8 @@ class SyntaxTheme(
     result = 31 * result + namespace.hashCode()
     result = 31 * result + operator.hashCode()
     result = 31 * result + punctuation.hashCode()
+    result = 31 * result + tag.hashCode()
+    result = 31 * result + attribute.hashCode()
     result = 31 * result + extras.hashCode()
     return result
   }
@@ -221,6 +317,8 @@ class SyntaxTheme(
     "namespace=$namespace, " +
     "operator=$operator, " +
     "punctuation=$punctuation, " +
+    "tag=$tag, " +
+    "attribute=$attribute, " +
     "extras=$extras" +
     ")"
 
@@ -278,6 +376,8 @@ class SyntaxTheme(
         namespace = SpanStyle(color = Color(0xFF4EC9B0)),
         operator = SpanStyle(color = Color(0xFFD4D4D4)),
         punctuation = SpanStyle(color = Color(0xFFD4D4D4)),
+        tag = SpanStyle(color = Color(0xFF569CD6)),
+        attribute = SpanStyle(color = Color(0xFF9CDCFE)),
       ).withMarkdownDefaults()
     }
 
@@ -300,6 +400,8 @@ class SyntaxTheme(
         namespace = SpanStyle(color = Color(0xFF267F99)),
         operator = SpanStyle(color = Color(0xFF000000)),
         punctuation = SpanStyle(color = Color(0xFF000000)),
+        tag = SpanStyle(color = Color(0xFF800000)),
+        attribute = SpanStyle(color = Color(0xFFE50000)),
       ).withMarkdownDefaults()
     }
 
@@ -322,6 +424,8 @@ class SyntaxTheme(
         namespace = SpanStyle(color = Color(0xFFB58900)),
         operator = SpanStyle(color = Color(0xFF93A1A1)),
         punctuation = SpanStyle(color = Color(0xFF586E75)),
+        tag = SpanStyle(color = Color(0xFF268BD2)),
+        attribute = SpanStyle(color = Color(0xFFB58900)),
       ).withMarkdownDefaults()
     }
 
@@ -344,6 +448,8 @@ class SyntaxTheme(
         namespace = SpanStyle(color = Color(0xFFB58900)),
         operator = SpanStyle(color = Color(0xFF586E75)),
         punctuation = SpanStyle(color = Color(0xFF93A1A1)),
+        tag = SpanStyle(color = Color(0xFF268BD2)),
+        attribute = SpanStyle(color = Color(0xFFB58900)),
       ).withMarkdownDefaults()
     }
 
@@ -366,6 +472,8 @@ class SyntaxTheme(
         namespace = SpanStyle(color = Color(0xFFFF7B72)),
         operator = SpanStyle(color = Color(0xFFFF7B72)),
         punctuation = SpanStyle(color = Color(0xFFC9D1D9)),
+        tag = SpanStyle(color = Color(0xFF7EE787)),
+        attribute = SpanStyle(color = Color(0xFF79C0FF)),
       ).withMarkdownDefaults()
     }
 
@@ -388,6 +496,8 @@ class SyntaxTheme(
         namespace = SpanStyle(color = Color(0xFFCF222E)),
         operator = SpanStyle(color = Color(0xFFCF222E)),
         punctuation = SpanStyle(color = Color(0xFF1F2328)),
+        tag = SpanStyle(color = Color(0xFF116329)),
+        attribute = SpanStyle(color = Color(0xFF0550AE)),
       ).withMarkdownDefaults()
     }
 
@@ -410,6 +520,8 @@ class SyntaxTheme(
         namespace = SpanStyle(color = Color(0xFFE5C07B)),
         operator = SpanStyle(color = Color(0xFFC678DD)),
         punctuation = SpanStyle(color = Color(0xFFABB2BF)),
+        tag = SpanStyle(color = Color(0xFFE06C75)),
+        attribute = SpanStyle(color = Color(0xFFD19A66)),
       ).withMarkdownDefaults()
     }
 
@@ -432,6 +544,8 @@ class SyntaxTheme(
         namespace = SpanStyle(color = Color(0xFFC18401)),
         operator = SpanStyle(color = Color(0xFFA626A4)),
         punctuation = SpanStyle(color = Color(0xFF383A42)),
+        tag = SpanStyle(color = Color(0xFFE45649)),
+        attribute = SpanStyle(color = Color(0xFF986801)),
       ).withMarkdownDefaults()
     }
 
@@ -454,6 +568,8 @@ class SyntaxTheme(
         namespace = SpanStyle(color = Color(0xFF8BE9FD)),
         operator = SpanStyle(color = Color(0xFFFF79C6)),
         punctuation = SpanStyle(color = Color(0xFFF8F8F2)),
+        tag = SpanStyle(color = Color(0xFFFF79C6)),
+        attribute = SpanStyle(color = Color(0xFF50FA7B)),
       ).withMarkdownDefaults()
     }
   }
