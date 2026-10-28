@@ -1,0 +1,10 @@
+// Klib ABI Dump
+// Targets: [iosArm64, iosSimulatorArm64]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <ComposeSyntaxHighlighter.languages:css>
+final val io.github.mataku.compose.highlight.css/Css // io.github.mataku.compose.highlight.css/Css|@io.github.mataku.compose.highlight.api.Languages{}Css[0]
+    final fun (io.github.mataku.compose.highlight.api/Languages).<get-Css>(): io.github.mataku.compose.highlight.api/Language // io.github.mataku.compose.highlight.css/Css.<get-Css>|<get-Css>@io.github.mataku.compose.highlight.api.Languages(){}[0]

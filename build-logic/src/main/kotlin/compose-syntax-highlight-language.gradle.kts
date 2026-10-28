@@ -383,6 +383,7 @@ val androidCopyToJniLibsTasks: Map<String, TaskProvider<Copy>> = androidAbis.ass
       "-DANDROID_ABI=$abi",
       "-DANDROID_PLATFORM=$androidPlatform",
       "-DCMAKE_BUILD_TYPE=Release",
+      "-DCMAKE_SHARED_LINKER_FLAGS=-Wl,-z,max-page-size=16384",
       cmakeListsSrcDirProvider.get().absolutePath,
     )
     val capturedWorkDir = workDirProvider

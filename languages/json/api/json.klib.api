@@ -1,0 +1,10 @@
+// Klib ABI Dump
+// Targets: [iosArm64, iosSimulatorArm64]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <ComposeSyntaxHighlighter.languages:json>
+final val io.github.mataku.compose.highlight.json/Json // io.github.mataku.compose.highlight.json/Json|@io.github.mataku.compose.highlight.api.Languages{}Json[0]
+    final fun (io.github.mataku.compose.highlight.api/Languages).<get-Json>(): io.github.mataku.compose.highlight.api/Language // io.github.mataku.compose.highlight.json/Json.<get-Json>|<get-Json>@io.github.mataku.compose.highlight.api.Languages(){}[0]
