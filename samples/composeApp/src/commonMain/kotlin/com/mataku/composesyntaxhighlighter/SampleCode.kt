@@ -226,4 +226,108 @@ object SampleCode {
         See [the README](https://example.com/readme) and \*do not\* skip
         the install steps.
   """.trimIndent()
+
+  val json: String = """
+        {
+          "name": "compose-syntax-highlight",
+          "version": "0.7.0",
+          "private": false,
+          "license": null,
+          "keywords": ["kotlin", "compose", "tree-sitter"],
+          "engines": {
+            "jvm": 17,
+            "minSdk": 26
+          },
+          "path": "C:\\src\\highlighter",
+          "themes": [
+            { "id": "dark", "contrast": 4.5 },
+            { "id": "light", "contrast": 7 }
+          ]
+        }
+  """.trimIndent()
+
+  val yaml: String = """
+        # GitHub Actions workflow
+        name: build
+        on:
+          push:
+            branches: [develop]
+        defaults: &defaults
+          runs-on: macos-latest
+          timeout-minutes: 30
+        jobs:
+          test:
+            <<: *defaults
+            env:
+              CI: true
+              GRADLE_OPTS: "-Xmx4g"
+            steps:
+              - uses: actions/checkout@v4
+              - run: ./gradlew jvmTest
+              - name: Upload report
+                if: failure()
+  """.trimIndent()
+
+  val html: String = """
+        <!DOCTYPE html>
+        <html lang="en">
+          <head>
+            <meta charset="utf-8">
+            <title>Highlighter demo</title>
+            <link rel="stylesheet" href="/style.css">
+          </head>
+          <body>
+            <!-- Primary navigation -->
+            <nav class="top-bar" id="nav">
+              <a href="/" aria-current="page">Home</a>
+              <a href="/docs">Docs</a>
+            </nav>
+            <input type="checkbox" checked disabled />
+            <p>Plain <strong>text</strong> &amp; entities.</p>
+          </body>
+        </html>
+  """.trimIndent()
+
+  val css: String = """
+        @import url("theme.css");
+
+        :root {
+          --accent: #c586c0;
+        }
+
+        /* Card layout */
+        .card > h2,
+        #main a:hover {
+          color: var(--accent);
+          margin: 0 auto;
+          padding: 1.5rem 12px;
+          font-family: "Fira Code", monospace;
+        }
+
+        @media (max-width: 600px) {
+          .card { display: none !important; }
+        }
+  """.trimIndent()
+
+  val bash: String = """
+        #!/usr/bin/env bash
+        set -euo pipefail
+
+        # Run the JVM tests for every language module
+        readonly ROOT="${'$'}(git rev-parse --show-toplevel)"
+        modules=(json yaml html css bash)
+
+        run_tests() {
+          local module=${'$'}1
+          echo "Testing ${'$'}module..."
+          ./gradlew ":languages:${'$'}{module}:jvmTest" > /dev/null 2>&1
+        }
+
+        for m in "${'$'}{modules[@]}"; do
+          if ! run_tests "${'$'}m"; then
+            echo 'failed' >&2
+            exit 1
+          fi
+        done
+  """.trimIndent()
 }
