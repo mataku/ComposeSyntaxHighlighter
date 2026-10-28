@@ -28,3 +28,18 @@
 [submodule "languages/typescript/tree-sitter-typescript"]
 	path = languages/typescript/tree-sitter-typescript
 	url = https://github.com/tree-sitter/tree-sitter-typescript.git
+[submodule "languages/json/tree-sitter-json"]
+	path = languages/json/tree-sitter-json
+	url = https://github.com/tree-sitter/tree-sitter-json.git
+[submodule "languages/html/tree-sitter-html"]
+	path = languages/html/tree-sitter-html
+	url = https://github.com/tree-sitter/tree-sitter-html.git
+[submodule "languages/css/tree-sitter-css"]
+	path = languages/css/tree-sitter-css
+	url = https://github.com/tree-sitter/tree-sitter-css.git
+[submodule "languages/bash/tree-sitter-bash"]
+	path = languages/bash/tree-sitter-bash
+	url = https://github.com/tree-sitter/tree-sitter-bash.git
+[submodule "languages/yaml/tree-sitter-yaml"]
+	path = languages/yaml/tree-sitter-yaml
+	url = https://github.com/tree-sitter-grammars/tree-sitter-yaml.git
