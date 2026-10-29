@@ -141,6 +141,8 @@ default_projects=(
   :languages:html
   :languages:css
   :languages:bash
+  :languages:xml
+  :languages:toml
 )
 
 projects=("${@:-${default_projects[@]}}")

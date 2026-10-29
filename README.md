@@ -65,6 +65,8 @@ implementation("io.github.mataku:compose-syntax-highlight-swift:$latestHighlight
 | HTML | `compose-syntax-highlight-html` | [![](https://img.shields.io/maven-central/v/io.github.mataku/compose-syntax-highlight-html.svg?label=)](https://central.sonatype.com/artifact/io.github.mataku/compose-syntax-highlight-html) |
 | CSS | `compose-syntax-highlight-css` | [![](https://img.shields.io/maven-central/v/io.github.mataku/compose-syntax-highlight-css.svg?label=)](https://central.sonatype.com/artifact/io.github.mataku/compose-syntax-highlight-css) |
 | Bash | `compose-syntax-highlight-bash` | [![](https://img.shields.io/maven-central/v/io.github.mataku/compose-syntax-highlight-bash.svg?label=)](https://central.sonatype.com/artifact/io.github.mataku/compose-syntax-highlight-bash) |
+| XML | `compose-syntax-highlight-xml` | [![](https://img.shields.io/maven-central/v/io.github.mataku/compose-syntax-highlight-xml.svg?label=)](https://central.sonatype.com/artifact/io.github.mataku/compose-syntax-highlight-xml) |
+| TOML | `compose-syntax-highlight-toml` | [![](https://img.shields.io/maven-central/v/io.github.mataku/compose-syntax-highlight-toml.svg?label=)](https://central.sonatype.com/artifact/io.github.mataku/compose-syntax-highlight-toml) |
 
 For an **editable** code surface, depend on `:material3-text-field` instead of (or alongside) `:material3` — it ships `SyntaxHighlightedTextField`:
 
@@ -366,6 +368,8 @@ MIT. Bundled grammars are all MIT-licensed:
 - [tree-sitter/tree-sitter-html](https://github.com/tree-sitter/tree-sitter-html) — Copyright (c) 2014 Max Brunsfeld
 - [tree-sitter/tree-sitter-css](https://github.com/tree-sitter/tree-sitter-css) — Copyright (c) 2018 Max Brunsfeld
 - [tree-sitter/tree-sitter-bash](https://github.com/tree-sitter/tree-sitter-bash) — Copyright (c) 2017 Max Brunsfeld
+- [tree-sitter-grammars/tree-sitter-xml](https://github.com/tree-sitter-grammars/tree-sitter-xml) — Copyright (c) 2023 ObserverOfTime
+- [tree-sitter-grammars/tree-sitter-toml](https://github.com/tree-sitter-grammars/tree-sitter-toml) — Copyright (c) Ika <ikatyang@gmail.com> (https://github.com/ikatyang)
 
 The built-in `SyntaxTheme` palettes shipped in `compose-syntax-highlight-core` derive their colors from the following third-party themes (all MIT-licensed):
 
