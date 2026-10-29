@@ -43,3 +43,9 @@
 [submodule "languages/yaml/tree-sitter-yaml"]
 	path = languages/yaml/tree-sitter-yaml
 	url = https://github.com/tree-sitter-grammars/tree-sitter-yaml.git
+[submodule "languages/xml/tree-sitter-xml"]
+	path = languages/xml/tree-sitter-xml
+	url = https://github.com/tree-sitter-grammars/tree-sitter-xml.git
+[submodule "languages/toml/tree-sitter-toml"]
+	path = languages/toml/tree-sitter-toml
+	url = https://github.com/tree-sitter-grammars/tree-sitter-toml.git

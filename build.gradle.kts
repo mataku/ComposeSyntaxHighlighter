@@ -30,8 +30,10 @@ apiValidation {
     "ruby",
     "rust",
     "swift",
+    "toml",
     "tsx",
     "typescript",
+    "xml",
     "yaml",
   ).map { "io.github.mataku.compose.highlight.$it.internal" }
   @OptIn(kotlinx.validation.ExperimentalBCVApi::class)

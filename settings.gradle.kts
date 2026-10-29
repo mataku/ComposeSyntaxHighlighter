@@ -60,6 +60,8 @@ include(":languages:yaml")
 include(":languages:html")
 include(":languages:css")
 include(":languages:bash")
+include(":languages:xml")
+include(":languages:toml")
 include(":benchmarks:jvm")
 include(":benchmarks:android")
 
