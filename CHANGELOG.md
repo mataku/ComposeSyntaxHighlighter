@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+## v0.9.0
+
+- New language modules: XML and TOML. XML highlights the xml grammar of tree-sitter-xml (DTD files are not covered); attribute names use the upstream `property` capture, so they follow the theme's `property` style rather than `attribute`.
+
 ## v0.8.0
 
 - New language modules: JSON, YAML, HTML, CSS, and Bash. HTML highlights tags, attributes, attribute values and comments; `<script>` and `<style>` bodies render in the base style because injections are not run.

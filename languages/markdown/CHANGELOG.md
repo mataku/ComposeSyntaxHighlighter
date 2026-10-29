@@ -4,6 +4,10 @@
 
 - Nothing yet.
 
+## v0.9.0
+
+- Compatibility re-publish against the core stack 0.9.0; the `compose-syntax-highlight-api` range stays `[0.6, 1.0)`.
+
 ## v0.8.0
 
 - The Android native library is linked with 16 KB page-size alignment (`arm64-v8a`, `x86_64`).

@@ -1,0 +1,10 @@
+// Klib ABI Dump
+// Targets: [iosArm64, iosSimulatorArm64]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <ComposeSyntaxHighlighter.languages:xml>
+final val io.github.mataku.compose.highlight.xml/Xml // io.github.mataku.compose.highlight.xml/Xml|@io.github.mataku.compose.highlight.api.Languages{}Xml[0]
+    final fun (io.github.mataku.compose.highlight.api/Languages).<get-Xml>(): io.github.mataku.compose.highlight.api/Language // io.github.mataku.compose.highlight.xml/Xml.<get-Xml>|<get-Xml>@io.github.mataku.compose.highlight.api.Languages(){}[0]

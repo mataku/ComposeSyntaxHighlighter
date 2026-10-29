@@ -52,8 +52,10 @@ import io.github.mataku.compose.highlight.python.Python
 import io.github.mataku.compose.highlight.ruby.Ruby
 import io.github.mataku.compose.highlight.rust.Rust
 import io.github.mataku.compose.highlight.swift.Swift
+import io.github.mataku.compose.highlight.toml.Toml
 import io.github.mataku.compose.highlight.tsx.Tsx
 import io.github.mataku.compose.highlight.typescript.Typescript
+import io.github.mataku.compose.highlight.xml.Xml
 import io.github.mataku.compose.highlight.yaml.Yaml
 
 private enum class DemoLanguage(val label: String) {
@@ -73,6 +75,8 @@ private enum class DemoLanguage(val label: String) {
   Html("HTML"),
   Css("CSS"),
   Bash("Bash"),
+  Xml("XML"),
+  Toml("TOML"),
 }
 
 private enum class DemoTheme(val label: String) {
@@ -115,6 +119,8 @@ fun HighlighterDemo() {
     DemoLanguage.Html -> SampleCode.html to Languages.Html
     DemoLanguage.Css -> SampleCode.css to Languages.Css
     DemoLanguage.Bash -> SampleCode.bash to Languages.Bash
+    DemoLanguage.Xml -> SampleCode.xml to Languages.Xml
+    DemoLanguage.Toml -> SampleCode.toml to Languages.Toml
   }
   val baseTheme = when (selectedTheme) {
     DemoTheme.DefaultDark -> SyntaxTheme.DarkDefault
