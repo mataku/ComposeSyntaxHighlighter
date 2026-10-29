@@ -330,4 +330,46 @@ object SampleCode {
           fi
         done
   """.trimIndent()
+
+  val xml: String = """
+        <?xml version="1.0" encoding="UTF-8"?>
+        <!DOCTYPE manifest>
+        <!-- Demo Android manifest -->
+        <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+            package="com.example.demo">
+
+          <uses-permission android:name="android.permission.INTERNET" />
+
+          <application
+              android:label="Demo &amp; Sample"
+              android:theme="@style/Theme.Demo">
+            <activity android:name=".MainActivity" android:exported="true">
+              <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+              </intent-filter>
+            </activity>
+            <meta-data android:name="note"><![CDATA[ a < b ]]></meta-data>
+          </application>
+        </manifest>
+  """.trimIndent()
+
+  val toml: String = """
+        # Gradle version catalog
+        [versions]
+        kotlin = "2.2.0"
+        compose-multiplatform = '1.9.0'
+        min-sdk = 26
+
+        [libraries]
+        kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
+
+        [plugins]
+        android-library = { id = "com.android.library", version = "8.12.0" }
+
+        [[bundles.demo]]
+        enabled = true
+        ratio = 0.75
+        released = 2026-10-29T09:00:00+09:00
+        tags = ["kmp", "compose"]
+  """.trimIndent()
 }
