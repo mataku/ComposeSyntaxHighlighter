@@ -1,0 +1,79 @@
+name: Linux JVM natives
+
+# Builds the Linux grammar libraries on native x64 and aarch64 runners and uploads them as
+# `linux-jvm-natives-<arch>` artifacts laid out as lib/linux/<arch>/. A macOS job then passes
+# the merged artifacts to Gradle via -PprebuiltJvmNativesDir so one jar ships every OS.
+#
+# Runners are pinned rather than ubuntu-latest so a runner image bump cannot silently change
+# the toolchain; verify-linux-natives.sh fails if a library needs a newer glibc than
+# ktreesitter-jvm's own libktreesitter.so.
+
+on:
+  workflow_call:
+    inputs:
+      languages:
+        description: 'Space-separated language names (a "languages/" prefix is stripped); empty builds every language module'
+        required: false
+        default: ''
+        type: string
+
+jobs:
+  build:
+    name: Build Linux grammar libraries (${{ matrix.arch }})
+    strategy:
+      matrix:
+        include:
+          - arch: x64
+            runner: ubuntu-24.04
+          - arch: aarch64
+            runner: ubuntu-24.04-arm
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          submodules: recursive
+
+      # setup-android-deps is skipped: only the host CMake build runs here, and the SDK's
+      # NDK/CMake packages are x86_64-only on Linux.
+      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: gradle/actions/setup-gradle@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6.4.0
+      - uses: ./.github/actions/setup-tree-sitter
+
+      - name: Resolve languages
+        id: target
+        env:
+          LANGUAGES: ${{ inputs.languages }}
+        run: |
+          NAMES=""
+          TASKS=""
+          for L in $LANGUAGES; do
+            NAME="${L#languages/}"
+            NAMES="$NAMES $NAME"
+            TASKS="$TASKS :languages:$NAME:stageJvmNativeLibrary"
+          done
+          {
+            echo "names=$NAMES"
+            echo "tasks=${TASKS:-stageJvmNativeLibrary}"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Stage grammar libraries
+        run: ./gradlew ${{ steps.target.outputs.tasks }}
+
+      - name: Collect grammar libraries
+        run: |
+          mkdir -p build/linux-jvm-natives
+          for d in languages/*/build/generated/jvmNatives/lib; do
+            cp -R "$d" build/linux-jvm-natives/
+          done
+
+      - name: Verify grammar libraries
+        run: bash scripts/verify-linux-natives.sh build/linux-jvm-natives ${{ matrix.arch }} ${{ steps.target.outputs.names }}
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: linux-jvm-natives-${{ matrix.arch }}
+          path: build/linux-jvm-natives
+          if-no-files-found: error

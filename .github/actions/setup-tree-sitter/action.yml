@@ -41,9 +41,9 @@ runs:
         path: |
           ${{ steps.pnpm-store.outputs.path }}
           node_modules
-        key: pnpm-${{ runner.os }}-node24-${{ hashFiles('pnpm-lock.yaml') }}
+        key: pnpm-${{ runner.os }}-${{ runner.arch }}-node24-${{ hashFiles('pnpm-lock.yaml') }}
         restore-keys: |
-          pnpm-${{ runner.os }}-node24-
+          pnpm-${{ runner.os }}-${{ runner.arch }}-node24-
 
     - name: Install npm deps via pnpm
       shell: bash

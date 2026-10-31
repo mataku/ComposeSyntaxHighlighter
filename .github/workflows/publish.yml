@@ -26,7 +26,16 @@ on:
         type: boolean
 
 jobs:
+  linux-jvm-natives:
+    if: ${{ inputs.module != 'core-stack' }}
+    uses: ./.github/workflows/linux-jvm-natives.yml
+    with:
+      languages: ${{ inputs.module }}
+
   publish:
+    needs: linux-jvm-natives
+    # linux-jvm-natives is skipped for core-stack, which has no grammar libraries.
+    if: ${{ !cancelled() && (needs.linux-jvm-natives.result == 'success' || needs.linux-jvm-natives.result == 'skipped') }}
     runs-on: macos-latest
     permissions:
       contents: write
@@ -46,9 +55,11 @@ jobs:
           if [ "$MODULE" = "core-stack" ]; then
             PROJECTS=":core-api :core :material3 :material3-text-field"
             VERSION_FILE="gradle.properties"
+            NATIVES_ARG=""
           else
             PROJECTS=":${MODULE//\//:}"
             VERSION_FILE="$MODULE/gradle.properties"
+            NATIVES_ARG="-PprebuiltJvmNativesDir=build/linux-jvm-natives"
           fi
           VERSION=$(grep '^VERSION_NAME=' "$VERSION_FILE" | cut -d= -f2)
           if [ -z "$VERSION" ]; then
@@ -63,7 +74,15 @@ jobs:
             echo "projects=$PROJECTS"
             echo "version=$VERSION"
             echo "module=$MODULE"
+            echo "natives_arg=$NATIVES_ARG"
           } >> "$GITHUB_OUTPUT"
+
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        if: ${{ inputs.module != 'core-stack' }}
+        with:
+          pattern: linux-jvm-natives-*
+          path: build/linux-jvm-natives
+          merge-multiple: true
 
       - name: Build target projects
         run: |
@@ -72,10 +91,16 @@ jobs:
             TASKS="$TASKS $P:publishToMavenLocal"
           done
           # shellcheck disable=SC2086
-          ./gradlew $TASKS -PRELEASE_SIGNING_ENABLED=false --no-configuration-cache
+          ./gradlew $TASKS ${{ steps.target.outputs.natives_arg }} -PRELEASE_SIGNING_ENABLED=false --no-configuration-cache
 
       - name: Verify META-INF/NOTICE in target artefacts
         run: bash scripts/verify-notice.sh ${{ steps.target.outputs.projects }}
+
+      - name: Verify bundled grammar libraries in the JVM jar
+        if: ${{ inputs.module != 'core-stack' }}
+        run: bash scripts/verify-jvm-natives.sh "${MODULE#languages/}"
+        env:
+          MODULE: ${{ inputs.module }}
 
       - name: Publish to Maven Central
         if: ${{ !inputs.dry-run }}
@@ -91,7 +116,7 @@ jobs:
             TASKS="$TASKS $P:publishToMavenCentral"
           done
           # shellcheck disable=SC2086
-          ./gradlew $TASKS --no-configuration-cache
+          ./gradlew $TASKS ${{ steps.target.outputs.natives_arg }} --no-configuration-cache
 
       - name: Tag release on success
         if: ${{ !inputs.dry-run }}
@@ -111,7 +136,9 @@ jobs:
 
   deploy-docs:
     needs: publish
-    if: ${{ !inputs.dry-run }}
+    # Checks publish's result explicitly: the implicit success() also fails when the
+    # skipped linux-jvm-natives job is upstream (core-stack).
+    if: ${{ !cancelled() && !inputs.dry-run && needs.publish.result == 'success' }}
     runs-on: ubuntu-latest
     permissions:
       pages: write

@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+## v0.10.0
+
+- JVM jars of every language module also bundle the Linux grammar library for `x64` and `aarch64` at `lib/linux/<arch>/libktreesitter-<name>.so`, so Compose Desktop apps on Linux need no native setup. The libraries require glibc 2.17 or newer, the same floor as ktreesitter-jvm. Windows still needs the library on `java.library.path`.
+
 ## v0.9.0
 
 - New language modules: XML and TOML. XML highlights the xml grammar of tree-sitter-xml (DTD files are not covered); attribute names use the upstream `property` capture, so they follow the theme's `property` style rather than `attribute`.

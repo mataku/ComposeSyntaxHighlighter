@@ -65,19 +65,6 @@ jobs:
       - name: Verify META-INF/NOTICE in published artifacts
         run: bash scripts/verify-notice.sh
 
-  verify-jvm-natives:
-    name: Verify bundled grammar dylibs in JVM jars
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          submodules: recursive
-      - parallel:
-          - uses: ./.github/actions/setup-android-deps
-          - uses: ./.github/actions/setup-tree-sitter
-      - run: ./gradlew jvmJar jvmSourcesJar
-      - run: bash scripts/verify-jvm-natives.sh
-
   dokka:
     name: Dokka
     runs-on: ubuntu-latest
