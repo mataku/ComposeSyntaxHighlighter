@@ -32,10 +32,8 @@ fetch() {
   local group_path="$1"
   local artifact="$2"
   local version="$3"
-  local out="${tmp}/${artifact}-${version}.jar"
-  curl -sSfL -o "${out}" \
+  curl -sSfL --retry 5 -o "${tmp}/${artifact}.jar" \
     "https://repo1.maven.org/maven2/${group_path}/${artifact}/${version}/${artifact}-${version}.jar"
-  echo "${out}"
 }
 
 default_langs=()
@@ -60,9 +58,11 @@ for lang in "${langs[@]}"; do
   jars+=("${jar}")
 done
 
-stdlib="$(fetch org/jetbrains/kotlin kotlin-stdlib "$(catalog_version kotlin)")"
-ktreesitter="$(fetch io/github/tree-sitter ktreesitter-jvm "$(catalog_version ktreesitter)")"
-classpath="$(IFS=:; echo "${stdlib}:${ktreesitter}:${jars[*]}")"
+kotlin_version="$(catalog_version kotlin)"
+ktreesitter_version="$(catalog_version ktreesitter)"
+fetch org/jetbrains/kotlin kotlin-stdlib "${kotlin_version}"
+fetch io/github/tree-sitter ktreesitter-jvm "${ktreesitter_version}"
+classpath="$(IFS=:; echo "${tmp}/kotlin-stdlib.jar:${tmp}/ktreesitter-jvm.jar:${jars[*]}")"
 
 mkdir "${tmp}/empty-library-path"
 java -Djava.library.path="${tmp}/empty-library-path" -cp "${classpath}" \
