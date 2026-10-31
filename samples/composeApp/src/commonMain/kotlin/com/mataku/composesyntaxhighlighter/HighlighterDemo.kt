@@ -37,10 +37,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import io.github.mataku.compose.highlight.api.Languages
+import io.github.mataku.compose.highlight.bash.Bash
 import io.github.mataku.compose.highlight.core.SyntaxTheme
+import io.github.mataku.compose.highlight.css.Css
 import io.github.mataku.compose.highlight.go.Go
+import io.github.mataku.compose.highlight.html.Html
 import io.github.mataku.compose.highlight.java.Java
 import io.github.mataku.compose.highlight.javascript.Javascript
+import io.github.mataku.compose.highlight.json.Json
 import io.github.mataku.compose.highlight.kotlin.Kotlin
 import io.github.mataku.compose.highlight.markdown.Markdown
 import io.github.mataku.compose.highlight.material3.SyntaxHighlightedText
@@ -48,8 +52,11 @@ import io.github.mataku.compose.highlight.python.Python
 import io.github.mataku.compose.highlight.ruby.Ruby
 import io.github.mataku.compose.highlight.rust.Rust
 import io.github.mataku.compose.highlight.swift.Swift
+import io.github.mataku.compose.highlight.toml.Toml
 import io.github.mataku.compose.highlight.tsx.Tsx
 import io.github.mataku.compose.highlight.typescript.Typescript
+import io.github.mataku.compose.highlight.xml.Xml
+import io.github.mataku.compose.highlight.yaml.Yaml
 
 private enum class DemoLanguage(val label: String) {
   Kotlin("Kotlin"),
@@ -63,6 +70,13 @@ private enum class DemoLanguage(val label: String) {
   Typescript("TypeScript"),
   Tsx("TSX"),
   Markdown("Markdown"),
+  Json("JSON"),
+  Yaml("YAML"),
+  Html("HTML"),
+  Css("CSS"),
+  Bash("Bash"),
+  Xml("XML"),
+  Toml("TOML"),
 }
 
 private enum class DemoTheme(val label: String) {
@@ -100,6 +114,13 @@ fun HighlighterDemo() {
     DemoLanguage.Typescript -> SampleCode.typescript to Languages.Typescript
     DemoLanguage.Tsx -> SampleCode.tsx to Languages.Tsx
     DemoLanguage.Markdown -> SampleCode.markdown to Languages.Markdown
+    DemoLanguage.Json -> SampleCode.json to Languages.Json
+    DemoLanguage.Yaml -> SampleCode.yaml to Languages.Yaml
+    DemoLanguage.Html -> SampleCode.html to Languages.Html
+    DemoLanguage.Css -> SampleCode.css to Languages.Css
+    DemoLanguage.Bash -> SampleCode.bash to Languages.Bash
+    DemoLanguage.Xml -> SampleCode.xml to Languages.Xml
+    DemoLanguage.Toml -> SampleCode.toml to Languages.Toml
   }
   val baseTheme = when (selectedTheme) {
     DemoTheme.DefaultDark -> SyntaxTheme.DarkDefault

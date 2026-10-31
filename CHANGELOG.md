@@ -4,6 +4,16 @@
 
 - JVM jars of every language module also bundle the Linux grammar library for `x64` and `aarch64` at `lib/linux/<arch>/libktreesitter-<name>.so`, so Compose Desktop apps on Linux need no native setup. The libraries require glibc 2.17 or newer, the same floor as ktreesitter-jvm. Windows still needs the library on `java.library.path`.
 
+## v0.9.0
+
+- New language modules: XML and TOML. XML highlights the xml grammar of tree-sitter-xml (DTD files are not covered); attribute names use the upstream `property` capture, so they follow the theme's `property` style rather than `attribute`.
+
+## v0.8.0
+
+- New language modules: JSON, YAML, HTML, CSS, and Bash. HTML highlights tags, attributes, attribute values and comments; `<script>` and `<style>` bodies render in the base style because injections are not run.
+- Add `tag` and `attribute` typed fields to `SyntaxTheme`, resolved for the `tag` and `attribute` captures and their dotted children (e.g. `tag.error`). Every built-in theme sets both, so HTML and CSS tags and attributes, and the annotations/attributes already emitted by the Java, Kotlin, Rust and Swift grammars, are now styled out of the box. The 0.7.x `SyntaxTheme` constructor and `copy` signatures are kept as hidden overloads, so the change is binary compatible.
+- Android: every language AAR's `libktreesitter-<name>.so` is linked with 16 KB LOAD-segment alignment (`arm64-v8a`, `x86_64`), so apps depending on the language modules pass the 16 KB page-size check.
+
 ## v0.7.0
 
 - Add `highlightLines(code, language, lineRanges)` to `:core`: parses a file once and returns theme-independent `HighlightedLine` values (`lineNumber`, `text`, `spans` of `HighlightSpan(start, end, captureName)`) for the selected 1-based line ranges, plus `HighlightedLine.toAnnotatedString(theme)`. Line boundaries are `\n` only and numbering matches git, so diff viewers can slice whole-file highlights per hunk line and re-style on theme changes without re-parsing.

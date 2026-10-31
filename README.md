@@ -60,6 +60,13 @@ implementation("io.github.mataku:compose-syntax-highlight-swift:$latestHighlight
 | Markdown | `compose-syntax-highlight-markdown` | [![](https://img.shields.io/maven-central/v/io.github.mataku/compose-syntax-highlight-markdown.svg?label=)](https://central.sonatype.com/artifact/io.github.mataku/compose-syntax-highlight-markdown) |
 | JavaScript | `compose-syntax-highlight-javascript` | [![](https://img.shields.io/maven-central/v/io.github.mataku/compose-syntax-highlight-javascript.svg?label=)](https://central.sonatype.com/artifact/io.github.mataku/compose-syntax-highlight-javascript) |
 | TypeScript / TSX | `compose-syntax-highlight-typescript` | [![](https://img.shields.io/maven-central/v/io.github.mataku/compose-syntax-highlight-typescript.svg?label=)](https://central.sonatype.com/artifact/io.github.mataku/compose-syntax-highlight-typescript) |
+| JSON | `compose-syntax-highlight-json` | [![](https://img.shields.io/maven-central/v/io.github.mataku/compose-syntax-highlight-json.svg?label=)](https://central.sonatype.com/artifact/io.github.mataku/compose-syntax-highlight-json) |
+| YAML | `compose-syntax-highlight-yaml` | [![](https://img.shields.io/maven-central/v/io.github.mataku/compose-syntax-highlight-yaml.svg?label=)](https://central.sonatype.com/artifact/io.github.mataku/compose-syntax-highlight-yaml) |
+| HTML | `compose-syntax-highlight-html` | [![](https://img.shields.io/maven-central/v/io.github.mataku/compose-syntax-highlight-html.svg?label=)](https://central.sonatype.com/artifact/io.github.mataku/compose-syntax-highlight-html) |
+| CSS | `compose-syntax-highlight-css` | [![](https://img.shields.io/maven-central/v/io.github.mataku/compose-syntax-highlight-css.svg?label=)](https://central.sonatype.com/artifact/io.github.mataku/compose-syntax-highlight-css) |
+| Bash | `compose-syntax-highlight-bash` | [![](https://img.shields.io/maven-central/v/io.github.mataku/compose-syntax-highlight-bash.svg?label=)](https://central.sonatype.com/artifact/io.github.mataku/compose-syntax-highlight-bash) |
+| XML | `compose-syntax-highlight-xml` | [![](https://img.shields.io/maven-central/v/io.github.mataku/compose-syntax-highlight-xml.svg?label=)](https://central.sonatype.com/artifact/io.github.mataku/compose-syntax-highlight-xml) |
+| TOML | `compose-syntax-highlight-toml` | [![](https://img.shields.io/maven-central/v/io.github.mataku/compose-syntax-highlight-toml.svg?label=)](https://central.sonatype.com/artifact/io.github.mataku/compose-syntax-highlight-toml) |
 
 For an **editable** code surface, depend on `:material3-text-field` instead of (or alongside) `:material3` — it ships `SyntaxHighlightedTextField`:
 
@@ -237,12 +244,12 @@ val myTheme = SyntaxTheme(
 
 Unset fields fall back to a parent prefix — setting `keyword` covers `keyword.return`, `keyword.function`, etc., and `string.escape` falls back to `string` when `stringEscape` is unset. A handful of capture names that some grammars emit as bare synonyms of a typed field (`escape`, `float`, `conditional`, `repeat`, `include`, `exception`, `parameter`, `character`) resolve to that field too, even though they share no prefix with it.
 
-For grammar-specific captures with no typed field (e.g. `attribute`, `constructor`, `variable.member`), use `extras`:
+For grammar-specific captures with no typed field (e.g. `label`, `constructor`, `variable.member`), use `extras`:
 
 ```kotlin
 val myTheme = SyntaxTheme(
   keyword = SpanStyle(color = Color.Magenta),
-  extras = mapOf("attribute" to SpanStyle(color = Color.Green)),
+  extras = mapOf("label" to SpanStyle(color = Color.Green)),
 )
 ```
 
@@ -258,11 +265,11 @@ Two consequences:
 
 ```kotlin
 // Wrong — drops every text.* entry the theme shipped with.
-SyntaxTheme.DarkDefault.copy(extras = mapOf("attribute" to attributeStyle))
+SyntaxTheme.DarkDefault.copy(extras = mapOf("label" to labelStyle))
 
 // Right
 SyntaxTheme.DarkDefault.let {
-  it.copy(extras = it.extras + mapOf("attribute" to attributeStyle))
+  it.copy(extras = it.extras + mapOf("label" to labelStyle))
 }
 ```
 
@@ -356,6 +363,13 @@ MIT. Bundled grammars are all MIT-licensed:
 - [tree-sitter-grammars/tree-sitter-markdown](https://github.com/tree-sitter-grammars/tree-sitter-markdown) — Copyright (c) 2021 Matthias Deiml
 - [tree-sitter/tree-sitter-javascript](https://github.com/tree-sitter/tree-sitter-javascript) — Copyright (c) 2014 Max Brunsfeld
 - [tree-sitter/tree-sitter-typescript](https://github.com/tree-sitter/tree-sitter-typescript) — Copyright (c) 2017 Max Brunsfeld
+- [tree-sitter/tree-sitter-json](https://github.com/tree-sitter/tree-sitter-json) — Copyright (c) 2014 Max Brunsfeld
+- [tree-sitter-grammars/tree-sitter-yaml](https://github.com/tree-sitter-grammars/tree-sitter-yaml) — Copyright (c) 2024 tree-sitter-grammars contributors; Copyright (c) 2019-2021 Ika
+- [tree-sitter/tree-sitter-html](https://github.com/tree-sitter/tree-sitter-html) — Copyright (c) 2014 Max Brunsfeld
+- [tree-sitter/tree-sitter-css](https://github.com/tree-sitter/tree-sitter-css) — Copyright (c) 2018 Max Brunsfeld
+- [tree-sitter/tree-sitter-bash](https://github.com/tree-sitter/tree-sitter-bash) — Copyright (c) 2017 Max Brunsfeld
+- [tree-sitter-grammars/tree-sitter-xml](https://github.com/tree-sitter-grammars/tree-sitter-xml) — Copyright (c) 2023 ObserverOfTime
+- [tree-sitter-grammars/tree-sitter-toml](https://github.com/tree-sitter-grammars/tree-sitter-toml) — Copyright (c) Ika <ikatyang@gmail.com> (https://github.com/ikatyang)
 
 The built-in `SyntaxTheme` palettes shipped in `compose-syntax-highlight-core` derive their colors from the following third-party themes (all MIT-licensed):
 

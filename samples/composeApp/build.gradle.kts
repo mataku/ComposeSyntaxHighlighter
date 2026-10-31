@@ -58,6 +58,13 @@ kotlin {
       implementation(projects.languages.markdown)
       implementation(projects.languages.javascript)
       implementation(projects.languages.typescript)
+      implementation(projects.languages.json)
+      implementation(projects.languages.yaml)
+      implementation(projects.languages.html)
+      implementation(projects.languages.css)
+      implementation(projects.languages.bash)
+      implementation(projects.languages.xml)
+      implementation(projects.languages.toml)
     }
     commonTest.dependencies {
       implementation(libs.kotlin.test)

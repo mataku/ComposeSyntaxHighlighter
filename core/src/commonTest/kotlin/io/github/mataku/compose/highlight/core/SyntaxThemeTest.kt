@@ -83,10 +83,29 @@ class SyntaxThemeTest {
 
   @Test
   fun extras_provides_capture_with_no_typed_field() {
-    val attribute = SpanStyle(color = Color.Green)
-    val theme = SyntaxTheme(extras = mapOf("attribute" to attribute))
+    val label = SpanStyle(color = Color.Green)
+    val theme = SyntaxTheme(extras = mapOf("label" to label))
+    assertEquals(label, theme.resolve("label"))
+    assertEquals(label, theme.resolve("label.special"))
+  }
+
+  @Test
+  fun tag_and_attribute_fields_resolve_including_dotted_captures() {
+    val tag = SpanStyle(color = Color.Red)
+    val attribute = SpanStyle(color = Color.Blue)
+    val theme = SyntaxTheme(tag = tag, attribute = attribute)
+    assertEquals(tag, theme.resolve("tag"))
+    assertEquals(tag, theme.resolve("tag.error"))
     assertEquals(attribute, theme.resolve("attribute"))
     assertEquals(attribute, theme.resolve("attribute.builtin"))
+  }
+
+  @Test
+  fun bundled_themes_style_tag_and_attribute() {
+    bundledThemes.forEach { (name, theme) ->
+      assertNotNull(theme.tag, "$name leaves tag unstyled")
+      assertNotNull(theme.attribute, "$name leaves attribute unstyled")
+    }
   }
 
   @Test
@@ -210,7 +229,9 @@ class SyntaxThemeTest {
       "namespace" to base.copy(namespace = marker),
       "operator" to base.copy(operator = marker),
       "punctuation" to base.copy(punctuation = marker),
-      "extras" to base.copy(extras = mapOf("attribute" to marker)),
+      "tag" to base.copy(tag = marker),
+      "attribute" to base.copy(attribute = marker),
+      "extras" to base.copy(extras = mapOf("label" to marker)),
     )
     mutations.forEach { (name, mutated) ->
       assertNotEquals(base, mutated, "$name is missing from equals()")
@@ -220,9 +241,9 @@ class SyntaxThemeTest {
 
   @Test
   fun structurally_equal_themes_agree_on_hashCode() {
-    val extras = mapOf("attribute" to SpanStyle(color = Color.Green))
+    val extras = mapOf("label" to SpanStyle(color = Color.Green))
     val a = SyntaxTheme(keyword = keywordStyle, extras = extras)
-    val b = SyntaxTheme(keyword = keywordStyle, extras = mapOf("attribute" to SpanStyle(color = Color.Green)))
+    val b = SyntaxTheme(keyword = keywordStyle, extras = mapOf("label" to SpanStyle(color = Color.Green)))
     assertEquals(a, b)
     assertEquals(a.hashCode(), b.hashCode())
   }

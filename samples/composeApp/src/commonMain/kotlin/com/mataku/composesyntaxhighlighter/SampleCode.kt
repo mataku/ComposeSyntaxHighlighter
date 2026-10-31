@@ -226,4 +226,150 @@ object SampleCode {
         See [the README](https://example.com/readme) and \*do not\* skip
         the install steps.
   """.trimIndent()
+
+  val json: String = """
+        {
+          "name": "compose-syntax-highlight",
+          "version": "0.7.0",
+          "private": false,
+          "license": null,
+          "keywords": ["kotlin", "compose", "tree-sitter"],
+          "engines": {
+            "jvm": 17,
+            "minSdk": 26
+          },
+          "path": "C:\\src\\highlighter",
+          "themes": [
+            { "id": "dark", "contrast": 4.5 },
+            { "id": "light", "contrast": 7 }
+          ]
+        }
+  """.trimIndent()
+
+  val yaml: String = """
+        # GitHub Actions workflow
+        name: build
+        on:
+          push:
+            branches: [develop]
+        defaults: &defaults
+          runs-on: macos-latest
+          timeout-minutes: 30
+        jobs:
+          test:
+            <<: *defaults
+            env:
+              CI: true
+              GRADLE_OPTS: "-Xmx4g"
+            steps:
+              - uses: actions/checkout@v4
+              - run: ./gradlew jvmTest
+              - name: Upload report
+                if: failure()
+  """.trimIndent()
+
+  val html: String = """
+        <!DOCTYPE html>
+        <html lang="en">
+          <head>
+            <meta charset="utf-8">
+            <title>Highlighter demo</title>
+            <link rel="stylesheet" href="/style.css">
+          </head>
+          <body>
+            <!-- Primary navigation -->
+            <nav class="top-bar" id="nav">
+              <a href="/" aria-current="page">Home</a>
+              <a href="/docs">Docs</a>
+            </nav>
+            <input type="checkbox" checked disabled />
+            <p>Plain <strong>text</strong> &amp; entities.</p>
+          </body>
+        </html>
+  """.trimIndent()
+
+  val css: String = """
+        @import url("theme.css");
+
+        :root {
+          --accent: #c586c0;
+        }
+
+        /* Card layout */
+        .card > h2,
+        #main a:hover {
+          color: var(--accent);
+          margin: 0 auto;
+          padding: 1.5rem 12px;
+          font-family: "Fira Code", monospace;
+        }
+
+        @media (max-width: 600px) {
+          .card { display: none !important; }
+        }
+  """.trimIndent()
+
+  val bash: String = """
+        #!/usr/bin/env bash
+        set -euo pipefail
+
+        # Run the JVM tests for every language module
+        readonly ROOT="${'$'}(git rev-parse --show-toplevel)"
+        modules=(json yaml html css bash)
+
+        run_tests() {
+          local module=${'$'}1
+          echo "Testing ${'$'}module..."
+          ./gradlew ":languages:${'$'}{module}:jvmTest" > /dev/null 2>&1
+        }
+
+        for m in "${'$'}{modules[@]}"; do
+          if ! run_tests "${'$'}m"; then
+            echo 'failed' >&2
+            exit 1
+          fi
+        done
+  """.trimIndent()
+
+  val xml: String = """
+        <?xml version="1.0" encoding="UTF-8"?>
+        <!DOCTYPE manifest>
+        <!-- Demo Android manifest -->
+        <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+            package="com.example.demo">
+
+          <uses-permission android:name="android.permission.INTERNET" />
+
+          <application
+              android:label="Demo &amp; Sample"
+              android:theme="@style/Theme.Demo">
+            <activity android:name=".MainActivity" android:exported="true">
+              <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+              </intent-filter>
+            </activity>
+            <meta-data android:name="note"><![CDATA[ a < b ]]></meta-data>
+          </application>
+        </manifest>
+  """.trimIndent()
+
+  val toml: String = """
+        # Gradle version catalog
+        [versions]
+        kotlin = "2.2.0"
+        compose-multiplatform = '1.9.0'
+        min-sdk = 26
+
+        [libraries]
+        kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
+
+        [plugins]
+        android-library = { id = "com.android.library", version = "8.12.0" }
+
+        [[bundles.demo]]
+        enabled = true
+        ratio = 0.75
+        released = 2026-10-29T09:00:00+09:00
+        tags = ["kmp", "compose"]
+  """.trimIndent()
 }
