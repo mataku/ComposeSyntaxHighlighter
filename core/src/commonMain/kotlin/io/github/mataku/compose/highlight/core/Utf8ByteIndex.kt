@@ -68,7 +68,7 @@ class Utf8ByteIndex(text: String) {
   }
 }
 
-private fun String.codePointAtCompat(index: Int): Int {
+internal fun String.codePointAtCompat(index: Int): Int {
   val high = this[index]
   if (high.isHighSurrogate() && index + 1 < length) {
     val low = this[index + 1]
@@ -79,7 +79,7 @@ private fun String.codePointAtCompat(index: Int): Int {
   return high.code
 }
 
-private fun utf8Length(cp: Int): Int = when {
+internal fun utf8Length(cp: Int): Int = when {
   cp < 0x80 -> 1
   cp < 0x800 -> 2
   cp < 0x10000 -> 3

@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+## v0.11.0
+
+- `:core` now parses an ASCII-masked copy of the source, so highlighting stays correct after non-ASCII text on every target. ktreesitter 0.25.1 mis-sized emoji and NUL on JVM/Android, threw `StringIndexOutOfBoundsException` from `#eq?` / `#match?` predicates after multibyte text, and truncated the parse of multibyte text on iOS (tree-sitter/kotlin-tree-sitter#78, #84). Grammars see each non-ASCII character as letters, so Unicode whitespace no longer separates tokens in code; displayed text is unchanged.
+
 ## v0.10.0
 
 - JVM jars of every language module also bundle the Linux grammar library for `x64` and `aarch64` at `lib/linux/<arch>/libktreesitter-<name>.so`, so Compose Desktop apps on Linux need no native setup. The libraries require glibc 2.17 or newer, the same floor as ktreesitter-jvm. Windows still needs the library on `java.library.path`.

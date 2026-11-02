@@ -96,6 +96,23 @@ artefact carries the new strict range.
 | compose-syntax-highlight-typescript | 0.10.0 | 14 | 0.25.1 | 0.10.0 | Android, JVM, iosArm64, iosSimulatorArm64 |
 | compose-syntax-highlight-xml | 0.10.0 | 14 | 0.25.1 | 0.10.0 | Android, JVM, iosArm64, iosSimulatorArm64 |
 | compose-syntax-highlight-yaml | 0.10.0 | 15 | 0.25.1 | 0.10.0 | Android, JVM, iosArm64, iosSimulatorArm64 |
+| compose-syntax-highlight-bash | 0.11.0 | 15 | 0.25.1 | 0.11.0 | Android, JVM, iosArm64, iosSimulatorArm64 |
+| compose-syntax-highlight-css | 0.11.0 | 15 | 0.25.1 | 0.11.0 | Android, JVM, iosArm64, iosSimulatorArm64 |
+| compose-syntax-highlight-go | 0.11.0 | 15 | 0.25.1 | 0.11.0 | Android, JVM, iosArm64, iosSimulatorArm64 |
+| compose-syntax-highlight-html | 0.11.0 | 14 | 0.25.1 | 0.11.0 | Android, JVM, iosArm64, iosSimulatorArm64 |
+| compose-syntax-highlight-java | 0.11.0 | 14 | 0.25.1 | 0.11.0 | Android, JVM, iosArm64, iosSimulatorArm64 |
+| compose-syntax-highlight-javascript | 0.11.0 | 15 | 0.25.1 | 0.11.0 | Android, JVM, iosArm64, iosSimulatorArm64 |
+| compose-syntax-highlight-json | 0.11.0 | 14 | 0.25.1 | 0.11.0 | Android, JVM, iosArm64, iosSimulatorArm64 |
+| compose-syntax-highlight-kotlin | 0.11.0 | 14 | 0.25.1 | 0.11.0 | Android, JVM, iosArm64, iosSimulatorArm64 |
+| compose-syntax-highlight-markdown | 0.11.0 | 15 | 0.25.1 | 0.11.0 | Android, JVM, iosArm64, iosSimulatorArm64 |
+| compose-syntax-highlight-python | 0.11.0 | 15 | 0.25.1 | 0.11.0 | Android, JVM, iosArm64, iosSimulatorArm64 |
+| compose-syntax-highlight-ruby | 0.11.0 | 14 | 0.25.1 | 0.11.0 | Android, JVM, iosArm64, iosSimulatorArm64 |
+| compose-syntax-highlight-rust | 0.11.0 | 15 | 0.25.1 | 0.11.0 | Android, JVM, iosArm64, iosSimulatorArm64 |
+| compose-syntax-highlight-swift | 0.11.0 | 15 | 0.25.1 | 0.11.0 | Android, JVM, iosArm64, iosSimulatorArm64 |
+| compose-syntax-highlight-toml | 0.11.0 | 14 | 0.25.1 | 0.11.0 | Android, JVM, iosArm64, iosSimulatorArm64 |
+| compose-syntax-highlight-typescript | 0.11.0 | 14 | 0.25.1 | 0.11.0 | Android, JVM, iosArm64, iosSimulatorArm64 |
+| compose-syntax-highlight-xml | 0.11.0 | 14 | 0.25.1 | 0.11.0 | Android, JVM, iosArm64, iosSimulatorArm64 |
+| compose-syntax-highlight-yaml | 0.11.0 | 15 | 0.25.1 | 0.11.0 | Android, JVM, iosArm64, iosSimulatorArm64 |
 
 <!-- Append one row per published artefact. Rows are append-only; do not remove
      entries for older versions. -->
