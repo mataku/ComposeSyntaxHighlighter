@@ -29,7 +29,7 @@ fun highlightLines(
 ): List<HighlightedLine> {
   val builder = LineHighlightBuilder(code, lineRanges)
   if (builder.isEmptySelection) return emptyList()
-  val tree = Parser(language.parser).parse(code)
+  val tree = Parser(language.parser).parseForHighlight(code)
   collectCaptures(code, tree, language, builder)
   return builder.build()
 }

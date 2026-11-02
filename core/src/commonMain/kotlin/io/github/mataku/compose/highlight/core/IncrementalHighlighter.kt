@@ -89,7 +89,7 @@ class IncrementalHighlighter(
     val newIndex = Utf8ByteIndex(newCode)
     val edit = synthesiseInputEdit(oldCode, oldIndex, newCode, newIndex)
     previousTree.edit(edit)
-    val newTree = parser.parse(newCode, oldTree = previousTree)
+    val newTree = parser.parseForHighlight(newCode, oldTree = previousTree)
 
     val editedRange = ByteRange(
       start = edit.startByte.toInt(),
@@ -125,7 +125,7 @@ class IncrementalHighlighter(
   }
 
   private fun runFirstCall(newCode: String) {
-    val tree = parser.parse(newCode)
+    val tree = parser.parseForHighlight(newCode)
     captureSpans.clear()
     query(tree.rootNode).captures().forEach { (_, match) ->
       match.captures.forEach { capture ->

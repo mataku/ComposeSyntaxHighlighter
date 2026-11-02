@@ -28,7 +28,7 @@ fun rememberHighlightedString(
   theme: SyntaxTheme,
 ): AnnotatedString {
   val tree = remember(code, language) {
-    Parser(language.parser).parse(code)
+    Parser(language.parser).parseForHighlight(code)
   }
   return remember(tree, theme) {
     applyStyles(code, tree, language, theme)

@@ -40,7 +40,7 @@ private fun collectInjection(
       if (charStart >= charEnd) return@forEach
 
       val substring = code.substring(charStart, charEnd)
-      val subTree = Parser(injection.target.parser).parse(substring)
+      val subTree = Parser(injection.target.parser).parseForHighlight(substring)
       val subByteToChar = Utf8ByteIndex(substring)
       val absoluteCharOffset = parentCharOffset + charStart
 
