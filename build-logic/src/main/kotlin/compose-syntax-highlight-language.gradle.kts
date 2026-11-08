@@ -463,7 +463,7 @@ extensions.configure<KotlinMultiplatformExtension>("kotlin") {
 
   sourceSets {
     commonMain {
-      resources.srcDir(noticeOutDir)
+      resources.srcDir(generateNotice)
       kotlin.srcDir(highlightsQueryDir)
       dependencies {
         api("${versionCatalog.findLibrary("coreApi").get().get().module}") {
@@ -490,7 +490,7 @@ extensions.configure<KotlinMultiplatformExtension>("kotlin") {
   }
 
   sourceSets.named("androidMain") {
-    resources.srcDir(noticeOutDir)
+    resources.srcDir(generateNotice)
   }
 
   sourceSets.all {
@@ -696,20 +696,6 @@ afterEvaluate {
         error("xcrun ar failed (exit=$arExit):\n$arOut")
       }
     }
-  }
-
-  tasks.matching {
-    val n = it.name
-    n.endsWith("ProcessResources") ||
-      n.startsWith("copyNonXmlValueResources") ||
-      n.startsWith("convertXmlValueResources") ||
-      n == "mergeReleaseJavaResource" ||
-      n == "mergeDebugJavaResource" ||
-      n == "processReleaseJavaRes" ||
-      n == "processDebugJavaRes" ||
-      n == "processAndroidMainJavaRes"
-  }.configureEach {
-    dependsOn(generateNotice)
   }
 
   // Make Android packaging depend on the per-ABI .so being staged in jniLibs.
