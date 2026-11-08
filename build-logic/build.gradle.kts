@@ -3,12 +3,6 @@ plugins {
   alias(libs.plugins.spotless)
 }
 
-repositories {
-  google()
-  mavenCentral()
-  gradlePluginPortal()
-}
-
 dependencies {
   implementation(libs.plugins.kotlinMultiplatform.toGradle())
   implementation(libs.plugins.androidLibrary.toGradle())
