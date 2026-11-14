@@ -1,5 +1,5 @@
 [versions]
-agp = "9.5.0"
+agp = "9.5.1"
 android-compileSdk = "37"
 android-minSdk = "26"
 android-targetSdk = "36"
@@ -33,8 +33,8 @@ treesitterAbi = "15"
 coreApiCompatibleRange = "[0.6, 1.0)"
 material3 = "1.9.0"
 vanniktechPublish = "0.37.0"
-dokka = "2.2.0"
-spotless = "8.10.4"
+dokka = "2.3.0"
+spotless = "8.11.0"
 binaryCompatibilityValidator = "0.18.2"
 
 [libraries]
