@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 
+- iOS (iosArm64 and iosSimulatorArm64) is no longer marked as preview.
 - Updated ktreesitter to 0.26.0, which handles non-ASCII source text correctly on every target (tree-sitter/kotlin-tree-sitter#78, #84). `:core` passes the source to the parser unchanged again instead of an ASCII-masked copy, so grammars see the real characters and Unicode whitespace separates tokens as each grammar defines.
 - Fixed JavaScript keywords and TypeScript-specific keywords (`interface`, `type`, `enum`, ...) rendering unstyled on iOS.
 

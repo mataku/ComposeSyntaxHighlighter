@@ -1,8 +1,8 @@
 # Compose Syntax Highlight
 
-Compose Multiplatform syntax highlighter for Android (and any JVM-based Compose target). Built on tree-sitter for accurate, fast highlighting — with an incremental engine for editor scenarios.
+Compose Multiplatform syntax highlighter for Android, Desktop JVM, and iOS. Built on tree-sitter for accurate, fast highlighting — with an incremental engine for editor scenarios.
 
-This is still an experimental project. Android is supported via the published AAR; the JVM artifact ships for Compose Desktop interop; iOS is in preview (iosArm64 + iosSimulatorArm64 klibs — Apple Silicon only, no iosX64). For browser apps prefer a JS-side highlighter (e.g. highlight.js, Shiki) and keep this library on JVM-based targets.
+The API may change before 1.0. Android is supported via the published AAR, Compose Desktop via the JVM artifact, and iOS via iosArm64 + iosSimulatorArm64 klibs (Apple Silicon only, no iosX64). For browser apps prefer a JS-side highlighter (e.g. highlight.js, Shiki).
 
 **API documentation:** https://mataku.github.io/ComposeSyntaxHighlighter/ (latest release)
 
@@ -18,7 +18,7 @@ This is still an experimental project. Android is supported via the published AA
 |--------------|--------------|---------------------------------------------------------------------------------------------------------------------------------------------------|
 | Android      | available    | minSdk 26                                                                                                                                         |
 | Desktop JVM  | available    | Grammar libraries for macOS 26+ (arm64 / x86_64) and Linux with glibc 2.17+ (x64 / aarch64) are bundled in each language jar and loaded automatically; Windows still needs the library on `java.library.path` |
-| iOS          | preview      | iosArm64 + iosSimulatorArm64 klibs; Apple Silicon only (no iosX64)                                                                                |
+| iOS          | available    | iosArm64 + iosSimulatorArm64 klibs; Apple Silicon only (no iosX64)                                                                                |
 | Web (wasmJs) | not in scope | use highlight.js / Shiki on the JS side                                                                                                           |
 
 | Module                  | Artifact                                        | Latest                                                                                                                                                                                                                       |
