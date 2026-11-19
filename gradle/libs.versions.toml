@@ -18,6 +18,8 @@ kotlinx-coroutines = "1.11.0"
 # :core masks non-ASCII input before parsing to work around ktreesitter #78/#84
 # (core/.../ParserInput.kt). KtreesitterWorkaroundCanaryTest fails once a bump
 # ships the fixes; remove the workaround then.
+# build-logic rejects non-ASCII query sources (QuerySource.kt) because the
+# Kotlin/Native Query truncates them; drop that check once a bump fixes it.
 ktreesitter = "0.25.1"
 ktreesitterPlugin = "0.25.1"
 # ABI version passed to `tree-sitter generate --abi=<N>`, used only for grammars

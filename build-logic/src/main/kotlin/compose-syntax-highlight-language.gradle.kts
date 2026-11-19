@@ -2,6 +2,7 @@ import io.github.mataku.compose.highlight.buildlogic.ComposeSyntaxHighlightLangu
 import io.github.mataku.compose.highlight.buildlogic.GrammarSpec
 import io.github.mataku.compose.highlight.buildlogic.StageJvmNativeLibraryTask
 import io.github.mataku.compose.highlight.buildlogic.extractParserAbi
+import io.github.mataku.compose.highlight.buildlogic.readAsciiQuerySources
 import io.github.mataku.compose.highlight.buildlogic.writeAndroidCMakeLists
 import io.github.mataku.compose.highlight.buildlogic.writeHostCMakeLists
 import io.github.mataku.compose.highlight.buildlogic.writeIosHeader
@@ -221,8 +222,7 @@ val generateHighlightsQuery = tasks.register("generateHighlightsQuery") {
   doLast {
     val srcs = srcsProvider.get()
     val outDir = outDirProvider.get()
-    val text = srcs.joinToString(separator = "\n") { it.readText() }
-      .replace("$", "\${'$'}")
+    val text = readAsciiQuerySources(srcs).replace("$", "\${'$'}")
     val out = File(outDir, "${pkgDirProvider.get()}/HighlightsQuery.kt")
     out.parentFile.mkdirs()
     out.writeText(
@@ -839,8 +839,7 @@ afterEvaluate {
       outputs.file(outFile)
       doLast {
         outFile.parentFile.mkdirs()
-        val text = srcs.joinToString(separator = "\n") { it.readText() }
-          .replace("$", "\${'$'}")
+        val text = readAsciiQuerySources(srcs).replace("$", "\${'$'}")
         outFile.writeText(
           """
             |package io.github.mataku.compose.highlight.$name
