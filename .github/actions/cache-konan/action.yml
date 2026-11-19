@@ -1,16 +1,34 @@
 name: Cache Konan toolchain
-description: Cache ~/.konan keyed by the Kotlin version declared in the version catalog.
+description: Restore ~/.konan (the Kotlin/Native distribution and its compiled klib caches). Saves it only on develop, and only for the job that sets `save`.
+
+inputs:
+  save:
+    description: Save ~/.konan at the end of the job when it runs on develop and the key was not already cached.
+    default: "false"
 
 runs:
   using: composite
   steps:
-    - name: Resolve Kotlin version from version catalog
-      id: kotlin
+    - name: Resolve cache key from version catalog
+      id: key
       shell: bash
-      run: echo "version=$(sed -nE 's/^kotlin = "(.+)"$/\1/p' gradle/libs.versions.toml)" >> "$GITHUB_OUTPUT"
+      run: |
+        kotlin=$(sed -nE 's/^kotlin = "(.+)"$/\1/p' gradle/libs.versions.toml)
+        compose=$(sed -nE 's/^composeMultiplatform = "(.+)"$/\1/p' gradle/libs.versions.toml)
+        echo "value=konan-v2-${RUNNER_OS}-kotlin-${kotlin}-compose-${compose}" >> "$GITHUB_OUTPUT"
 
-    - name: Cache Konan toolchain
+    # Only one job may save: the cache is written once per key, and a job that never links (api-check) finishes first and would store ~/.konan without the compiled klib caches, leaving every later link to rebuild them.
+    # Pull request runs never save, so branch-scoped copies do not eat into the repository's cache quota.
+    - name: Restore and save Konan toolchain
+      if: inputs.save == 'true' && github.ref == 'refs/heads/develop'
       uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
       with:
         path: ~/.konan
-        key: konan-${{ runner.os }}-kotlin-${{ steps.kotlin.outputs.version }}
+        key: ${{ steps.key.outputs.value }}
+
+    - name: Restore Konan toolchain
+      if: ${{ !(inputs.save == 'true' && github.ref == 'refs/heads/develop') }}
+      uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      with:
+        path: ~/.konan
+        key: ${{ steps.key.outputs.value }}

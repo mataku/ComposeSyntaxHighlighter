@@ -35,8 +35,21 @@ runs:
       shell: bash
       run: echo "path=$(pnpm store path --silent)" >> "$GITHUB_OUTPUT"
 
-    - name: Cache pnpm store and node_modules
+    # Saved only on develop: a cache saved from a pull request is scoped to that branch and still counts against the repository's cache quota.
+    - name: Restore and save pnpm store and node_modules
+      if: github.ref == 'refs/heads/develop'
       uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      with:
+        path: |
+          ${{ steps.pnpm-store.outputs.path }}
+          node_modules
+        key: pnpm-${{ runner.os }}-${{ runner.arch }}-node24-${{ hashFiles('pnpm-lock.yaml') }}
+        restore-keys: |
+          pnpm-${{ runner.os }}-${{ runner.arch }}-node24-
+
+    - name: Restore pnpm store and node_modules
+      if: github.ref != 'refs/heads/develop'
+      uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
       with:
         path: |
           ${{ steps.pnpm-store.outputs.path }}
