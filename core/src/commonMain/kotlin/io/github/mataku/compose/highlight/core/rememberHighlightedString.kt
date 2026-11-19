@@ -8,18 +8,15 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import io.github.mataku.compose.highlight.api.Language
-import io.github.treesitter.ktreesitter.Parser
-import io.github.treesitter.ktreesitter.Tree
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.CoroutineContext
 
 /**
- * Composable wrapper around [highlight] that caches the parsed tree-sitter [Tree] across
+ * Composable wrapper around [highlight] that caches the theme-independent capture spans across
  * theme-only changes. The first stage is keyed on `(code, language)` and re-parses only when
- * one of those changes; the second stage applies [theme] to the cached tree. Native memory of
- * the dropped tree is reclaimed by the JVM `Cleaner` registered in ktreesitter's `Parser`/`Tree`
- * `init` blocks (no explicit disposal API exists).
+ * one of those changes; the second stage applies [theme] to the cached spans. The parse tree
+ * is not retained after the spans are collected.
  */
 @Composable
 fun rememberHighlightedString(
@@ -27,12 +24,8 @@ fun rememberHighlightedString(
   language: Language,
   theme: SyntaxTheme,
 ): AnnotatedString {
-  val tree = remember(code, language) {
-    Parser(language.parser).parse(code)
-  }
-  return remember(tree, theme) {
-    applyStyles(code, tree, language, theme)
-  }
+  val spans = remember(code, language) { captureSpans(code, language) }
+  return remember(spans, theme) { styledString(code, spans, theme) }
 }
 
 /**
@@ -49,10 +42,8 @@ fun rememberHighlightedString(
  * call cannot be cancelled mid-flight (it is a JNI call); only the Kotlin coroutine is
  * cancelled, so its result is discarded but the native parse runs to completion.
  *
- * Unlike [rememberHighlightedString], the async variant does not cache the parsed tree across
- * theme-only changes — sharing a Tree across coroutines would require [io.github.treesitter.ktreesitter.Tree.copy]
- * for thread safety, which is not worth the complexity for the rare large-file + theme-toggle
- * combination. Theme changes therefore re-trigger a full async parse.
+ * Unlike [rememberHighlightedString], the async variant does not cache the capture spans across
+ * theme-only changes. Theme changes therefore re-trigger a full async parse.
  *
  * @param context Coroutine context the highlight runs on. Defaults to [Dispatchers.Default]
  *   (the right choice for CPU-bound work). Override for tests or to share a thread pool.
@@ -63,15 +54,18 @@ fun rememberHighlightedStringAsync(
   language: Language,
   theme: SyntaxTheme,
   context: CoroutineContext = Dispatchers.Default,
-): State<AnnotatedString> = produceState(
-  initialValue = plainHighlightedString(code, theme),
-  code,
-  language,
-  theme,
-  context,
-) {
-  value = plainHighlightedString(code, theme)
-  value = withContext(context) { highlight(code, language, theme) }
+): State<AnnotatedString> {
+  val plain = remember(code, theme) { plainHighlightedString(code, theme) }
+  return produceState(
+    initialValue = plain,
+    code,
+    language,
+    theme,
+    context,
+  ) {
+    value = plain
+    value = withContext(context) { highlight(code, language, theme) }
+  }
 }
 
 internal fun plainHighlightedString(code: String, theme: SyntaxTheme): AnnotatedString = buildAnnotatedString {

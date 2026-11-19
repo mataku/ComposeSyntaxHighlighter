@@ -2,7 +2,6 @@ package io.github.mataku.compose.highlight.core
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.SpanStyle
 
 /**
  * A theme-independent highlight range within a single [HighlightedLine].
@@ -76,14 +75,4 @@ class HighlightedLine(
  * Spans whose capture does not resolve are skipped.
  * [SyntaxTheme.background] is never read.
  */
-fun HighlightedLine.toAnnotatedString(theme: SyntaxTheme): AnnotatedString {
-  val ranges = ArrayList<AnnotatedString.Range<SpanStyle>>(spans.size + 1)
-  if (theme.baseStyle != SpanStyle() && text.isNotEmpty()) {
-    ranges.add(AnnotatedString.Range(theme.baseStyle, 0, text.length))
-  }
-  for (span in spans) {
-    val style = theme.resolve(span.captureName) ?: continue
-    ranges.add(AnnotatedString.Range(style, span.start, span.end))
-  }
-  return AnnotatedString(text = text, spanStyles = ranges, paragraphStyles = emptyList())
-}
+fun HighlightedLine.toAnnotatedString(theme: SyntaxTheme): AnnotatedString = styledString(text, spans, theme)

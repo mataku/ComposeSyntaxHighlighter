@@ -2,48 +2,62 @@ package io.github.mataku.compose.highlight.core
 
 @io.github.mataku.compose.highlight.api.InternalSyntaxHighlightApi
 class Utf8ByteIndex(text: String) {
-  private val byteToChar: IntArray
-  private val charToByte: IntArray
+  // Both maps are null for ASCII-only text, where byte and char offsets are identical.
+  private val byteToChar: IntArray?
+  private val charToByte: IntArray?
   private val lineStartBytes: IntArray
   private val totalBytes: Int
+  private val charLength: Int = text.length
 
   init {
-    val byteToCharBuilder = ArrayList<Int>(text.length + 1)
-    val charToByteBuilder = IntArray(text.length + 1)
-    val lineStarts = ArrayList<Int>().apply { add(0) }
     var byteCount = 0
+    var lineCount = 1
     var i = 0
     while (i < text.length) {
-      charToByteBuilder[i] = byteCount
+      val cp = text.codePointAtCompat(i)
+      byteCount += utf8Length(cp)
+      if (cp == '\n'.code) lineCount++
+      i += charCount(cp)
+    }
+    totalBytes = byteCount
+
+    val isAscii = byteCount == text.length
+    val byteToCharMap = if (isAscii) null else IntArray(byteCount + 1)
+    val charToByteMap = if (isAscii) null else IntArray(text.length + 1)
+    val lineStarts = IntArray(lineCount)
+    var byteOffset = 0
+    var line = 1
+    i = 0
+    while (i < text.length) {
       val cp = text.codePointAtCompat(i)
       val bytes = utf8Length(cp)
-      repeat(bytes) { byteToCharBuilder.add(i) }
-      byteCount += bytes
-      val advance = if (cp >= 0x10000) 2 else 1
-      if (advance == 2 && i + 1 < text.length) {
-        charToByteBuilder[i + 1] = byteCount
+      val chars = charCount(cp)
+      if (byteToCharMap != null && charToByteMap != null) {
+        byteToCharMap.fill(i, byteOffset, byteOffset + bytes)
+        charToByteMap[i] = byteOffset
+        if (chars == 2) charToByteMap[i + 1] = byteOffset + bytes
       }
-      if (cp == '\n'.code) {
-        lineStarts.add(byteCount)
-      }
-      i += advance
+      byteOffset += bytes
+      if (cp == '\n'.code) lineStarts[line++] = byteOffset
+      i += chars
     }
-    charToByteBuilder[text.length] = byteCount
-    byteToCharBuilder.add(text.length)
-    byteToChar = IntArray(byteToCharBuilder.size) { byteToCharBuilder[it] }
-    charToByte = charToByteBuilder
-    lineStartBytes = lineStarts.toIntArray()
-    totalBytes = byteCount
+    byteToCharMap?.set(byteCount, text.length)
+    charToByteMap?.set(text.length, byteCount)
+    byteToChar = byteToCharMap
+    charToByte = charToByteMap
+    lineStartBytes = lineStarts
   }
 
   fun charIndexAt(byteOffset: Int): Int {
     val b = byteOffset.coerceIn(0, totalBytes)
-    return byteToChar[b]
+    val map = byteToChar
+    return if (map == null) b else map[b]
   }
 
   fun byteIndexAt(charOffset: Int): Int {
-    val c = charOffset.coerceIn(0, charToByte.size - 1)
-    return charToByte[c]
+    val c = charOffset.coerceIn(0, charLength)
+    val map = charToByte
+    return if (map == null) c else map[c]
   }
 
   /** Total UTF-8 byte length of the source text. */
@@ -78,6 +92,8 @@ private fun String.codePointAtCompat(index: Int): Int {
   }
   return high.code
 }
+
+private fun charCount(cp: Int): Int = if (cp >= 0x10000) 2 else 1
 
 private fun utf8Length(cp: Int): Int = when {
   cp < 0x80 -> 1

@@ -6,6 +6,7 @@ import io.github.mataku.compose.highlight.api.InternalSyntaxHighlightApi
 import io.github.mataku.compose.highlight.api.Language
 import io.github.treesitter.ktreesitter.Parser
 import io.github.treesitter.ktreesitter.Query
+import io.github.treesitter.ktreesitter.QueryCapture
 import io.github.treesitter.ktreesitter.Tree
 
 /**
@@ -16,8 +17,8 @@ import io.github.treesitter.ktreesitter.Tree
  *
  * Thread-safety: instances are **not** thread-safe. Every [update] and [close] call must
  * happen on the same thread (or be externally serialised). Sharing an instance across a
- * UI thread and a background dispatcher is unsafe — the engine holds its own
- * tree-sitter [Query] cursor whose state would be corrupted by concurrent access.
+ * UI thread and a background dispatcher is unsafe — the engine mutates its parser,
+ * cached tree, and span list without synchronisation.
  *
  * The first call to [update] runs the same code path as [highlight] (full parse + full
  * query iteration). Subsequent calls reuse the previous parse tree via tree-sitter's
@@ -26,7 +27,7 @@ import io.github.treesitter.ktreesitter.Tree
  * equals the previous code, [update] short-circuits to a theme re-resolve only.
  *
  * Instances must be closed; closing is idempotent. After closing, [update] throws
- * [IllegalStateException]. Native memory of the underlying [Tree] / [Parser] / [Query]
+ * [IllegalStateException]. Native memory of the underlying [Tree] / [Parser]
  * is reclaimed by ktreesitter's `Cleaner` once the engine becomes garbage-collectible.
  */
 @OptIn(InternalSyntaxHighlightApi::class)
@@ -35,9 +36,10 @@ class IncrementalHighlighter(
 ) : AutoCloseable {
 
   private val parser: Parser = Parser(language.parser)
-  private val query: Query = Query(language.parser, language.highlightsQuery)
+  private val query: Query = language.query
 
   private var oldCode: String = ""
+  private var oldIndex: Utf8ByteIndex = Utf8ByteIndex("")
   private var oldTree: Tree? = null
   private val captureSpans: MutableList<CaptureSpan> = mutableListOf()
   private var closed: Boolean = false
@@ -71,13 +73,13 @@ class IncrementalHighlighter(
       // theme-only short-circuit: state already current
       else -> runIncremental(previousTree, newCode)
     }
-    return assembleAnnotatedString(newCode, theme)
+    return assembleAnnotatedString(theme)
   }
 
   /**
    * Mark this engine closed. Idempotent. After closing, subsequent calls to [update]
-   * throw [IllegalStateException]. Native memory associated with the parse tree, parser,
-   * and query is reclaimed by the underlying ktreesitter `Cleaner` once the instance
+   * throw [IllegalStateException]. Native memory associated with the parse tree and parser
+   * is reclaimed by the underlying ktreesitter `Cleaner` once the instance
    * becomes garbage-collectible — `close` itself does not free native resources.
    */
   override fun close() {
@@ -85,7 +87,6 @@ class IncrementalHighlighter(
   }
 
   private fun runIncremental(previousTree: Tree, newCode: String) {
-    val oldIndex = Utf8ByteIndex(oldCode)
     val newIndex = Utf8ByteIndex(newCode)
     val edit = synthesiseInputEdit(oldCode, oldIndex, newCode, newIndex)
     previousTree.edit(edit)
@@ -107,38 +108,29 @@ class IncrementalHighlighter(
 
     val cursor = query(newTree.rootNode)
     cursor.byteRange = affectedRange.start.toUInt()..affectedRange.endExclusive.toUInt()
-    cursor.captures().forEach { (_, match) ->
-      match.captures.forEach { capture ->
-        insertSorted(
-          captureSpans,
-          CaptureSpan(
-            startByte = capture.node.startByte.toInt(),
-            endByte = capture.node.endByte.toInt(),
-            captureName = capture.name,
-          ),
-        )
-      }
-    }
+    val affectedSpans = ArrayList<CaptureSpan>()
+    cursor.forEachCapture { capture -> affectedSpans += capture.toCaptureSpan() }
+    mergeSorted(captureSpans, affectedSpans)
 
     oldCode = newCode
+    oldIndex = newIndex
     oldTree = newTree
   }
 
   private fun runFirstCall(newCode: String) {
     val tree = parser.parse(newCode)
     captureSpans.clear()
-    query(tree.rootNode).captures().forEach { (_, match) ->
-      match.captures.forEach { capture ->
-        captureSpans += CaptureSpan(
-          startByte = capture.node.startByte.toInt(),
-          endByte = capture.node.endByte.toInt(),
-          captureName = capture.name,
-        )
-      }
-    }
+    query(tree.rootNode).forEachCapture { capture -> captureSpans += capture.toCaptureSpan() }
     oldCode = newCode
+    oldIndex = Utf8ByteIndex(newCode)
     oldTree = tree
   }
+
+  private fun QueryCapture.toCaptureSpan(): CaptureSpan = CaptureSpan(
+    startByte = node.startByte.toInt(),
+    endByte = node.endByte.toInt(),
+    captureName = name,
+  )
 
   private fun expandToEnclosingNode(tree: Tree, range: ByteRange): ByteRange {
     if (range.start >= range.endExclusive) return range
@@ -152,8 +144,9 @@ class IncrementalHighlighter(
     )
   }
 
-  private fun assembleAnnotatedString(text: String, theme: SyntaxTheme): AnnotatedString {
-    val byteToChar = Utf8ByteIndex(text)
+  private fun assembleAnnotatedString(theme: SyntaxTheme): AnnotatedString {
+    val text = oldCode
+    val byteToChar = oldIndex
     val emptySpan = SpanStyle()
     val ranges = ArrayList<AnnotatedString.Range<SpanStyle>>(captureSpans.size + 1)
     if (theme.baseStyle != emptySpan && text.isNotEmpty()) {

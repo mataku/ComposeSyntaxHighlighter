@@ -5,6 +5,7 @@
 - iOS (iosArm64 and iosSimulatorArm64) is no longer marked as preview.
 - Updated ktreesitter to 0.26.0, which handles non-ASCII source text correctly on every target (tree-sitter/kotlin-tree-sitter#78, #84). `:core` passes the source to the parser unchanged again instead of an ASCII-masked copy, so grammars see the real characters and Unicode whitespace separates tokens as each grammar defines.
 - Fixed JavaScript keywords and TypeScript-specific keywords (`interface`, `type`, `enum`, ...) rendering unstyled on iOS.
+- Faster highlighting with less memory: a capture is no longer emitted once per capture of its pattern, so the result carries no duplicate spans; `rememberHighlightedString` keeps the capture spans instead of the parse tree across theme changes; `IncrementalHighlighter` reuses the language's compiled query and does less work per edit.
 
 ## v0.11.0
 
