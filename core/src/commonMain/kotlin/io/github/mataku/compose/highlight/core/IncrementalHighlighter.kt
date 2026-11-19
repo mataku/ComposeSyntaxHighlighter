@@ -53,7 +53,7 @@ class IncrementalHighlighter(
    *
    * The incremental branch mutates `captureSpans`, `oldTree`, and the underlying
    * tree-sitter `Tree` in several stages. Today those mutations cannot be interrupted
-   * mid-call — `Parser.timeoutMicros` is not exposed by the engine, so a partially
+   * mid-call — the engine passes no progress callback to the parser, so a partially
    * updated state is unreachable in practice. If a future change exposes cancellation,
    * the engine must be extended to roll back to its pre-call state on interrupt; that
    * rollback contract is aspirational, not satisfied by the current implementation.
@@ -89,7 +89,7 @@ class IncrementalHighlighter(
     val newIndex = Utf8ByteIndex(newCode)
     val edit = synthesiseInputEdit(oldCode, oldIndex, newCode, newIndex)
     previousTree.edit(edit)
-    val newTree = parser.parseForHighlight(newCode, oldTree = previousTree)
+    val newTree = parser.parse(newCode, oldTree = previousTree)
 
     val editedRange = ByteRange(
       start = edit.startByte.toInt(),
@@ -125,7 +125,7 @@ class IncrementalHighlighter(
   }
 
   private fun runFirstCall(newCode: String) {
-    val tree = parser.parseForHighlight(newCode)
+    val tree = parser.parse(newCode)
     captureSpans.clear()
     query(tree.rootNode).captures().forEach { (_, match) ->
       match.captures.forEach { capture ->

@@ -22,7 +22,7 @@ fun highlight(
   theme: SyntaxTheme,
 ): AnnotatedString {
   val parser = Parser(language.parser)
-  val tree = parser.parseForHighlight(code)
+  val tree = parser.parse(code)
   return applyStyles(code, tree, language, theme)
 }
 

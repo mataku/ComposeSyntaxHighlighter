@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+- Updated ktreesitter to 0.26.0, which handles non-ASCII source text correctly on every target (tree-sitter/kotlin-tree-sitter#78, #84). `:core` passes the source to the parser unchanged again instead of an ASCII-masked copy, so grammars see the real characters and Unicode whitespace separates tokens as each grammar defines.
+- Fixed JavaScript keywords and TypeScript-specific keywords (`interface`, `type`, `enum`, ...) rendering unstyled on iOS.
+
 ## v0.11.0
 
 - `:core` now parses an ASCII-masked copy of the source, so highlighting stays correct after non-ASCII text on every target. ktreesitter 0.25.1 mis-sized emoji and NUL on JVM/Android, threw `StringIndexOutOfBoundsException` from `#eq?` / `#match?` predicates after multibyte text, and truncated the parse of multibyte text on iOS (tree-sitter/kotlin-tree-sitter#78, #84). Grammars see each non-ASCII character as letters, so Unicode whitespace no longer separates tokens in code; displayed text is unchanged.
