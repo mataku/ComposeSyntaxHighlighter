@@ -87,6 +87,8 @@ jobs:
       # actions/cache SHA, and concurrent downloads of it race on _actions/ and intermittently
       # fail with "Can't find 'action.yml'". Running it first pre-fetches actions/cache.
       - uses: ./.github/actions/cache-konan
+        with:
+          save: true
       - parallel:
           - uses: ./.github/actions/setup-android-deps
           - uses: ./.github/actions/setup-tree-sitter
@@ -95,5 +97,8 @@ jobs:
           ./gradlew \
             compileKotlinIosArm64 \
             iosSimulatorArm64Test \
+            -x :samples:composeApp:iosSimulatorArm64Test \
             :samples:composeApp:linkDebugFrameworkIosArm64 \
             :samples:composeApp:linkDebugFrameworkIosSimulatorArm64
+      - name: Verify iOS static libraries target the right platform
+        run: bash scripts/verify-ios-static-libs.sh
