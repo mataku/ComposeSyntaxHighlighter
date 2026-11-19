@@ -21,7 +21,7 @@ class Injection @InternalSyntaxHighlightApi constructor(
 
 @InternalSyntaxHighlightApi
 fun kTreeSitterLanguage(parser: TsLanguage, highlightsQuery: String): Language {
-  val query = parser.query(highlightsQuery)
+  val query = Query(parser, highlightsQuery)
   return Language(parser, highlightsQuery, query)
 }
 
@@ -31,6 +31,6 @@ fun kTreeSitterLanguage(
   highlightsQuery: String,
   injections: List<Injection>,
 ): Language {
-  val query = parser.query(highlightsQuery)
+  val query = Query(parser, highlightsQuery)
   return Language(parser, highlightsQuery, query, injections)
 }

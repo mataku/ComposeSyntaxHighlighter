@@ -7,6 +7,7 @@ import io.github.mataku.compose.highlight.api.Languages
 import io.github.mataku.compose.highlight.api.kTreeSitterLanguage
 import io.github.mataku.compose.highlight.markdown.internal.TreeSitterMarkdown
 import io.github.mataku.compose.highlight.markdownInline.MarkdownInline
+import io.github.treesitter.ktreesitter.Query
 import io.github.treesitter.ktreesitter.Language as TsLanguage
 
 private const val INJECTIONS_QUERY = """
@@ -16,7 +17,7 @@ private const val INJECTIONS_QUERY = """
 @OptIn(InternalSyntaxHighlightApi::class)
 private val instance: Language by lazy {
   val blockParser = TsLanguage(TreeSitterMarkdown.language())
-  val injectionsQuery = blockParser.query(INJECTIONS_QUERY)
+  val injectionsQuery = Query(blockParser, INJECTIONS_QUERY)
   kTreeSitterLanguage(
     blockParser,
     HIGHLIGHTS_QUERY,

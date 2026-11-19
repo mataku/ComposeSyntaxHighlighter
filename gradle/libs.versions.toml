@@ -15,13 +15,10 @@ skiko = "0.9.37.4"
 junit = "4.13.2"
 kotlin = "2.4.21"
 kotlinx-coroutines = "1.11.0"
-# :core masks non-ASCII input before parsing to work around ktreesitter #78/#84
-# (core/.../ParserInput.kt). KtreesitterWorkaroundCanaryTest fails once a bump
-# ships the fixes; remove the workaround then.
 # build-logic rejects non-ASCII query sources (QuerySource.kt) because the
 # Kotlin/Native Query truncates them; drop that check once a bump fixes it.
-ktreesitter = "0.25.1"
-ktreesitterPlugin = "0.25.1"
+ktreesitter = "0.26.0"
+ktreesitterPlugin = "0.26.0"
 # ABI version passed to `tree-sitter generate --abi=<N>`, used only for grammars
 # whose parser.c is gitignored upstream (currently only tree-sitter-swift).
 # ktreesitter 0.25.1 accepts ABI 13-15 on all targets including Kotlin/Native
