@@ -90,10 +90,10 @@ jobs:
       - parallel:
           - uses: ./.github/actions/setup-android-deps
           - uses: ./.github/actions/setup-tree-sitter
-      - name: Compile iOS targets
+      - name: Test iOS targets
         run: |
           ./gradlew \
             compileKotlinIosArm64 \
-            compileKotlinIosSimulatorArm64 \
+            iosSimulatorArm64Test \
             :samples:composeApp:linkDebugFrameworkIosArm64 \
             :samples:composeApp:linkDebugFrameworkIosSimulatorArm64
