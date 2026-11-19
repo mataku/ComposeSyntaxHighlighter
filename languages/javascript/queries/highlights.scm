@@ -1,10 +1,10 @@
 ; Derived from tree-sitter/tree-sitter-javascript v0.23.1
-; (MIT — see languages/javascript/tree-sitter-javascript/LICENSE).
+; (MIT - see languages/javascript/tree-sitter-javascript/LICENSE).
 ;
 ; ktreesitter 0.25.0's Query parser miscounts `nargs` for patterns with
 ; more than one predicate, so the upstream `@variable.builtin` and
-; `@function.builtin` patterns — which pair `#match?` / `#eq?` with
-; `(#is-not? local)` — fail at compile time. We drop the `(#is-not? local)`
+; `@function.builtin` patterns - which pair `#match?` / `#eq?` with
+; `(#is-not? local)` - fail at compile time. We drop the `(#is-not? local)`
 ; constraint; identifiers literally named `arguments`, `module`, `console`,
 ; `window`, `document`, or `require` are styled as builtins even when
 ; locally shadowed (rare in practice). Revert to the submodule scm once
