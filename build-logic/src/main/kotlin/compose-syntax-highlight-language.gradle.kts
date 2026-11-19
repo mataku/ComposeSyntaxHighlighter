@@ -622,7 +622,7 @@ afterEvaluate {
   val grammarCompileInputs = grammarBuildSpecs.map { spec ->
     val grammarDir = projectDir.resolve(spec.submodulePath)
     val sourceFiles = spec.sources.map { grammarDir.resolve(it) }
-    Triple(grammarDir, sourceFiles, spec.name == primary.name)
+    Triple(grammarDir, sourceFiles, spec.name)
   }
   val secondaryParserTaskNames = secondaryGrammars.map { secondary ->
     "generateParserSource${secondary.name.replaceFirstChar(Char::uppercaseChar)}"
@@ -638,8 +638,10 @@ afterEvaluate {
       .dir(target.name)
       .file("libtree-sitter-${primary.name}.a")
       .asFile
-    val allObjectFiles = grammarCompileInputs.flatMap { (grammarDir, sourceFiles, _) ->
-      sourceFiles.map { grammarDir.resolve("${it.nameWithoutExtension}.o") }
+    // Object files go to a directory of this target: clang writes them into its working directory, and compiling in the grammar directory made the ios_arm64 and ios_simulator_arm64 tasks of one module overwrite each other's parser.o / scanner.o when they ran in parallel, so an archive could hold objects built for the other platform.
+    val objectsDir = iosStaticLibsDirProvider.get().dir(target.name).dir("objects").asFile
+    val allObjectFiles = grammarCompileInputs.flatMap { (_, sourceFiles, grammarName) ->
+      sourceFiles.map { objectsDir.resolve(grammarName).resolve("${it.nameWithoutExtension}.o") }
     }
     val compileInputs = grammarCompileInputs
 
@@ -657,7 +659,10 @@ afterEvaluate {
     doFirst {
       libFile.parentFile.mkdirs()
 
-      for ((grammarDir, sourceFiles, _) in compileInputs) {
+      for ((grammarDir, sourceFiles, grammarName) in compileInputs) {
+        val grammarObjectsDir = objectsDir.resolve(grammarName)
+        grammarObjectsDir.deleteRecursively()
+        grammarObjectsDir.mkdirs()
         val argsFile = File.createTempFile("args", null)
         argsFile.deleteOnExit()
         argsFile.writer().use { w ->
@@ -673,7 +678,7 @@ afterEvaluate {
           sourceFiles.forEach { w.write("${it.absolutePath}\n") }
         }
         val clangProc = ProcessBuilder("xcrun", "--sdk", sdk, "clang", "@${argsFile.path}")
-          .directory(grammarDir)
+          .directory(grammarObjectsDir)
           .redirectErrorStream(true)
           .start()
         val clangOut = clangProc.inputStream.bufferedReader().readText()
