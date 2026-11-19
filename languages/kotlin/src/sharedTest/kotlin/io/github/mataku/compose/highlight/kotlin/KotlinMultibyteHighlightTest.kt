@@ -57,6 +57,23 @@ class KotlinMultibyteHighlightTest {
   }
 
   @Test
+  fun code_after_japanese_comments_is_styled_at_its_position() {
+    val code = "// 日本語のコメント\nval a = 1 // 末尾のコメント😀\n/* 複数行\n   コメント */\nfun f() = listOf(1).map { it }"
+    val annotated = highlight(code, Languages.Kotlin, theme)
+    assertSpan(annotated, code.indexOf("val"), 3, keywordColor)
+    assertSpan(annotated, code.indexOf("fun"), 3, keywordColor)
+    assertSpan(annotated, code.lastIndexOf("it"), 2, builtinColor)
+  }
+
+  @Test
+  fun identifier_with_non_ascii_letters_does_not_shift_following_code() {
+    val code = "val 名前 = \"x\"\nval b = 1"
+    val annotated = highlight(code, Languages.Kotlin, theme)
+    assertSpan(annotated, code.indexOf("\"x\""), 3, stringColor)
+    assertSpan(annotated, code.lastIndexOf("val"), 3, keywordColor)
+  }
+
+  @Test
   fun highlight_lines_handles_multibyte_characters() {
     val code = "val a = \"😀\"\nval b = 1"
     val line = highlightLines(code, Languages.Kotlin, listOf(2..2)).single()
