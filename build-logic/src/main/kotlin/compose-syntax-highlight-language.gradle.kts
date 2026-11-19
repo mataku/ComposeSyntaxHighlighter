@@ -454,7 +454,12 @@ extensions.configure<KotlinMultiplatformExtension>("kotlin") {
     }
   }
 
-  jvm()
+  jvm {
+    compilerOptions {
+      jvmTarget.set(JvmTarget.JVM_17)
+      freeCompilerArgs.add("-Xjdk-release=17")
+    }
+  }
 
   iosArm64()
   iosSimulatorArm64()
