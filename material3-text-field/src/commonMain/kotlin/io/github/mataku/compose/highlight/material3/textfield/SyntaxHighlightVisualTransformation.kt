@@ -33,10 +33,14 @@ internal class ClampingSyntaxVisualTransformation(
 ) : VisualTransformation {
   override fun filter(text: AnnotatedString): TransformedText {
     val length = text.text.length
-    val spans = highlighted.spanStyles.mapNotNull { range ->
-      val start = range.start.coerceIn(0, length)
-      val end = range.end.coerceIn(start, length)
-      if (start >= end) null else AnnotatedString.Range(range.item, start, end)
+    val spans = if (highlighted.length == length) {
+      highlighted.spanStyles
+    } else {
+      highlighted.spanStyles.mapNotNull { range ->
+        val start = range.start.coerceIn(0, length)
+        val end = range.end.coerceIn(start, length)
+        if (start >= end) null else AnnotatedString.Range(range.item, start, end)
+      }
     }
     return TransformedText(
       AnnotatedString(text = text.text, spanStyles = spans),

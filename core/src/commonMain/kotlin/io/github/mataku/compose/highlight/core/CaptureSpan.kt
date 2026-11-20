@@ -59,16 +59,24 @@ internal fun removeCaptureSpansOverlapping(
   while (spans.size > w) spans.removeAt(spans.size - 1)
 }
 
-/** Insert [span] preserving sort order by `(startByte, endByte)`. */
-internal fun insertSorted(spans: MutableList<CaptureSpan>, span: CaptureSpan) {
-  var lo = 0
-  var hi = spans.size
-  while (lo < hi) {
-    val mid = (lo + hi) ushr 1
-    val cmp = compareSpans(spans[mid], span)
-    if (cmp <= 0) lo = mid + 1 else hi = mid
+/**
+ * In-place: merge [additions] into [spans], which is sorted by `(startByte, endByte)`.
+ * An added span goes after existing spans that compare equal, and equal additions keep their relative order.
+ */
+internal fun mergeSorted(spans: MutableList<CaptureSpan>, additions: List<CaptureSpan>) {
+  if (additions.isEmpty()) return
+  val sortedAdditions = additions.sortedWith(::compareSpans)
+  val merged = ArrayList<CaptureSpan>(spans.size + sortedAdditions.size)
+  var next = 0
+  for (span in spans) {
+    while (next < sortedAdditions.size && compareSpans(sortedAdditions[next], span) < 0) {
+      merged += sortedAdditions[next++]
+    }
+    merged += span
   }
-  spans.add(lo, span)
+  while (next < sortedAdditions.size) merged += sortedAdditions[next++]
+  spans.clear()
+  spans.addAll(merged)
 }
 
 private fun compareSpans(a: CaptureSpan, b: CaptureSpan): Int {

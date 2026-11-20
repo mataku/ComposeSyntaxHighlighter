@@ -1,6 +1,7 @@
 package io.github.mataku.compose.highlight.kotlin
 
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import io.github.mataku.compose.highlight.api.Languages
 import io.github.mataku.compose.highlight.core.IncrementalHighlighter
@@ -120,6 +121,44 @@ class IncrementalHighlighterGoldenTest {
   }
 
   @Test
+  fun multibyte_edits_each_match_full_highlight() {
+    val edits = listOf(
+      "val s = \"あ\" // こ",
+      "val s = \"あい\" // こ",
+      "val s = \"あい😀\" // こん",
+      "val 名前 = \"い😀\" // こん",
+      "val 名前 = 1 // 😀",
+    )
+    IncrementalHighlighter(Languages.Kotlin).use { engine ->
+      for (code in edits) {
+        val actual = engine.update(code, theme)
+        val expected = highlight(code, Languages.Kotlin, theme)
+        assertEqualAnnotated(expected, actual)
+        assertEquals(effectiveStyles(expected), effectiveStyles(actual), "effective styles mismatch for: $code")
+      }
+    }
+  }
+
+  @Test
+  fun edits_keep_the_span_application_order_of_full_highlight() {
+    // Overlapping captures resolve to different styles under a full theme, so a reordered span list changes what is drawn.
+    val fullTheme = SyntaxTheme.DarkDefault
+    val target = "@Suppress(\"x\")\nfun greet(name: String): Int { println(\"hi \$name \${name.length}\"); return 1 }"
+    IncrementalHighlighter(Languages.Kotlin).use { engine ->
+      for (i in 0..target.length) {
+        val current = target.substring(0, i)
+        val actual = engine.update(current, fullTheme)
+        val expected = highlight(current, Languages.Kotlin, fullTheme)
+        assertEquals(effectiveStyles(expected), effectiveStyles(actual), "effective styles mismatch for: $current")
+      }
+      val edited = target.replace("greet", "welcome").replace("return 1", "return 100")
+      val actual = engine.update(edited, fullTheme)
+      val expected = highlight(edited, Languages.Kotlin, fullTheme)
+      assertEquals(effectiveStyles(expected), effectiveStyles(actual), "effective styles mismatch for: $edited")
+    }
+  }
+
+  @Test
   fun typing_one_char_at_a_time_each_call_matches_full_highlight() {
     val target = "fun greet() { println(\"hi\") }"
     IncrementalHighlighter(Languages.Kotlin).use { engine ->
@@ -167,9 +206,16 @@ class IncrementalHighlighterGoldenTest {
   }
 }
 
+// The style each character is drawn with once the spans covering it are merged in list order.
+private fun effectiveStyles(annotated: AnnotatedString): List<SpanStyle> = List(annotated.text.length) { index ->
+  annotated.spanStyles
+    .filter { index >= it.start && index < it.end }
+    .fold(SpanStyle()) { merged, range -> merged.merge(range.item) }
+}
+
 private fun assertEqualAnnotated(
-  expected: androidx.compose.ui.text.AnnotatedString,
-  actual: androidx.compose.ui.text.AnnotatedString,
+  expected: AnnotatedString,
+  actual: AnnotatedString,
 ) {
   assertEquals(expected.text, actual.text, "text mismatch")
   assertEquals(

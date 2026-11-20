@@ -38,13 +38,14 @@ completion before the next parse starts. Live-editor usage where `code`
 changes on every keystroke is **not** the intended scenario for this
 library — see [Editing code](#editing-code) below.
 
-## Theme switching (tree cache)
+## Theme switching (capture cache)
 
-`rememberHighlightedString` caches the parsed tree per `(code, language)`,
-so toggling between Light and Dark themes on the same code re-applies
-styles without re-parsing — Light↔Dark on a 5k-line file skips the parse
-cost. The async wrapper (`rememberHighlightedStringAsync`) does not
-cache the tree, so theme changes there re-trigger a full async parse.
+`rememberHighlightedString` caches the theme-independent capture spans per
+`(code, language)`, so toggling between Light and Dark themes on the same
+code re-applies styles without re-parsing or re-running the query —
+Light↔Dark on a 5k-line file skips both costs. The parse tree itself is
+not retained. The async wrapper (`rememberHighlightedStringAsync`) does not
+cache the spans, so theme changes there re-trigger a full async parse.
 
 ## Non-Composable contexts
 

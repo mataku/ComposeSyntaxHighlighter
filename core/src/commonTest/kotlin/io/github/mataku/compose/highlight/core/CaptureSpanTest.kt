@@ -108,13 +108,12 @@ class CaptureSpanTest {
   }
 
   @Test
-  fun insert_sorted_places_by_start_then_end() {
+  fun merge_sorted_places_by_start_then_end() {
     val spans = mutableListOf(
       CaptureSpan(0, 5, "a"),
       CaptureSpan(10, 15, "c"),
     )
-    insertSorted(spans, CaptureSpan(5, 10, "b"))
-    insertSorted(spans, CaptureSpan(10, 12, "c_short"))
+    mergeSorted(spans, listOf(CaptureSpan(10, 12, "c_short"), CaptureSpan(5, 10, "b")))
     assertEquals(
       listOf(
         CaptureSpan(0, 5, "a"),
@@ -124,5 +123,26 @@ class CaptureSpanTest {
       ),
       spans,
     )
+  }
+
+  @Test
+  fun merge_sorted_puts_additions_after_equal_spans_in_given_order() {
+    val spans = mutableListOf(CaptureSpan(0, 5, "existing"))
+    mergeSorted(spans, listOf(CaptureSpan(0, 5, "first"), CaptureSpan(0, 5, "second")))
+    assertEquals(
+      listOf(
+        CaptureSpan(0, 5, "existing"),
+        CaptureSpan(0, 5, "first"),
+        CaptureSpan(0, 5, "second"),
+      ),
+      spans,
+    )
+  }
+
+  @Test
+  fun merge_sorted_appends_additions_past_the_last_span() {
+    val spans = mutableListOf(CaptureSpan(0, 5, "a"))
+    mergeSorted(spans, listOf(CaptureSpan(20, 25, "z")))
+    assertEquals(listOf(CaptureSpan(0, 5, "a"), CaptureSpan(20, 25, "z")), spans)
   }
 }

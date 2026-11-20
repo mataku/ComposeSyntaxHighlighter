@@ -5,6 +5,7 @@ import androidx.compose.ui.text.SpanStyle
 import io.github.mataku.compose.highlight.api.Languages
 import io.github.mataku.compose.highlight.core.SyntaxTheme
 import io.github.mataku.compose.highlight.core.highlight
+import io.github.mataku.compose.highlight.core.highlightLines
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -72,5 +73,14 @@ class JavascriptHighlightTest {
     val annotated = highlight(code, Languages.Javascript, theme)
     val baseSpan = annotated.spanStyles.firstOrNull { it.start == 0 && it.end == code.length && it.item.color == baseColor }
     assertTrue(baseSpan != null, "expected base style covering 0..${code.length}; spans=${annotated.spanStyles}")
+  }
+
+  @Test
+  fun captures_of_a_multi_capture_pattern_are_emitted_once() {
+    // The upstream template_substitution pattern holds three captures: both delimiters and the whole node.
+    val code = "const s = `a\${b}c`"
+    val spans = highlightLines(code, Languages.Javascript).single().spans
+    assertEquals(1, spans.count { it.captureName == "embedded" }, "spans=$spans")
+    assertEquals(2, spans.count { it.captureName == "punctuation.special" }, "spans=$spans")
   }
 }
