@@ -4,6 +4,10 @@
 
 - Nothing yet.
 
+## v0.12.0
+
+- Compatibility re-publish against the core stack 0.12.0 and ktreesitter 0.26.0; the `compose-syntax-highlight-api` range stays `[0.6, 1.0)`.
+
 ## v0.11.0
 
 - Compatibility re-publish against the core stack 0.11.0; the `compose-syntax-highlight-api` range stays `[0.6, 1.0)`.
