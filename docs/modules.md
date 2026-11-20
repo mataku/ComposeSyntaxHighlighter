@@ -66,6 +66,7 @@ Build internals (plugin DSL, generated tasks, KMP source-set layout, NDK/CMake s
 Host-JVM benchmarks for the highlight pipeline (KMP, JVM target only). Excluded from `./gradlew jvmTest` by default — run `:benchmarks:jvm:jvmTest` to execute.
 
 - `commonTest` / `jvmTest` — `HighlightBenchmark`, `LargeInputBenchmark`, `IncrementalHighlighterBenchmark`. Numbers feeding `README.md` and [`large_input_profiling.md`](large_input_profiling.md) come from these.
+- `jvmTest` — `TextLayoutBenchmark` measures Compose text layout of plain and highlighted text. The layout numbers in [`performance.md`](performance.md) come from it.
 
 The Android instrumented variants live in [`:benchmarks:android`](#benchmarksandroid).
 
