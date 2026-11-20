@@ -26,7 +26,24 @@ kotlin {
       implementation(projects.languages.java)
     }
 
-    val jvmTest by getting
+    // TextLayoutBenchmark measures Compose text layout, which runs on Skiko on the JVM; the awt-runtime ships per OS/arch via classifier and nothing else puts it on this module's classpath.
+    val jvmTest by getting {
+      dependencies {
+        val skikoClassifier = run {
+          val osName = System.getProperty("os.name").lowercase()
+          val osArch = System.getProperty("os.arch")
+          when {
+            osName.contains("mac") && osArch == "aarch64" -> "macos-arm64"
+            osName.contains("mac") -> "macos-x64"
+            osName.contains("linux") && osArch == "aarch64" -> "linux-arm64"
+            osName.contains("linux") -> "linux-x64"
+            osName.contains("windows") -> "windows-x64"
+            else -> error("Unsupported OS/arch for Skiko runtime: $osName $osArch")
+          }
+        }
+        implementation("org.jetbrains.skiko:skiko-awt-runtime-$skikoClassifier:${libs.versions.skiko.get()}")
+      }
+    }
   }
 
   sourceSets.all {
