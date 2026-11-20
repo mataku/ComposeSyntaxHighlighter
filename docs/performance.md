@@ -38,6 +38,23 @@ completion before the next parse starts. Live-editor usage where `code`
 changes on every keystroke is **not** the intended scenario for this
 library — see [Editing code](#editing-code) below.
 
+## Large inputs and text layout
+
+`highlight()` is not the only cost of showing a large block. Compose lays out the returned `AnnotatedString` on the UI thread, and that cost grows with the number of style changes in the text, not only with its length. On the host JVM, laying out highlighted Kotlin as a single text took about 1.7 ms for 100 lines, 23 ms for 1,000 lines and 0.32 s for 5,000 lines, against 0.2 ms, 3.6 ms and 19 ms for the same text without spans (`TextLayoutBenchmark` in `:benchmarks:jvm`).
+
+`async = true` moves `highlight()` off the UI thread but not this layout. For blocks of thousands of lines, highlight per line with `highlightLines()` and show the lines in a lazy list, so only the visible lines are laid out:
+
+```kotlin
+val lines = remember(code) { highlightLines(code, Languages.Kotlin) }
+LazyColumn {
+  items(lines, key = { it.lineNumber }) { line ->
+    Text(line.toAnnotatedString(theme))
+  }
+}
+```
+
+`highlightLines()` parses the whole text once; run it off the main thread for large inputs, as in [Non-Composable contexts](#non-composable-contexts).
+
 ## Theme switching (capture cache)
 
 `rememberHighlightedString` caches the theme-independent capture spans per
