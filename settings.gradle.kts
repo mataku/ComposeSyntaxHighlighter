@@ -17,7 +17,11 @@ pluginManagement {
         excludeGroupAndSubgroups("com.android")
       }
     }
-    gradlePluginPortal()
+    gradlePluginPortal {
+      content {
+        excludeGroupAndSubgroups("com.android")
+      }
+    }
   }
 }
 
