@@ -15,6 +15,8 @@ pluginManagement {
       content {
         excludeGroupAndSubgroups("androidx")
         excludeGroupAndSubgroups("com.android")
+        // Renovate asks the first plugin repository for the current version's marker POM, which Maven Central answers with 404 for portal-hosted plugins.
+        excludeModuleByRegex(".*", ".*[.]gradle[.]plugin")
       }
     }
     gradlePluginPortal {
