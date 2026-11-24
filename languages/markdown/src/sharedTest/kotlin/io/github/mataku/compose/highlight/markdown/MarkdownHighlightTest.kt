@@ -160,4 +160,12 @@ class MarkdownHighlightTest {
       "autolink; spans=${annotated.spanStyles}",
     )
   }
+
+  @Test
+  fun deeply_nested_block_quotes_highlight_without_failing() {
+    // The scanner records every open block in its saved state, so 300 nested quotes exceed the parser's state buffer.
+    val code = "> ".repeat(300) + "*em*\n"
+    val annotated = highlight(code, Languages.Markdown, theme)
+    assertEquals(code, annotated.text)
+  }
 }
