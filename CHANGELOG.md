@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- Highlighting stays fast on deeply nested input: every query keeps at most 256 matches open and starts no match deeper than 2,000 levels of the syntax tree. A 400 KB chain of member accesses in Python, Ruby or Swift, which took tens of seconds, now takes well under a second; code nested deeper than 2,000 levels is left unhighlighted below that depth.
+
 - `IncrementalHighlighter`, and so `SyntaxHighlightedTextField`, now highlights injected content: Markdown inline constructs (emphasis, strong, code spans, links) are styled while editing, matching `highlight`.
 - Fixed highlights shifting after a lone surrogate on JVM and Android: the parser now sees it as U+FFFD, as on iOS.
 - Fixed `IncrementalHighlighter` skipping a change that only replaces the low surrogate of a character (e.g. `😀` to `😁`).

@@ -109,7 +109,7 @@ class IncrementalHighlighter(
     shiftCaptureSpansSuffix(captureSpans, after = edit.oldEndByte.toInt(), delta = delta)
     removeCaptureSpansOverlapping(captureSpans, affectedRange)
 
-    val cursor = query(newTree.rootNode)
+    val cursor = query.boundedCursor(newTree.rootNode)
     cursor.byteRange = affectedRange.start.toUInt()..affectedRange.endExclusive.toUInt()
     val affectedSpans = ArrayList<CaptureSpan>()
     cursor.forEachCapture { capture -> affectedSpans += capture.toCaptureSpan() }
@@ -128,7 +128,7 @@ class IncrementalHighlighter(
     val tree = parser.parseSource(newCode)
     val index = Utf8ByteIndex(newCode)
     captureSpans.clear()
-    query(tree.rootNode).forEachCapture { capture -> captureSpans += capture.toCaptureSpan() }
+    query.boundedCursor(tree.rootNode).forEachCapture { capture -> captureSpans += capture.toCaptureSpan() }
     for (injection in injections) injection.rebuild(newCode, index, tree)
     oldCode = newCode
     oldIndex = index
