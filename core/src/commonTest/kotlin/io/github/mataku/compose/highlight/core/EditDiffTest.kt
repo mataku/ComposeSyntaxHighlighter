@@ -76,4 +76,22 @@ class EditDiffTest {
     assertEquals(Point(1u, 1u), e.oldEndPoint)
     assertEquals(Point(1u, 2u), e.newEndPoint)
   }
+
+  @Test
+  fun edit_differing_only_in_low_surrogate_covers_the_whole_code_point() {
+    // 😀 and 😁 share their high surrogate.
+    val e = edit("a😀b", "a😁b")
+    assertEquals(1u, e.startByte)
+    assertEquals(5u, e.oldEndByte)
+    assertEquals(5u, e.newEndByte)
+  }
+
+  @Test
+  fun edit_differing_only_in_high_surrogate_covers_the_whole_code_point() {
+    // U+1F600 and U+2F600 share their low surrogate.
+    val e = edit("a\uD83D\uDE00b", "a\uD87D\uDE00b")
+    assertEquals(1u, e.startByte)
+    assertEquals(5u, e.oldEndByte)
+    assertEquals(5u, e.newEndByte)
+  }
 }

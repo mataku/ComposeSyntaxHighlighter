@@ -336,4 +336,13 @@ class SyntaxThemeTest {
     assertEquals(custom, theme.resolve("text.title"))
     assertNotNull(theme.resolve("text.strong"))
   }
+
+  @Test
+  fun caching_resolver_matches_resolve_for_resolved_and_unresolved_names() {
+    val theme = SyntaxTheme(keyword = keywordStyle, extras = mapOf("keyword.return" to keywordReturnStyle))
+    val resolve = theme.cachingResolver()
+    for (name in listOf("keyword", "keyword.return", "keyword.function", "unknown", "unknown", "keyword.return")) {
+      assertEquals(theme.resolve(name), resolve(name), "capture $name")
+    }
+  }
 }

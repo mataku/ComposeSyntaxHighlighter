@@ -25,7 +25,7 @@ fun highlight(
  * Offsets are UTF-16 offsets into [code].
  */
 internal fun captureSpans(code: String, language: Language): List<HighlightSpan> {
-  val tree = Parser(language.parser).parse(code)
+  val tree = Parser(language.parser).parseSource(code)
   val spans = ArrayList<HighlightSpan>()
   collectCaptures(code, tree, language) { start, end, name ->
     spans.add(HighlightSpan(start, end, name))
@@ -46,8 +46,9 @@ internal fun styledString(
   if (theme.baseStyle != SpanStyle() && text.isNotEmpty()) {
     ranges.add(AnnotatedString.Range(theme.baseStyle, 0, text.length))
   }
+  val resolve = theme.cachingResolver()
   for (span in spans) {
-    val style = theme.resolve(span.captureName) ?: continue
+    val style = resolve(span.captureName) ?: continue
     ranges.add(AnnotatedString.Range(style, span.start, span.end))
   }
   return AnnotatedString(text = text, spanStyles = ranges, paragraphStyles = emptyList())
