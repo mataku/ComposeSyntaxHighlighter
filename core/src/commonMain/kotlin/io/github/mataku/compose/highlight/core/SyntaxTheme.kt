@@ -574,3 +574,11 @@ class SyntaxTheme(
     }
   }
 }
+
+/** Returns [SyntaxTheme.resolve] memoized by capture name, including names that resolve to `null`. */
+internal fun SyntaxTheme.cachingResolver(): (String) -> SpanStyle? {
+  val cache = HashMap<String, SpanStyle?>()
+  return { name ->
+    if (cache.containsKey(name)) cache[name] else resolve(name).also { cache[name] = it }
+  }
+}

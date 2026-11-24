@@ -95,6 +95,25 @@ class KotlinMultibyteHighlightTest {
     }
   }
 
+  @Test
+  fun keyword_after_lone_surrogate_keeps_its_position() {
+    val code = "// \uD800 \uDC00\nval b = 1"
+    assertSpan(highlight(code, Languages.Kotlin, theme), code.lastIndexOf("val"), 3, keywordColor)
+  }
+
+  @Test
+  fun incremental_edit_after_lone_surrogate_matches_full_highlight() {
+    val before = "// \uD800\nval b = 1"
+    val after = "// \uD800\nval b = \"x\""
+    IncrementalHighlighter(Languages.Kotlin).use { engine ->
+      engine.update(before, theme)
+      val actual = engine.update(after, theme)
+      val expected = highlight(after, Languages.Kotlin, theme)
+      assertEquals(expected.spanStyles.toSet(), actual.spanStyles.toSet())
+      assertSpan(actual, after.lastIndexOf("val"), 3, keywordColor)
+    }
+  }
+
   private fun assertSpan(annotated: AnnotatedString, start: Int, length: Int, color: Color) {
     assertTrue(
       annotated.spanStyles.any { it.start == start && it.end == start + length && it.item.color == color },

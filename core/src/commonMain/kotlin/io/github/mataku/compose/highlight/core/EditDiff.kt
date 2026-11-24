@@ -14,6 +14,8 @@ internal fun synthesiseInputEdit(
   val maxPrefix = minOf(oldCode.length, newCode.length)
   var prefix = 0
   while (prefix < maxPrefix && oldCode[prefix] == newCode[prefix]) prefix++
+  // Utf8ByteIndex maps an offset inside a surrogate pair to the end of its code point, so a prefix ending there would leave the changed code point out of the edit.
+  if (prefix > 0 && oldCode[prefix - 1].isHighSurrogate()) prefix--
 
   val maxSuffix = minOf(oldCode.length - prefix, newCode.length - prefix)
   var suffix = 0

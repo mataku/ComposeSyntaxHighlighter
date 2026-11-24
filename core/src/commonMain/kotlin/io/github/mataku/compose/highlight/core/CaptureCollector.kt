@@ -2,6 +2,7 @@ package io.github.mataku.compose.highlight.core
 
 import io.github.mataku.compose.highlight.api.Injection
 import io.github.mataku.compose.highlight.api.Language
+import io.github.treesitter.ktreesitter.Node
 import io.github.treesitter.ktreesitter.Parser
 import io.github.treesitter.ktreesitter.QueryCapture
 import io.github.treesitter.ktreesitter.QueryCursor
@@ -38,28 +39,42 @@ private fun collectInjection(
   parentCharOffset: Int,
 ) {
   val parser = Parser(injection.target.parser)
-  injection.injectionsQuery(parentTree.rootNode).forEachCapture { capture ->
-    if (capture.name != INJECTION_CONTENT_CAPTURE) return@forEachCapture
-    val charStart = parentByteToChar.charIndexAt(capture.node.startByte.toInt())
-    val charEnd = parentByteToChar.charIndexAt(capture.node.endByte.toInt())
-    if (charStart >= charEnd) return@forEachCapture
-
-    val substring = code.substring(charStart, charEnd)
-    val subTree = parser.parse(substring)
-    val subByteToChar = Utf8ByteIndex(substring)
-    val absoluteCharOffset = parentCharOffset + charStart
-
-    injection.target.query(subTree.rootNode).forEachCapture { subCapture ->
-      val sStart = subByteToChar.charIndexAt(subCapture.node.startByte.toInt())
-      val sEnd = subByteToChar.charIndexAt(subCapture.node.endByte.toInt())
-      if (sStart < sEnd) {
-        sink.add(absoluteCharOffset + sStart, absoluteCharOffset + sEnd, subCapture.name)
-      }
+  injection.injectionsQuery(parentTree.rootNode).forEachContentNode { node ->
+    val charStart = parentByteToChar.charIndexAt(node.startByte.toInt())
+    val charEnd = parentByteToChar.charIndexAt(node.endByte.toInt())
+    if (charStart < charEnd) {
+      collectInjectedContent(parser, code.substring(charStart, charEnd), injection.target, parentCharOffset + charStart, sink)
     }
+  }
+}
 
-    for (nested in injection.target.injections) {
-      collectInjection(substring, subTree, subByteToChar, nested, sink, absoluteCharOffset)
-    }
+/** Visits each node an injections query captures as `injection.content`. */
+internal inline fun QueryCursor.forEachContentNode(action: (Node) -> Unit) {
+  forEachCapture { capture ->
+    if (capture.name == INJECTION_CONTENT_CAPTURE) action(capture.node)
+  }
+}
+
+/**
+ * Parses [content] with [parser], which must be set to [target], and reports the captures of [target] and its nested injections.
+ * Offsets are UTF-16 offsets into [content] shifted by [charOffset].
+ */
+internal fun collectInjectedContent(
+  parser: Parser,
+  content: String,
+  target: Language,
+  charOffset: Int,
+  sink: CaptureSink,
+) {
+  val tree = parser.parseSource(content)
+  val byteToChar = Utf8ByteIndex(content)
+  target.query(tree.rootNode).forEachCapture { capture ->
+    val start = byteToChar.charIndexAt(capture.node.startByte.toInt())
+    val end = byteToChar.charIndexAt(capture.node.endByte.toInt())
+    if (start < end) sink.add(charOffset + start, charOffset + end, capture.name)
+  }
+  for (nested in target.injections) {
+    collectInjection(content, tree, byteToChar, nested, sink, charOffset)
   }
 }
 

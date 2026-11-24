@@ -23,8 +23,10 @@ import io.github.treesitter.ktreesitter.Tree
  * The first call to [update] runs the same code path as [highlight] (full parse + full
  * query iteration). Subsequent calls reuse the previous parse tree via tree-sitter's
  * incremental parse, run the highlights query only over the byte range affected by the
- * edit, and splice the resulting captures into the cached span list. When the new code
- * equals the previous code, [update] short-circuits to a theme re-resolve only.
+ * edit, and splice the resulting captures into the cached span list. Injected ranges
+ * (e.g. Markdown inline content) that intersect the affected range are re-parsed; the
+ * others are kept. When the new code equals the previous code, [update] short-circuits to
+ * a theme re-resolve only.
  *
  * Instances must be closed; closing is idempotent. After closing, [update] throws
  * [IllegalStateException]. Native memory of the underlying [Tree] / [Parser]
@@ -42,6 +44,7 @@ class IncrementalHighlighter(
   private var oldIndex: Utf8ByteIndex = Utf8ByteIndex("")
   private var oldTree: Tree? = null
   private val captureSpans: MutableList<CaptureSpan> = mutableListOf()
+  private val injections: List<IncrementalInjection> = language.injections.map(::IncrementalInjection)
   private var closed: Boolean = false
 
   /**
@@ -90,7 +93,7 @@ class IncrementalHighlighter(
     val newIndex = Utf8ByteIndex(newCode)
     val edit = synthesiseInputEdit(oldCode, oldIndex, newCode, newIndex)
     previousTree.edit(edit)
-    val newTree = parser.parse(newCode, oldTree = previousTree)
+    val newTree = parser.parseSource(newCode, oldTree = previousTree)
 
     val editedRange = ByteRange(
       start = edit.startByte.toInt(),
@@ -112,17 +115,23 @@ class IncrementalHighlighter(
     cursor.forEachCapture { capture -> affectedSpans += capture.toCaptureSpan() }
     mergeSorted(captureSpans, affectedSpans)
 
+    for (injection in injections) {
+      injection.update(newCode, newIndex, newTree, affectedRange, editOldEndByte = edit.oldEndByte.toInt(), delta = delta)
+    }
+
     oldCode = newCode
     oldIndex = newIndex
     oldTree = newTree
   }
 
   private fun runFirstCall(newCode: String) {
-    val tree = parser.parse(newCode)
+    val tree = parser.parseSource(newCode)
+    val index = Utf8ByteIndex(newCode)
     captureSpans.clear()
     query(tree.rootNode).forEachCapture { capture -> captureSpans += capture.toCaptureSpan() }
+    for (injection in injections) injection.rebuild(newCode, index, tree)
     oldCode = newCode
-    oldIndex = Utf8ByteIndex(newCode)
+    oldIndex = index
     oldTree = tree
   }
 
@@ -152,14 +161,16 @@ class IncrementalHighlighter(
     if (theme.baseStyle != emptySpan && text.isNotEmpty()) {
       ranges += AnnotatedString.Range(theme.baseStyle, 0, text.length)
     }
+    val resolve = theme.cachingResolver()
     for (span in captureSpans) {
-      val style = theme.resolve(span.captureName) ?: continue
+      val style = resolve(span.captureName) ?: continue
       val charStart = byteToChar.charIndexAt(span.startByte)
       val charEnd = byteToChar.charIndexAt(span.endByte)
       if (charStart < charEnd) {
         ranges += AnnotatedString.Range(style, charStart, charEnd)
       }
     }
+    for (injection in injections) injection.appendStyles(ranges, byteToChar, resolve)
     return AnnotatedString(text = text, spanStyles = ranges, paragraphStyles = emptyList())
   }
 }

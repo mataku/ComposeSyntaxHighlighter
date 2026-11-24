@@ -6,6 +6,9 @@ on:
   schedule:
     - cron: '00 09 1 * *'
 
+# The job authenticates with a GitHub App token, so GITHUB_TOKEN needs no scopes.
+permissions: {}
+
 jobs:
   cleanup:
     runs-on: ubuntu-latest

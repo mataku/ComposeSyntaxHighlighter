@@ -81,9 +81,11 @@ jobs:
           echo "gcs_path=$gcs_path" >> "$GITHUB_OUTPUT"
 
       - name: Download benchmark results from GCS
+        env:
+          GCS_PATH: ${{ steps.ftl.outputs.gcs_path }}
         run: |
           mkdir -p ftl-results
-          gcloud storage cp --recursive "${{ steps.ftl.outputs.gcs_path }}*" ftl-results/
+          gcloud storage cp --recursive "${GCS_PATH}*" ftl-results/
 
       - name: Write benchmark step summary
         if: always()

@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+- `IncrementalHighlighter`, and so `SyntaxHighlightedTextField`, now highlights injected content: Markdown inline constructs (emphasis, strong, code spans, links) are styled while editing, matching `highlight`.
+- Fixed highlights shifting after a lone surrogate on JVM and Android: the parser now sees it as U+FFFD, as on iOS.
+- Fixed `IncrementalHighlighter` skipping a change that only replaces the low surrogate of a character (e.g. `😀` to `😁`).
+- Slightly less work per highlight: theme resolution is cached per call, and `IncrementalHighlighter` shifts cached spans in place.
+
 ## v0.12.0
 
 - iOS (iosArm64 and iosSimulatorArm64) is no longer marked as preview.

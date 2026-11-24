@@ -1,8 +1,8 @@
 package io.github.mataku.compose.highlight.core
 
 internal data class CaptureSpan(
-  val startByte: Int,
-  val endByte: Int,
+  var startByte: Int,
+  var endByte: Int,
   val captureName: String,
 )
 
@@ -34,10 +34,10 @@ internal fun shiftCaptureSpansSuffix(
   delta: Int,
 ) {
   if (delta == 0) return
-  for (i in spans.indices) {
-    val s = spans[i]
+  for (s in spans) {
     if (s.startByte >= after) {
-      spans[i] = s.copy(startByte = s.startByte + delta, endByte = s.endByte + delta)
+      s.startByte += delta
+      s.endByte += delta
     }
   }
 }
