@@ -20,7 +20,7 @@ internal fun collectCaptures(
   sink: CaptureSink,
 ) {
   val byteToChar = Utf8ByteIndex(code)
-  language.query(tree.rootNode).forEachCapture { capture ->
+  language.query.boundedCursor(tree.rootNode).forEachCapture { capture ->
     val start = byteToChar.charIndexAt(capture.node.startByte.toInt())
     val end = byteToChar.charIndexAt(capture.node.endByte.toInt())
     if (start < end) sink.add(start, end, capture.name)
@@ -39,7 +39,7 @@ private fun collectInjection(
   parentCharOffset: Int,
 ) {
   val parser = Parser(injection.target.parser)
-  injection.injectionsQuery(parentTree.rootNode).forEachContentNode { node ->
+  injection.injectionsQuery.boundedCursor(parentTree.rootNode).forEachContentNode { node ->
     val charStart = parentByteToChar.charIndexAt(node.startByte.toInt())
     val charEnd = parentByteToChar.charIndexAt(node.endByte.toInt())
     if (charStart < charEnd) {
@@ -68,7 +68,7 @@ internal fun collectInjectedContent(
 ) {
   val tree = parser.parseSource(content)
   val byteToChar = Utf8ByteIndex(content)
-  target.query(tree.rootNode).forEachCapture { capture ->
+  target.query.boundedCursor(tree.rootNode).forEachCapture { capture ->
     val start = byteToChar.charIndexAt(capture.node.startByte.toInt())
     val end = byteToChar.charIndexAt(capture.node.endByte.toInt())
     if (start < end) sink.add(charOffset + start, charOffset + end, capture.name)

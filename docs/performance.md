@@ -64,6 +64,12 @@ Light↔Dark on a 5k-line file skips both costs. The parse tree itself is
 not retained. The async wrapper (`rememberHighlightedStringAsync`) does not
 cache the spans, so theme changes there re-trigger a full async parse.
 
+## Deeply nested input
+
+Every query keeps at most 256 matches open and starts no match deeper than 2,000 levels of the syntax tree.
+Some grammars take time that grows with the square of the nesting depth, so without these bounds a single expression chaining tens of thousands of operators or member accesses could take tens of seconds to highlight.
+Ordinary code is nested a few dozen levels deep and is unaffected; only the part of an input below 2,000 levels is left unhighlighted.
+
 ## Non-Composable contexts
 
 For non-Composable contexts (e.g. precomputing in a `ViewModel` and

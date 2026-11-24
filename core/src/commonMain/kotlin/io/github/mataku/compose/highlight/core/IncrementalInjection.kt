@@ -27,7 +27,7 @@ internal class IncrementalInjection(private val injection: Injection) {
   private var blocks: MutableList<InjectionBlock> = mutableListOf()
 
   fun rebuild(code: String, index: Utf8ByteIndex, tree: Tree) {
-    blocks = contentNodes(injection.injectionsQuery(tree.rootNode)).mapNotNullTo(ArrayList()) { blockFor(code, index, it) }
+    blocks = contentNodes(injection.injectionsQuery.boundedCursor(tree.rootNode)).mapNotNullTo(ArrayList()) { blockFor(code, index, it) }
   }
 
   fun update(
@@ -47,7 +47,7 @@ internal class IncrementalInjection(private val injection: Injection) {
       }
     }
 
-    val cursor = injection.injectionsQuery(tree.rootNode)
+    val cursor = injection.injectionsQuery.boundedCursor(tree.rootNode)
     cursor.byteRange = affectedRange.start.toUInt()..affectedRange.endExclusive.toUInt()
     val nodes = contentNodes(cursor)
     // A re-queried range can reach past the affected bytes, and its old block must go with it.

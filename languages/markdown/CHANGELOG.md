@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Nothing yet.
+- Updated tree-sitter-markdown to v0.5.4. A document nested more than about 250 blocks deep, such as a line of 255 `> ` markers, no longer writes past the parser's scanner state buffer; on the JVM this aborted the process.
 
 ## v0.12.0
 
