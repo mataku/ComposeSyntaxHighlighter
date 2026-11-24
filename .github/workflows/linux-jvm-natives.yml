@@ -17,6 +17,9 @@ on:
         default: ''
         type: string
 
+permissions:
+  contents: read
+
 jobs:
   build:
     name: Build Linux grammar libraries (${{ matrix.arch }})
@@ -60,7 +63,10 @@ jobs:
           } >> "$GITHUB_OUTPUT"
 
       - name: Stage grammar libraries
-        run: ./gradlew ${{ steps.target.outputs.tasks }}
+        env:
+          TASKS: ${{ steps.target.outputs.tasks }}
+        # shellcheck disable=SC2086
+        run: ./gradlew $TASKS
 
       - name: Collect grammar libraries
         run: |
@@ -70,7 +76,11 @@ jobs:
           done
 
       - name: Verify grammar libraries
-        run: bash scripts/verify-linux-natives.sh build/linux-jvm-natives ${{ matrix.arch }} ${{ steps.target.outputs.names }}
+        env:
+          ARCH: ${{ matrix.arch }}
+          NAMES: ${{ steps.target.outputs.names }}
+        # shellcheck disable=SC2086
+        run: bash scripts/verify-linux-natives.sh build/linux-jvm-natives "$ARCH" $NAMES
 
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:

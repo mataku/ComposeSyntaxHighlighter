@@ -12,6 +12,9 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || 'dev' }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 jobs:
   linux-jvm-natives:
     name: Linux JVM natives
