@@ -4,6 +4,10 @@
 
 - Nothing yet.
 
+## v0.13.0
+
+- Compatibility re-publish against the core stack 0.13.0; the `compose-syntax-highlight-api` range stays `[0.6, 1.0)`.
+
 ## v0.12.0
 
 - Fixed TypeScript-specific keywords (`interface`, `type`, `enum`, ...) rendering unstyled on iOS in TypeScript and TSX.

@@ -2,7 +2,12 @@
 
 ## Unreleased
 
+- Nothing yet.
+
+## v0.13.0
+
 - Updated tree-sitter-markdown to v0.5.4. A document nested more than about 250 blocks deep, such as a line of 255 `> ` markers, no longer writes past the parser's scanner state buffer; on the JVM this aborted the process.
+- Compatibility re-publish against the core stack 0.13.0; the `compose-syntax-highlight-api` range stays `[0.6, 1.0)`.
 
 ## v0.12.0
 
