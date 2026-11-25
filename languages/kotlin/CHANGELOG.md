@@ -2,7 +2,9 @@
 
 ## Unreleased
 
-- Nothing yet.
+- Updated tree-sitter-kotlin to d6af96d. Code with more than 512 nested string templates no longer aborts the process.
+- Fixed some block comments, such as a KDoc after the `package` line or between declarations, rendering unstyled.
+- Parses more Kotlin syntax, including context parameters, explicit backing fields, and guards on `else` and on multiple `when` conditions.
 
 ## v0.12.0
 

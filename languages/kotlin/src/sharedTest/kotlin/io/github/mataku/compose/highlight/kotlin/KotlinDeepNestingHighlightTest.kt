@@ -27,4 +27,11 @@ class KotlinDeepNestingHighlightTest {
     assertTrue(code.lastIndex in numberStarts, "the shallowest operand is highlighted")
     assertTrue(8 !in numberStarts, "the deepest operand is past the bound and left unhighlighted")
   }
+
+  @Test
+  fun deeply_nested_string_templates_highlight_without_failing() {
+    // The scanner saves two bytes per open string, so 600 nested templates exceed the parser's 1,024-byte state buffer.
+    val code = "val v = " + "\"\${".repeat(600) + "1" + "}\"".repeat(600)
+    assertEquals(code, highlightLines(code, Languages.Kotlin).single().text)
+  }
 }
